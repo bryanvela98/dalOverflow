@@ -5,22 +5,31 @@ import "./App.css";
 export default function App() {
   return (
     <div className="background-page">
-      <div className="header-bar">
-        <div>
-          <p>BRAND</p>
-        </div>
-        <div className="search-bar">
-          <img src="/Search.png" alt="Search" className="search-icon" />
-          <input type="text" placeholder="Search..." className="search-input" />
-        </div>
-        <div className="header-buttons">
-          <button>Log in</button>
+      {/* Header */}
+      <div className="contain-header">
+        <div className="header-bar">
+          <div>
+            <p>BRAND</p>
+          </div>
+          <div className="search-bar">
+            <img src="/Search.png" alt="Search" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="search-input"
+            />
+          </div>
+          <div className="header-buttons">
+            <button>Log in</button>
 
-          <button>Sign Up</button>
+            <button>Sign Up</button>
+          </div>
         </div>
       </div>
 
+      {/* Main Body */}
       <div className="major-body">
+        {/* Left Container */}
         <div className="nav-bar">
           <div className="home">
             <img src="/Home.png" alt="" srcSet="" className="logo" />
@@ -54,6 +63,7 @@ export default function App() {
           </div>
         </div>
 
+        {/* Centre Container */}
         <div className="main-body">
           <div className="centre-body">
             <div className="filter-question-div">
@@ -254,6 +264,7 @@ export default function App() {
             </div>
           </div>
 
+          {/* Right Container */}
           <div className="right-body">
             <div className="holder-tiles">
               <div className="holder" id="holder-tile1"></div>
