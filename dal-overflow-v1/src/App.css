@@ -45,9 +45,13 @@
   width: 50%;
 }
 
+/* All values are hardcoded rn to maintain integrity of the page display, will work on dynamic value next time */
+/* Haven't made comments for things that i already know, only commented things i'm unsure about */
+/* Will add comments to everything in a bit */
+
 .search-bar input {
   width: 100%;
-  padding: 8px 12px 8px 46px; /* left padding leaves room for the icon */
+  padding: 8px 12px 8px 46px; /* left padding leaves room for the icon, might have to change padding when I make the site dynamic */
   border: 1px solid #dadadc;
   border-radius: 15px;
   color: DADADC;
@@ -65,7 +69,7 @@
   height: 16px;
   opacity: 0.6;
   margin: 0px 0px 0px 10px;
-  pointer-events: none; /* so clicking doesn’t block the input */
+  pointer-events: none; /* so clicking doesn’t block the input, might make the icon clickable in the future tho, not sure */
 }
 
 .header-buttons {
