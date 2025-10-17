@@ -47,7 +47,7 @@
 
 .search-bar input {
   width: 100%;
-  padding: 8px 12px 8px 36px; /* left padding leaves room for the icon */
+  padding: 8px 12px 8px 46px; /* left padding leaves room for the icon */
   border: 1px solid #dadadc;
   border-radius: 15px;
   color: DADADC;
@@ -64,6 +64,7 @@
   width: 16px;
   height: 16px;
   opacity: 0.6;
+  margin: 0px 0px 0px 10px;
   pointer-events: none; /* so clicking doesn’t block the input */
 }
 
