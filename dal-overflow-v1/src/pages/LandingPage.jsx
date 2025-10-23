@@ -10,7 +10,6 @@ import "../styles/LandingPage.css";
 export default function LandingPage() {
   return (
     <div className="background-page">
-      <p>Hello</p>
       <Header />
       <div className="major-body">
         <Sidebar />
