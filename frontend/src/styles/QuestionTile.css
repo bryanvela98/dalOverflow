@@ -1,0 +1,146 @@
+/* QuestionTile */
+.centre-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px;
+  height: 100%;
+  box-sizing: border-box;
+  margin-right: var(--right-bar-width);
+}
+
+.filter-question-div {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #dadadc;
+  border-radius: 15px;
+  padding: 20px 40px;
+}
+
+.filter {
+  display: flex;
+  gap: 20px;
+}
+
+.filter button {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: center;
+  height: 40px;
+  border-radius: 15px;
+}
+
+.filter button:first-child {
+  border-color: #f5f5f5;
+  background-color: white;
+}
+
+.filter button:first-child p {
+  color: #8c8c8c;
+}
+
+.filter button:nth-child(2) {
+  background-color: #dadadc;
+  color: white;
+}
+
+.new-question button {
+  height: 40px;
+  border-radius: 15px;
+  background-color: #f5f5f5;
+  color: #fecd09;
+}
+
+.right-body {
+  right: 0;
+  height: 90%;
+  padding: 10px 10px 10px 0px;
+  width: 400px;
+  position: fixed;
+}
+
+.tile {
+  border: 1px solid #dadadc;
+  border-radius: 15px;
+  margin: 20px 0px;
+  padding: 30px;
+  display: flex;
+}
+
+.tile-centre {
+  flex: 1;
+  padding: 0px 30px 0px 20px;
+}
+
+.question {
+  font-weight: 800;
+  font-size: x-large;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 1.4em;
+  max-height: 2.8em;
+}
+
+.tile-centre hr {
+  margin: 10px 0px;
+}
+
+.answer {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  /* white-space: nowrap; */
+  text-overflow: ellipsis;
+  line-height: 1.4em;
+  max-height: 7em;
+}
+
+.tile-right {
+  width: 20%;
+  padding: 0px 10px;
+  margin: 0px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dadadc;
+  border-radius: 20px;
+}
+
+.tile-right div {
+  display: flex;
+  margin: 5px;
+  padding: 10px;
+  align-items: center;
+  width: 80%;
+  background-color: white;
+  border-radius: 20px;
+  border: 1px solid #fecd09;
+}
+
+.votes {
+  gap: 20px;
+  justify-content: center;
+}
+
+.votes button {
+  background-color: white;
+  padding: 0px;
+}
+
+.comments {
+  gap: 20px;
+  justify-content: center;
+}
+
+.views {
+  gap: 20px;
+  justify-content: center;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}

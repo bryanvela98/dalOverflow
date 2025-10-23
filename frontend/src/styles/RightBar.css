@@ -1,0 +1,20 @@
+/* Right Bar */
+.holder-tiles {
+  display: flex;
+  flex-direction: column;
+}
+
+.holder {
+  border-radius: 20px;
+  margin: 10px;
+}
+
+#holder-tile1 {
+  background-color: #f5f5f5;
+  height: 50vh;
+}
+
+#holder-tile2 {
+  background-color: #fecd09;
+  height: 30vh;
+}
