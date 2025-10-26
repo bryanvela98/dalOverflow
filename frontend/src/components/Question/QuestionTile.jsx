@@ -1,4 +1,5 @@
-import "../styles/QuestionTile.css";
+import { jsxDEV } from "react/jsx-dev-runtime";
+import "./QuestionTile.css";
 
 export default function QuestionTile() {
   return (

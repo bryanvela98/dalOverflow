@@ -66,3 +66,74 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* ========== 修复表单尺寸 ========== */
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.create-question-page {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 300px !important;
+  gap: 2rem !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.create-question-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+.form-input,
+.search-input,
+input[type="text"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.quill,
+.ql-container,
+.ql-editor {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.tag-search-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.form-actions {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 1rem 0 !important;
+}
+
+@media (max-width: 1024px) {
+  .create-question-page {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .create-question-sidebar {
+    display: none !important;
+  }
+}
+
+/* 隐藏表单提示文字 */
+.subtitle,
+.form-hint {
+  display: none !important;
+}
