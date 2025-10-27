@@ -1,4 +1,6 @@
-import "../styles/QuestionTile.css";
+import { jsxDEV } from "react/jsx-dev-runtime";
+import "./QuestionTile.css";
+import NewQuestionButton from "../NewQuestionButton.jsx";
 
 export default function QuestionTile() {
   return (
@@ -15,7 +17,7 @@ export default function QuestionTile() {
           </button>
         </div>
         <div className="new-question">
-          <button>New Question</button>
+          <NewQuestionButton />
         </div>
       </div>
       <div className="tiles">
