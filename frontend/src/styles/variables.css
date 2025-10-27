@@ -1,0 +1,141 @@
+:root {
+  /* Primary Colors - Yellow Theme */
+  --color-primary: #FFC107;
+  --color-primary-dark: #FFA000;
+  --color-primary-light: #FFECB3;
+  
+  /* Background Colors */
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #FAFAFA;
+  --color-bg-tertiary: #F5F5F5;
+  --color-bg-code: #282C34;
+  
+  /* Text Colors */
+  --color-text-primary: #212121;
+  --color-text-secondary: #757575;
+  --color-text-tertiary: #9E9E9E;
+  
+  /* Border Colors */
+  --color-border-light: #E0E0E0;
+  --color-border-medium: #BDBDBD;
+  
+  /* Status Colors */
+  --color-success: #4CAF50;
+  --color-danger: #F44336;
+  --color-info: #2196F3;
+  --color-warning: #FF9800;
+  --color-upvote: #4CAF50;
+  --color-downvote: #F44336;
+  
+  /* Badge Colors */
+  --color-professor-badge: #2196F3;
+  --color-ta-badge: #9C27B0;
+  --color-answered: #4CAF50;
+  --color-unanswered: #FF9800;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  --font-family-mono: 'Courier New', Courier, monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+  
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-modal: 2000;
+  --z-tooltip: 3000;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+  line-height: 1.6;
+}
+
+code {
+  font-family: var(--font-family-mono);
+}
+
+/* Quill Editor Styles */
+.ql-editor {
+  min-height: 200px;
+  font-size: var(--font-size-base);
+}
+
+.ql-editor pre {
+  background-color: var(--color-bg-code);
+  color: #ABB2BF;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+}
+
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Code Block Copy Button */
+.code-block-wrapper {
+  position: relative;
+}
+
+.code-copy-button {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.code-block-wrapper:hover .code-copy-button {
+  opacity: 1;
+}
+
+.code-copy-button:hover {
+  background-color: var(--color-primary-light);
+}
