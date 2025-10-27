@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import './CreateQuestionPage.css';
+import React, { useState, useEffect } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import "./CreateQuestionPage.css";
 
 /**
  * Create Question Page Component (Issue #2)
@@ -16,13 +16,13 @@ const CreateQuestionPage = ({
   onCreateTag,
   currentUserId,
 }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [similarQuestions, setSimilarQuestions] = useState([]);
   const [showSimilar, setShowSimilar] = useState(false);
-  const [tagSearchTerm, setTagSearchTerm] = useState('');
+  const [tagSearchTerm, setTagSearchTerm] = useState("");
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,7 +37,7 @@ const CreateQuestionPage = ({
           setSimilarQuestions(similar);
           setShowSimilar(similar.length > 0);
         } catch (error) {
-          console.error('Failed to search similar questions:', error);
+          console.error("Failed to search similar questions:", error);
         }
       } else {
         setSimilarQuestions([]);
@@ -49,27 +49,29 @@ const CreateQuestionPage = ({
   }, [title, onSearchSimilar]);
 
   // AC 3: Filter tags
-  const filteredTags = availableTags.filter(tag => {
+  const filteredTags = availableTags.filter((tag) => {
     if (!tagSearchTerm) return true;
     const searchLower = tagSearchTerm.toLowerCase();
-    return tag.name.toLowerCase().includes(searchLower) ||
-           tag.description.toLowerCase().includes(searchLower);
+    return (
+      tag.name.toLowerCase().includes(searchLower) ||
+      tag.description.toLowerCase().includes(searchLower)
+    );
   });
 
   const isTagSelected = (tagId) => {
-    return selectedTags.some(t => t.id === tagId);
+    return selectedTags.some((t) => t.id === tagId);
   };
 
   const handleAddTag = (tag) => {
     if (!isTagSelected(tag.id) && selectedTags.length < 5) {
       setSelectedTags([...selectedTags, tag]);
-      setTagSearchTerm('');
+      setTagSearchTerm("");
       setShowTagDropdown(false);
     }
   };
 
   const handleRemoveTag = (tagId) => {
-    setSelectedTags(selectedTags.filter(t => t.id !== tagId));
+    setSelectedTags(selectedTags.filter((t) => t.id !== tagId));
   };
 
   // AC 4: Create new tag
@@ -80,8 +82,8 @@ const CreateQuestionPage = ({
       const newTag = await onCreateTag(tagSearchTerm.trim());
       handleAddTag(newTag);
     } catch (error) {
-      console.error('Failed to create tag:', error);
-      setErrors({ ...errors, tags: 'Failed to create new tag' });
+      console.error("Failed to create tag:", error);
+      setErrors({ ...errors, tags: "Failed to create new tag" });
     }
   };
 
@@ -90,23 +92,23 @@ const CreateQuestionPage = ({
     const newErrors = {};
 
     if (!title.trim()) {
-      newErrors.title = 'Title is required';
+      newErrors.title = "Title is required";
     } else if (title.length < 15) {
-      newErrors.title = 'Title must be at least 15 characters';
+      newErrors.title = "Title must be at least 15 characters";
     } else if (title.length > 150) {
-      newErrors.title = 'Title must not exceed 150 characters';
+      newErrors.title = "Title must not exceed 150 characters";
     }
 
-    if (!description.trim() || description === '<p><br></p>') {
-      newErrors.description = 'Description is required';
+    if (!description.trim() || description === "<p><br></p>") {
+      newErrors.description = "Description is required";
     } else if (description.length < 30) {
-      newErrors.description = 'Description must be at least 30 characters';
+      newErrors.description = "Description must be at least 30 characters";
     }
 
     if (selectedTags.length === 0) {
-      newErrors.tags = 'Please select at least one tag';
+      newErrors.tags = "Please select at least one tag";
     } else if (selectedTags.length > 5) {
-      newErrors.tags = 'Maximum 5 tags allowed';
+      newErrors.tags = "Maximum 5 tags allowed";
     }
 
     setErrors(newErrors);
@@ -126,20 +128,23 @@ const CreateQuestionPage = ({
       const questionData = {
         title,
         description,
-        tags: selectedTags.map(t => t.id),
+        tags: selectedTags.map((t) => t.id),
         isAnonymous,
       };
 
       await onSubmit(questionData);
-      
-      setTitle('');
-      setDescription('');
+
+      setTitle("");
+      setDescription("");
       setSelectedTags([]);
       setIsAnonymous(false);
       setErrors({});
     } catch (error) {
-      console.error('Failed to create question:', error);
-      setErrors({ ...errors, submit: 'Failed to create question. Please try again.' });
+      console.error("Failed to create question:", error);
+      setErrors({
+        ...errors,
+        submit: "Failed to create question. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -147,12 +152,12 @@ const CreateQuestionPage = ({
 
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ 'indent': '-1' }, { 'indent': '+1' }],
-      ['link', 'image', 'code-block'],
-      ['clean']
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      ["link", "image", "code-block"],
+      ["clean"],
     ],
   };
 
@@ -168,26 +173,26 @@ const CreateQuestionPage = ({
             <label htmlFor="title" className="form-label">
               Title *
             </label>
-            
+
             <input
               id="title"
               type="text"
-              className={`form-input ${errors.title ? 'form-input--error' : ''}`}
+              className={`form-input ${
+                errors.title ? "form-input--error" : ""
+              }`}
               placeholder="e.g., How do I implement user authentication in Node.js with Express?"
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
                 if (errors.title) {
-                  setErrors({ ...errors, title: '' });
+                  setErrors({ ...errors, title: "" });
                 }
               }}
               maxLength={150}
             />
-            
-            {errors.title && (
-              <span className="form-error">{errors.title}</span>
-            )}
-            
+
+            {errors.title && <span className="form-error">{errors.title}</span>}
+
             <span className="char-count">{title.length}/150</span>
 
             {showSimilar && similarQuestions.length > 0 && (
@@ -228,18 +233,22 @@ const CreateQuestionPage = ({
               <label htmlFor="description" className="form-label">
                 Description *
               </label>
-              
+
               <div className="editor-tabs">
                 <button
                   type="button"
-                  className={`tab-button ${!showPreview ? 'tab-button--active' : ''}`}
+                  className={`tab-button ${
+                    !showPreview ? "tab-button--active" : ""
+                  }`}
                   onClick={() => setShowPreview(false)}
                 >
                   Edit
                 </button>
                 <button
                   type="button"
-                  className={`tab-button ${showPreview ? 'tab-button--active' : ''}`}
+                  className={`tab-button ${
+                    showPreview ? "tab-button--active" : ""
+                  }`}
                   onClick={() => setShowPreview(true)}
                 >
                   Preview
@@ -254,7 +263,7 @@ const CreateQuestionPage = ({
                 onChange={(content) => {
                   setDescription(content);
                   if (errors.description) {
-                    setErrors({ ...errors, description: '' });
+                    setErrors({ ...errors, description: "" });
                   }
                 }}
                 modules={quillModules}
@@ -298,7 +307,9 @@ const CreateQuestionPage = ({
               <input
                 id="tags"
                 type="text"
-                className={`form-input ${errors.tags ? 'form-input--error' : ''}`}
+                className={`form-input ${
+                  errors.tags ? "form-input--error" : ""
+                }`}
                 placeholder="Search for tags"
                 value={tagSearchTerm}
                 onChange={(e) => setTagSearchTerm(e.target.value)}
@@ -315,7 +326,9 @@ const CreateQuestionPage = ({
                         <button
                           key={tag.id}
                           type="button"
-                          className={`tag-option ${isTagSelected(tag.id) ? 'tag-option--selected' : ''}`}
+                          className={`tag-option ${
+                            isTagSelected(tag.id) ? "tag-option--selected" : ""
+                          }`}
                           onClick={() => handleAddTag(tag)}
                           disabled={isTagSelected(tag.id)}
                         >
@@ -345,9 +358,7 @@ const CreateQuestionPage = ({
               )}
             </div>
 
-            {errors.tags && (
-              <span className="form-error">{errors.tags}</span>
-            )}
+            {errors.tags && <span className="form-error">{errors.tags}</span>}
           </div>
 
           <div className="form-section">
@@ -362,9 +373,7 @@ const CreateQuestionPage = ({
           </div>
 
           {errors.submit && (
-            <div className="form-error-box">
-              {errors.submit}
-            </div>
+            <div className="form-error-box">{errors.submit}</div>
           )}
 
           <div className="form-actions">
@@ -376,13 +385,13 @@ const CreateQuestionPage = ({
             >
               Cancel
             </button>
-            
+
             <button
               type="submit"
               className="btn btn--primary"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Posting...' : 'Post Question'}
+              {isSubmitting ? "Posting..." : "Post Question"}
             </button>
           </div>
         </form>
@@ -405,5 +414,3 @@ const CreateQuestionPage = ({
 };
 
 export default CreateQuestionPage;
-
-
