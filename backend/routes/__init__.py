@@ -1,3 +1,11 @@
+"""
+Description: Routes package initialization - sets up all API route blueprints.
+Author: Sayoone Dhepe
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - Initial routes package setup with Flask blueprints.
+    2025-10-28 - Added CORS configuration and common route utilities.
+"""
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime

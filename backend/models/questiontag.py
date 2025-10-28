@@ -1,3 +1,10 @@
+"""
+Description: QuestionTag model for managing many-to-many relationships between questions and tags.
+Author: Bryan Vela
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - File created with question-tag association functionality.
+"""
 from .base_model import BaseModel
 from database import db
 

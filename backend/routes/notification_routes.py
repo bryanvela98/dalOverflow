@@ -1,3 +1,11 @@
+"""
+Description: Notification routes for handling notification-related API endpoints.
+Author: Bryan Vela
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - File created with notification CRUD operations.
+    2025-10-28 - Added notification delivery and status management.
+"""
 from flask import Blueprint, request, jsonify
 from models.notification import Notification
 import logging  # For logging purposes

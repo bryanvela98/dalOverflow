@@ -1,3 +1,10 @@
+"""
+Description: User model for managing application users and their profiles.
+Author: Bryan Vela
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - File created with user authentication and profile management.
+"""
 from .base_model import BaseModel
 from database import db
 

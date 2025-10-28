@@ -1,3 +1,11 @@
+"""
+Description: User routes for handling user-related API endpoints.
+Author: Bryan Vela
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - File created with user CRUD operations.
+    2025-10-28 - Added error handling and logging functionality.
+"""
 from flask import Blueprint, request, jsonify
 from models.user import User
 import logging  # For logging purposes

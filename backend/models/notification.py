@@ -1,3 +1,10 @@
+"""
+Description: Notification model for managing user notifications and alerts.
+Author: Bryan Vela
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - File created with notification system functionality.
+"""
 from .base_model import BaseModel
 from database import db
 
