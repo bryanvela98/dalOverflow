@@ -1,5 +1,5 @@
 from .base_model import BaseModel
-from app import db
+from database import db
 
 class Notification(BaseModel):
     """
@@ -13,7 +13,7 @@ class Notification(BaseModel):
     """
     __tablename__ = 'notifications'
     
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     header = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
     
@@ -25,3 +25,8 @@ class Notification(BaseModel):
             'body': self.body
         })
         return base_dict
+    
+    # Method to get notifications for a specific user
+    @classmethod
+    def get_notifications_for_user(cls, user_id):
+        return cls.query.filter_by(user_id=user_id).all()

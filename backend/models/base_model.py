@@ -6,7 +6,7 @@ Last Modified:
     2025-10-26 - File created and implemented basic CRUD operations.
 """
 from datetime import datetime, timezone
-from app import db
+from database import db
 
 class BaseModel(db.Model):
     """
@@ -17,7 +17,7 @@ class BaseModel(db.Model):
         created_at (datetime): Timestamp when the record was created (UTC).
         updated_at (datetime): Timestamp when the record was last updated (UTC).
     """
-    __abstract__ = True  # Indicates that this is an abstract base class
+    __abstract__ = True 
 
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

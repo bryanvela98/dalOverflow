@@ -1,5 +1,5 @@
 from .base_model import BaseModel
-from app import db
+from database import db
 
 class QuestionTag(BaseModel):
     """
@@ -12,13 +12,13 @@ class QuestionTag(BaseModel):
     """
     __tablename__ = 'question_tags'
 
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
+    #question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    #tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
     
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
-            'question_id': self.question_id,
-            'tag_id': self.tag_id
+            #question_id': self.question_id,
+            #'tag_id': self.tag_id
         })
         return base_dict

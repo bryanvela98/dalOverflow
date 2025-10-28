@@ -1,26 +1,40 @@
-<<<<<<< HEAD
 from flask import Flask
-from sqlalchemy import SQLAlchemy
-
-app = Flask(__name__) # Create Flask app instance
-db = SQLAlchemy(app)
-=======
-from flask import Flask, request, jsonify
 from flask_cors import CORS
+from config.config_postgres import Config
+from database import db
 
-from routes import app_routes
+def create_app():
+    app = Flask(__name__) # Create Flask app instance
+    app.config.from_object(Config) # Load configuration from Config class
+    
+    db.init_app(app) # Initialize SQLAlchemy with the app
+    
+    # Disable strict slashes to prevent redirects
+    app.url_map.strict_slashes = False
+    
+    # Enable CORS for React frontend with all necessary permissions
+    CORS(app, 
+            resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:5000"]}},
+            allow_headers=["Content-Type", "Authorization"],
+            methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        supports_credentials=True)
 
-app = Flask(__name__) # Create Flask app instance
-CORS(app)
+    # Register blueprints for routes
+    from routes.notification_routes import notification_bp
+    from routes.user_routes import user_bp
+    
+    # Register the notification blueprint with a URL prefix
+    app.register_blueprint(notification_bp, url_prefix='/api/notifications')
+    app.register_blueprint(user_bp, url_prefix='/api/users')
+    
+    # Create all database tables
+    with app.app_context():
+        db.create_all()
 
->>>>>>> origin/develop
+    return app
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
-
-app_routes(app)
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True) # Enabling debug mode makes every code change auto-restart the server
+    app = create_app()
+    app.run(debug=True, port=5001, use_reloader=False) # Disable reloader to prevent config issues

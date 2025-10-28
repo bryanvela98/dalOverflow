@@ -1,5 +1,5 @@
 from .base_model import BaseModel
-from app import db
+from database import db
 
 class User(BaseModel):
     """
@@ -18,7 +18,6 @@ class User(BaseModel):
     """
     __tablename__ = 'users'
 
-    id = db.Column(db.String(255), primary_key=True)
     username = db.Column(db.String(255), nullable=False, unique=True)
     email = db.Column(db.String(255), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
