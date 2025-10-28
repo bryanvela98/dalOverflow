@@ -1,34 +1,40 @@
+"""
+Description: Abstract base model for all database tables using SQLAlchemy.
+Author: Mahek
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - File created and implemented basic CRUD operations.
+"""
 from .base_model import BaseModel
 from database import db
 
 class Vote(BaseModel):
     """
-    Vote model representing the votes given to q particular question.
+    Vote model representing the votes given to a particular question.
 
     Attributes:
-    ID =  primary_key
-    Question_ID = foreign key to the question table
-    User_ID = foreign key to the user table
-    Vote_Type = type of vote (upvote/downvote)
-    Vote_date = date of vote
+    id =  Primary Key.
+    question_id = foreign key to the question table
+    user_id = foreign key to the user table
+    vote_type = type of vote (upvote/downvote)
+    vote_date = date of vote
 
     """
-    
-    __tablename__ = "vote"
-    ID = db.Column(db.String(255), primary_key=True)
-    Question_ID = db.Column(db.String(255), db.ForeignKey('Question.ID'))
-    User_ID = db.Column(db.String(255), db.ForeignKey('User.ID'))
-    Vote_Type = db.Column(db.String(255))
-    Vote_date = db.Column(db.DateTime)
+    __tablename__ = "votes"
+
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    vote_type = db.Column(db.String(255))
+    vote_date = db.Column(db.DateTime)
 
     
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
             'id':self.id,
-            'question_id':self.Question_ID,
-            'user_id':self.User_ID,
-            'vote_type':self.Vote_Type,
-            'vote_date':self.Vote_date
+            'question_id':self.question_id,
+            'user_id':self.user_id,
+            'vote_type':self.vote_type,
+            'vote_date':self.vote_date
         })
         return base_dict

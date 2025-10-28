@@ -1,3 +1,10 @@
+"""
+Description: Abstract base model for all database tables using SQLAlchemy.
+Author: Devang Patel
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - File created and implemented basic CRUD operations.
+"""
 from .base_model import BaseModel
 from database import db
 
@@ -6,40 +13,42 @@ class Question(BaseModel):
     Question model representing the the questions asked on the website.
 
     Attributes:
-        ID = Primary Key.
-        Type = Question Type
-        User_ID = foreign key to the user tavle
-        Title = Question title
-        Body = Question Body
-        Creation_Date = Question creation date
-        Last_modified_on_Date = Question last modified on date
-        Status = Question status(accepted or rejected)
-        Accepted_Answer_ID = Accepted Answer
+        id = Primary Key.
+        type = Question Type
+        user_id = foreign key to the user table
+        title = Question title
+        body = Question Body
+        tags = Question tags
+        status = Question status(accepted or rejected)
+        accepted_answer_id = Accepted Answer
     """
-    __tablename__ = 'question'
+    __tablename__ = 'questions'
 
-    ID = db.Column(db.String(255), primary_key=True)
-    Type = db.Column(db.String(255))
-    User_ID = db.Column(db.String(255), db.ForeignKey('User.ID'))
-    Title = db.Column(db.Text)
-    Body = db.Column(db.Text)
-    Creation_Date = db.Column(db.DateTime)
-    Last_modified_on_Date = db.Column(db.DateTime)
-    Status = db.Column(db.String(255))
-    Accepted_Answer_ID = db.Column(db.String(255))
+    type = db.Column(db.String(255))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.Text)
+    body = db.Column(db.Text)
+    # Many-to-many relationship with tags 
+    tags = db.relationship(
+        'Tag',
+        secondary='question_tags',
+        back_populates='questions',
+        lazy='dynamic'
+    )
+    status = db.Column(db.String(255))
+    #accepted_answers_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=False)
 
     
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
-            'id':self.ID,
-            'type':self.Type,
-            'user_id':self.User_ID,
-            'title':self.Title,
-            'body':self.Body,
-            'creation_date':self.Creation_Date,
-            'last_modified_on_date':self.Last_modified_on_Date,
-            'status':self.Last_modified_on_Date,
-            'accepted_answer':self.Accepted_Answer_ID
+            'id':self.id,
+            'type':self.type,
+            'user_id':self.user_id,
+            'title':self.title,
+            'body':self.body,
+            'tags': [tag.to_dict() for tag in self.tags.all()],  # Convert relationship to list of tag dicts
+            'status':self.status
+            #'accepted_answers_id':self.accepted_answers_id
         })
         return base_dict

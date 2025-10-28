@@ -27,6 +27,7 @@ class Notification(BaseModel):
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
+            'id': self.id,
             'user_id': self.user_id,
             'header': self.header,
             'body': self.body

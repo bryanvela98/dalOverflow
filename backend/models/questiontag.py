@@ -19,13 +19,17 @@ class QuestionTag(BaseModel):
     """
     __tablename__ = 'question_tags'
 
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
+    
+    # Prevent duplicate question-tag pairs
+    __table_args__ = (db.UniqueConstraint('question_id', 'tag_id', name='unique_question_tag'),)
     
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
-            #question_id': self.question_id,
-            #'tag_id': self.tag_id
+            'id': self.id,
+            'question_id': self.question_id,
+            'tag_id': self.tag_id
         })
         return base_dict

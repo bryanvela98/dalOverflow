@@ -1,3 +1,10 @@
+"""
+Description: Abstract base model for all database tables using SQLAlchemy.
+Author: Mahek
+Created: 2025-10-25
+Last Modified: 
+    2025-10-26 - File created and implemented basic CRUD operations.
+"""
 from .base_model import BaseModel
 from database import db
 
@@ -6,33 +13,32 @@ class Comment(BaseModel):
     Comment model representing the answers given to the questions posted.
 
     Attributes:
-    ID = Primary Key.
-    Question_ID = foreign key to the question table
-    User_ID = foreign key to the user table
-    Body = body of the comment
-    Creation_Date = comment creation date
-    Last_Modified_Date = comment last modified on date
+    id = Primary Key.
+    question_id = foreign key to the question table
+    user_id = foreign key to the user table
+    body = body of the comment
+    creation_date = comment creation date
+    last_modified_date = comment last modified on date
 
     """
    
-    __tablename__ = "comment"
+    __tablename__ = "comments"
 
-    ID = db.Column(db.String(255), primary_key=True)
-    Question_ID = db.Column(db.String(255), db.ForeignKey('Question.ID'))
-    User_ID = db.Column(db.String(255), db.ForeignKey('User.ID'))
-    Body = db.Column(db.Text)
-    Creation_Date = db.Column(db.DateTime)
-    Last_Modified_Date = db.Column(db.DateTime)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    body = db.Column(db.Text)
+    creation_date = db.Column(db.DateTime)
+    last_modified_date = db.Column(db.DateTime)
 
     
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
-            'id':self.ID,
-            'question_id':self.Question_ID,
-            'user_id':self.User_ID,
-            'body':self.Body,
-            'creation_date': self.Creation_Date,
-            'last_modified_date':self.Last_Modified_Date
+            'id':self.id,
+            'question_id':self.question_id,
+            'user_id':self.user_id,
+            'body':self.body,
+            'creation_date': self.creation_date,
+            'last_modified_date':self.last_modified_date
         })
         return base_dict

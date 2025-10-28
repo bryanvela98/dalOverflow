@@ -29,3 +29,9 @@ python app.py
 
 - `GET /api/users` - Get all users
 - `POST /api/users` - Create a user
+
+### Question
+
+- `GET /api/questions` - Get all questions
+- `GET /api/questions/{id}` - Get question by id
+- `POST /api/questions/` - Create question
