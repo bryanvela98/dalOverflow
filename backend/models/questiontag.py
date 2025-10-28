@@ -19,8 +19,8 @@ class QuestionTag(BaseModel):
     """
     __tablename__ = 'question_tags'
 
-    #question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    #tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), nullable=False)
     
     def to_dict(self):
         base_dict = super().to_dict()

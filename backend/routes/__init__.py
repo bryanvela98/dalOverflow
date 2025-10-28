@@ -11,7 +11,7 @@ from flask_cors import CORS
 from datetime import datetime
 import json
 
-with open('./data/questions.json', 'r') as questionsfile:  #reading from questions.json
+with open('.\data\questions.json', 'r') as questionsfile:  #reading from questions.json
         questions = json.load(questionsfile)
         
 # print(questions)
