@@ -1,6 +1,6 @@
 """
 Description: Abstract base model for all database tables using SQLAlchemy.
-Author: Devang Patel
+Author: Devang Jalag
 Created: 2025-10-25
 Last Modified: 
     2025-10-26 - File created and implemented basic CRUD operations.
