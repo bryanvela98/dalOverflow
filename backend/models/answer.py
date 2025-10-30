@@ -8,27 +8,24 @@ Last Modified:
 from .base_model import BaseModel
 from database import db
 
-class Comment(BaseModel):
+class Answer(BaseModel):
     """
-    Comment model representing the answers given to the questions posted.
+    Answer model representing the answers given to the questions posted.
 
     Attributes:
     id = Primary Key.
     question_id = foreign key to the question table
     user_id = foreign key to the user table
-    body = body of the comment
-    creation_date = comment creation date
-    last_modified_date = comment last modified on date
+    body = body of the answer
 
     """
-   
-    __tablename__ = "comments"
+
+    __tablename__ = "answers"
 
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     body = db.Column(db.Text)
-    creation_date = db.Column(db.DateTime)
-    last_modified_date = db.Column(db.DateTime)
+
 
     
     def to_dict(self):
@@ -37,8 +34,6 @@ class Comment(BaseModel):
             'id':self.id,
             'question_id':self.question_id,
             'user_id':self.user_id,
-            'body':self.body,
-            'creation_date': self.creation_date,
-            'last_modified_date':self.last_modified_date
+            'body':self.body
         })
         return base_dict
