@@ -35,6 +35,10 @@ class Question(BaseModel):
         back_populates='questions',
         lazy='dynamic'
     )
+    answers = db.relationship(
+        'Answer',
+        back_populates='question'
+    )
     status = db.Column(db.String(255))
     #accepted_answers_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=False)
 
@@ -48,6 +52,7 @@ class Question(BaseModel):
             'title':self.title,
             'body':self.body,
             'tags': [tag.to_dict() for tag in self.tags.all()],  # Convert relationship to list of tag dicts
+            'answers': [answer.to_dict() for answer in self.answers.all()],  # Convert relationship to list of answer dicts
             'status':self.status
             #'accepted_answers_id':self.accepted_answers_id
         })

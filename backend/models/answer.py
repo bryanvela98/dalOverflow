@@ -25,6 +25,10 @@ class Answer(BaseModel):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     body = db.Column(db.Text)
+    question = db.relationship(
+        'Question',
+        back_populates='answers'
+    )
 
 
     
