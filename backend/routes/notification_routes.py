@@ -1,6 +1,6 @@
 """
 Description: Notification routes for handling notification-related API endpoints.
-Author: Bryan Vela
+Last Modified By: Bryan Vela
 Created: 2025-10-25
 Last Modified: 
     2025-10-26 - File created with notification CRUD operations.

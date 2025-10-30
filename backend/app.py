@@ -19,13 +19,6 @@ def create_app():
             methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         supports_credentials=True)
 
-    # Import models to ensure they are registered with SQLAlchemy
-    from models.user import User
-    from models.question import Question
-    from models.tag import Tag
-    from models.notification import Notification
-    from models.questiontag import QuestionTag
-
     # Register blueprints for routes
     from routes.notification_routes import notification_bp
     from routes.user_routes import user_bp
