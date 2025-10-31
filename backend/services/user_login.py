@@ -15,3 +15,16 @@ class UserLoginServices:
                 self.current_user = user
                 return True
         return False
+
+    def get_user_info(self):
+        #if user exists
+        if self.current_user:
+            return {
+                'user_id': self.current_user.id,
+                'username': self.current_user.username,
+                'email': self.current_user.email,
+                'display_name': self.current_user.display_name,
+                'reputation': self.current_user.reputation,
+                'university': self.current_user.university
+            }
+        return None
