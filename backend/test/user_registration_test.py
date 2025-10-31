@@ -48,4 +48,12 @@ class TestUserRegistration(unittest.TestCase):
         #should return false because user should not be created if already exists
         assert result is False
 
+    def test_create_user_not_exists(self):
+        registration = UserRegistrationService()
+        registration.user_exists = MagicMock(return_value=False)
+
+        result = registration.create_user("test@dal.ca", "testpass")
+
+        #should return true as user should be created
+        assert result is True
 
