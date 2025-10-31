@@ -14,7 +14,7 @@ def create_app():
     
     # Enable CORS for React frontend with all necessary permissions
     CORS(app, 
-            resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:5000"]}},
+            resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:5000", "http://localhost:5173"]}},
             allow_headers=["Content-Type", "Authorization"],
             methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         supports_credentials=True)
@@ -23,11 +23,15 @@ def create_app():
     from routes.notification_routes import notification_bp
     from routes.user_routes import user_bp
     from routes.question_routes import question_bp
+    from routes.registration_routes import registration_bp
+    from routes.login_routes import login_bp
     
     # Register the notification blueprint with a URL prefix
     app.register_blueprint(notification_bp, url_prefix='/api/notifications')
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(question_bp, url_prefix='/api/questions')
+    app.register_blueprint(registration_bp, url_prefix='/api/auth')
+    app.register_blueprint(login_bp, url_prefix='/api/auth')
 
     # Create all database tables
     with app.app_context():
