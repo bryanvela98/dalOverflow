@@ -1,3 +1,8 @@
+import random
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from models.user import User
 
 class UserRegistrationService:
@@ -10,8 +15,11 @@ class UserRegistrationService:
         if (self.user_exists(email)):
             return False
         else:
-            #we need to add verification of dal id functionality here
+            #add verification of dal id functionality here
             if(self.validate_email(email)):
+                #send otp to the email for verification
+                self.send_otp(email)
+
                 return True
             return False
 
@@ -19,3 +27,25 @@ class UserRegistrationService:
         if "dal.ca" in email:
             return True
         return False
+
+    def send_otp(self, email):
+        sender = "daloverflow@gmail.com"
+        app_password = "oaif xgfq wowp tqyx"
+        receiver = email
+        #generate an OTP to send
+        self.instance_otp = self.generate_otp()
+
+        msg = MIMEMultipart()
+        msg["From"] = sender
+        msg["To"] = receiver
+        msg["Subject"] = "Email verification for DalOverflow Registration"
+
+        body = f"Your OTP is {str(self.instance_otp)}"
+        msg.attach(MIMEText(body, "plain"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender, app_password)
+            server.send_message(msg)
+
+    def generate_otp(self):
+        return random.randint(100000, 999999)

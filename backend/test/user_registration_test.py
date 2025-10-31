@@ -68,3 +68,5 @@ class TestUserRegistration(unittest.TestCase):
         #this test should return false since dal.ca is not present in the email id
         assert result is False
 
+
+
