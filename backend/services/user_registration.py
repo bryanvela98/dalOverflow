@@ -11,7 +11,9 @@ class UserRegistrationService:
             return False
         else:
             #we need to add verification of dal id functionality here
-            return True
+            if(self.validate_email(email)):
+                return True
+            return False
 
     def validate_email(self, email):
         if "dal.ca" in email:
