@@ -7,4 +7,7 @@ class UserRegistrationService:
         return user is not None
 
     def create_user(self, email, password):
-        return False
+        if (self.user_exists(email)):
+            return False
+        else:
+            return True
