@@ -14,7 +14,7 @@ class TestUserLogin(unittest.TestCase):
 
         User.query = MagicMock()
         User.query.filter_by = MagicMock()
-        User.query.filter_by_email = MagicMock(return_value=mock_user)
+        User.query.filter_by.return_value.first = MagicMock(return_value=mock_user)
 
         login = UserLoginServices()
         result = login.verify_credentials("test@dal.ca", "testpassword")
@@ -28,7 +28,7 @@ class TestUserLogin(unittest.TestCase):
 
         User.query = MagicMock()
         User.query.filter_by = MagicMock()
-        User.query.filter_by_email = MagicMock(return_value=mock_user)
+        User.query.filter_by.return_value.first = MagicMock(return_value=mock_user)
 
         login = UserLoginServices()
         result = login.verify_credentials("test@dal.ca", "testpassword")
