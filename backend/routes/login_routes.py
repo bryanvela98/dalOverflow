@@ -4,7 +4,7 @@ Author: Saayonee Dhepe
 Created: 2025-10-30
 """
 from flask import Blueprint, request, jsonify, session
-from services.user_login import user_login
+from services.user_login import UserLoginServices
 
 # Create Blueprint for login routes
 login_bp = Blueprint('login', __name__)
@@ -20,7 +20,7 @@ def login():
             return jsonify({'success': False, 'message': 'Email and password are required'})
         
         # Create login instance and verify credentials
-        login_handler = user_login()
+        login_handler = UserLoginServices()
         if login_handler.verify_credentials(email, password):
             # Store user info in session
             user_info = login_handler.get_user_info()
@@ -35,12 +35,13 @@ def login():
             return jsonify({'success': False, 'message': 'Invalid email or password'})
             
     except Exception as e:
+        print(e);
         return jsonify({'success': False, 'message': 'Login failed'})
 
 @login_bp.route('/logout', methods=['POST'])
 def logout():
     try:
-        login_handler = user_login()
+        login_handler = UserLoginServices()
         login_handler.logout()
         session.pop('user', None) 
         

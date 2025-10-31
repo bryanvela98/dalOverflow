@@ -21,6 +21,17 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
         credentials: "include",
       });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage("Login successful! Redirecting...");
+        console.log("Login successful:", data.user);
+        navigate("/");
+      } else {
+        setMessage("Login failed: " + data.message);
+        console.log("Login failed:", data.message);
+      }
     } catch (error) {
       setMessage("Network error. Please try again.");
       console.error("Login error:", error);
@@ -45,7 +56,6 @@ export default function Login() {
       />
       <button type="submit">Sign In</button>
       {message && <div className="message">{message}</div>}{" "}
-      {/* Add this line */}
     </form>
   );
 }

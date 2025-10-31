@@ -24,12 +24,14 @@ def create_app():
     from routes.user_routes import user_bp
     from routes.question_routes import question_bp
     from routes.registration_routes import registration_bp
+    from routes.login_routes import login_bp
     
     # Register the notification blueprint with a URL prefix
     app.register_blueprint(notification_bp, url_prefix='/api/notifications')
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(question_bp, url_prefix='/api/questions')
     app.register_blueprint(registration_bp, url_prefix='/api/auth')
+    app.register_blueprint(login_bp, url_prefix='/api/auth')
 
     # Create all database tables
     with app.app_context():
