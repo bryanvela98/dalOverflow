@@ -5,3 +5,6 @@ class UserRegistrationService:
         user = User.query.filter_by(email=email).first()
         print(user)
         return user is not None
+
+    def create_user(self, email, password):
+        return False
