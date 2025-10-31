@@ -10,4 +10,5 @@ class UserRegistrationService:
         if (self.user_exists(email)):
             return False
         else:
+            #we need to add verification of dal id functionality here
             return True
