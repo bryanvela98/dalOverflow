@@ -1,9 +1,13 @@
+import datetime
 import random
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from models.user import User
+
+from database import db
+
 
 class UserRegistrationService:
     def __init__(self):
@@ -23,7 +27,7 @@ class UserRegistrationService:
             if(self.validate_email(email)):
                 #send otp to the email for verification
                 self.send_otp(email)
-
+          
                 return True
             return False
 
@@ -34,6 +38,25 @@ class UserRegistrationService:
 
     def verify_and_create_user(self, otp):
         if self.check_otp(otp):
+            display_name = None
+            profile_picture_url = None
+            reputation = 0
+            registration_date = datetime.now()
+            username = self.pending_email.split('@')[0]
+            university = "Dalhousie University"
+
+            new_user = User(
+                username=username,
+                email=self.pending_email,    #so that the user isn't created without verification
+                password=self.pending_password,    #so that the user isn't created without verification
+                display_name=display_name,
+                profile_picture_url=profile_picture_url,
+                reputation=reputation,
+                registration_date=registration_date,
+                university=university
+            )
+            db.session.add(new_user)
+            db.session.commit()
             return True
         return False
 
