@@ -26,4 +26,16 @@ class TestUserRegistration(unittest.TestCase):
         #check if the result is true
         assert result is True
 
+    def test_user_not_exists(self):
+        mock_user = MagicMock()
+        User.query = MagicMock()
+        User.query.filter_by = MagicMock()
+        #should return nothing
+        User.query.filter_by.return_value.first = MagicMock(return_value=None)
+
+        result = UserRegistrationService().user_exists("test@dal.ca")
+
+        #the return value should be false since no user is returned
+        assert result is False
+
 
