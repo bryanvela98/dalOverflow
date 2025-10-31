@@ -34,3 +34,14 @@ class TestUserLogin(unittest.TestCase):
         result = login.verify_credentials("test@dal.ca", "testpassword")
 
         assert result is False
+
+    def test_verify_credentials_user_not_exists(self):
+        User.query = MagicMock()
+        User.query.filter_by = MagicMock()
+        User.query.filter_by.return_value.first = MagicMock(return_value=None)
+
+        login = UserLoginServices()
+        result = login.verify_credentials("nonexistent@dal.ca",
+                                          "anypassword")
+
+        assert result is False
