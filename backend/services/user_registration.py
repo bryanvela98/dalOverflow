@@ -1,18 +1,15 @@
-import datetime
+from datetime import datetime
 import random
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
 from models.user import User
-
 from database import db
-
 
 class UserRegistrationService:
     def __init__(self):
         #instance otp used in send_otp needs to be initialized
-        self.instance_otp = None
+        self.pending_password = None
 
     def user_exists(self, email):
         user = User.query.filter_by(email=email).first()
@@ -27,15 +24,10 @@ class UserRegistrationService:
             if(self.validate_email(email)):
                 #send otp to the email for verification
                 self.send_otp(email)
-                self.pending_email = email
-                self.pending_password = password
+                self.pending_email = email  #so that the user isn't created without verification
+                self.pending_password = password  #so that the user isn't created without verification
                 return True
             return False
-
-    def validate_email(self, email):
-        if "dal.ca" in email:
-            return True
-        return False
 
     def verify_and_create_user(self, otp):
         if self.check_otp(otp):
@@ -43,13 +35,13 @@ class UserRegistrationService:
             profile_picture_url = None
             reputation = 0
             registration_date = datetime.now()
-            username = self.pending_email.split('@')[0]
+            username = self.pending_email.split('@')[0]   #generate username from email for now
             university = "Dalhousie University"
 
             new_user = User(
                 username=username,
-                email=self.pending_email,    #so that the user isn't created without verification
-                password=self.pending_password,    #so that the user isn't created without verification
+                email=self.pending_email,
+                password=self.pending_password,
                 display_name=display_name,
                 profile_picture_url=profile_picture_url,
                 reputation=reputation,
@@ -58,6 +50,11 @@ class UserRegistrationService:
             )
             db.session.add(new_user)
             db.session.commit()
+            return True
+        return False
+
+    def validate_email(self, email):
+        if "dal.ca" in email:
             return True
         return False
 
