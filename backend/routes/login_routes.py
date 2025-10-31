@@ -4,7 +4,7 @@ Author: Saayonee Dhepe
 Created: 2025-10-30
 """
 from flask import Blueprint, request, jsonify, session
-from models.user_login import user_login
+from services.user_login import user_login
 
 # Create Blueprint for login routes
 login_bp = Blueprint('login', __name__)
