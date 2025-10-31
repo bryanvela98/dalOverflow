@@ -6,6 +6,10 @@ from email.mime.text import MIMEText
 from models.user import User
 
 class UserRegistrationService:
+    def __init__(self):
+        #instance otp used in send_otp needs to be initialized
+        self.instance_otp = None
+
     def user_exists(self, email):
         user = User.query.filter_by(email=email).first()
         print(user)
@@ -29,7 +33,9 @@ class UserRegistrationService:
         return False
 
     def verify_and_create_user(self, otp):
-        return True
+        if self.check_otp(otp):
+            return True
+        return False
 
     def send_otp(self, email):
         sender = "daloverflow@gmail.com"
@@ -52,3 +58,6 @@ class UserRegistrationService:
 
     def generate_otp(self):
         return random.randint(100000, 999999)
+
+    def check_otp(self, user_otp):
+        return self.instance_otp == user_otp
