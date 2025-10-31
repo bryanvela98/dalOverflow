@@ -77,7 +77,7 @@ class TestUserRegistration(unittest.TestCase):
         #since user entered correct otp, this should return true
         assert result is True
 
-    def test_verify_and_create_user_correct_otp(self):
+    def test_verify_and_create_user_incorrect_otp(self):
         registration = UserRegistrationService()
         #user entered incorrect otp
         registration.check_otp = MagicMock(return_value=False)
