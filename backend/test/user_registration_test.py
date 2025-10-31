@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from models.user import User
 
 #I need a class UserRegistration that handles all these functionalities
-from services.user_registration import UserRegistrationService;
+from services.user_registration import UserRegistrationService
 
 class TestUserRegistration(unittest.TestCase):
     def setUp(self):
