@@ -3,13 +3,14 @@ import random
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from models.user import User
 from database import db
+from models.user import User
+
 
 class UserRegistrationService:
     def __init__(self):
         #instance otp used in send_otp needs to be initialized
-        self.pending_password = None
+        self.instance_otp = None
 
     def user_exists(self, email):
         user = User.query.filter_by(email=email).first()
@@ -54,7 +55,7 @@ class UserRegistrationService:
         return False
 
     def validate_email(self, email):
-        if "dal.ca" in email:
+        if "@dal.ca" in email:
             return True
         return False
 
@@ -81,4 +82,4 @@ class UserRegistrationService:
         return random.randint(100000, 999999)
 
     def check_otp(self, user_otp):
-        return self.instance_otp == user_otp
+        return str(self.instance_otp) == user_otp

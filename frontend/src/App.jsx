@@ -4,6 +4,7 @@ import CreateQuestion from "./components/Question/CreateQuestion";
 import QuestionPage from "./pages/QuestionPage";
 import Tags from "./components/Tags/Tags";
 import QuestionDetails from "./components/Question/QuestionDetail";
+import LoginRegistration from "./pages/LoginRegistration";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/questions/:id" element={<QuestionPage />} />
         <Route path="/question/:id" element={<QuestionDetails />} />
         <Route path="/tags" element={<Tags />} />
+        <Route path="/login" element={<LoginRegistration />} />
       </Routes>
     </BrowserRouter>
   );
