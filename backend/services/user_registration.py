@@ -27,7 +27,8 @@ class UserRegistrationService:
             if(self.validate_email(email)):
                 #send otp to the email for verification
                 self.send_otp(email)
-          
+                self.pending_email = email
+                self.pending_password = password
                 return True
             return False
 
