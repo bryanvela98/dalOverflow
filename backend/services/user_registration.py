@@ -14,4 +14,6 @@ class UserRegistrationService:
             return True
 
     def validate_email(self, email):
-        return True
+        if "dal.ca" in email:
+            return True
+        return False
