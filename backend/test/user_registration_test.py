@@ -68,5 +68,13 @@ class TestUserRegistration(unittest.TestCase):
         #this test should return false since dal.ca is not present in the email id
         assert result is False
 
+    def test_verify_and_create_user_correct_otp(self):
+        registration = UserRegistrationService()
+        #user entered correct otp
+        registration.check_otp = MagicMock(return_value=True)
+
+        result = registration.verify_and_create_user("123456")
+        #since user entered correct otp, this should return true
+        assert result is True
 
 
