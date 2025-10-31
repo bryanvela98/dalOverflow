@@ -57,8 +57,14 @@ class TestUserRegistration(unittest.TestCase):
         #should return true as user should be created
         assert result is True
 
-    def test_validate_email(self):
+    def test_validate_email_contains(self):
         registration = UserRegistrationService()
         result = registration.validate_email("test@dal.ca")
         assert result is True
+
+    def test_validate_email_not_contains(self):
+        registration = UserRegistrationService()
+        result = registration.validate_email("test@gmail.com")
+        #this test should return false since dal.ca is not present in the email id
+        assert result is False
 
