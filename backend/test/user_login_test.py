@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
-from model.user import User
-from services.user_login import UserLogin
+from models.user import User
+from services.user_login import UserLoginServices
 
 class TestUserLogin(unittest.TestCase):
     def setUp(self):
@@ -16,7 +16,7 @@ class TestUserLogin(unittest.TestCase):
         User.query.filter_by = MagicMock()
         User.query.filter_by_email = MagicMock(return_value=mock_user)
 
-        login = UserLogin()
+        login = UserLoginServices()
         result = login.verify_credentials("test@dal.ca", "testpassword")
 
-        assert result == True
+        assert result is True
