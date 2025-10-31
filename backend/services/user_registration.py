@@ -12,3 +12,6 @@ class UserRegistrationService:
         else:
             #we need to add verification of dal id functionality here
             return True
+
+    def validate_email(self, email):
+        return True
