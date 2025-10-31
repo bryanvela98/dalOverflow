@@ -28,6 +28,9 @@ class UserRegistrationService:
             return True
         return False
 
+    def verify_and_create_user(self, otp):
+        return True
+
     def send_otp(self, email):
         sender = "daloverflow@gmail.com"
         app_password = "oaif xgfq wowp tqyx"
