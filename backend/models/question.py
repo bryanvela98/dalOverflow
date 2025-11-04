@@ -4,9 +4,11 @@ Last Modified By: Bryan Vela
 Created: 2025-10-25
 Last Modified: 
     2025-10-26 - File created and implemented basic CRUD operations.
+    2025-11-02 - Added Sanitize body and create with sanitized body content functions.
 """
 from .base_model import BaseModel
 from database import db
+from utils.html_sanitizer import sanitize_html_body
 
 class Question(BaseModel):
     """
@@ -57,3 +59,17 @@ class Question(BaseModel):
             #'accepted_answers_id':self.accepted_answers_id
         })
         return base_dict
+    
+    def sanitize_body(self):
+        """Sanitize the body content before saving"""
+        if self.body:
+            self.body = sanitize_html_body(self.body)
+
+    @classmethod
+    def create_with_sanitized_body(cls, data):
+        """Create question with sanitized body content"""
+        question = cls(**data)
+        question.sanitize_body()
+        db.session.add(question)
+        db.session.commit()
+        return question

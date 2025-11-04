@@ -64,12 +64,12 @@ def create_question():
         data = request.get_json()
         
         # Validate required fields
-        required_fields = ['type', 'user_id', 'title', 'body', 'status']#, 'accepted_answer_id']
+        required_fields = ['user_id', 'title', 'body', ]#, 'accepted_answer_id']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'{field} is required'}), 400
 
-        question = Question.create(data)
+        question = Question.create_with_sanitized_body(data)
         return jsonify({
             'message': 'Question created successfully',
             'question': question.to_dict()
