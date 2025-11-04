@@ -2,6 +2,9 @@
 Description: Login routes for handling requests related to login
 Author: Saayonee Dhepe
 Created: 2025-10-30
+
+Last Modified By: Devang
+Last Modified: 2025-11-01
 """
 from flask import Blueprint, request, jsonify, session
 from services.user_login import UserLoginServices
@@ -56,3 +59,12 @@ def check_login():
         return jsonify({'loggedIn': True, 'user': user_info})
     else:
         return jsonify({'loggedIn': False})
+    
+#dummy mock route for testing redirection in absence of sessions
+@login_bp.route('/login', methods=['GET'])
+def login_page():
+    next_url = request.args.get('next', '/')
+    return jsonify({
+        'message': 'Kindly login for access, thanks!',
+        'next': next_url
+    })
