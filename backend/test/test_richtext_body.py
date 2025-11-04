@@ -37,3 +37,28 @@ class TestRichTextBodySanitization(unittest.TestCase):
         with self.app.app_context():
             db.session.remove()
             db.drop_all()
+            
+            
+    def test_sanitize_dangerous_script_tags(self):
+        """Test that script tags are removed from body"""
+        question_data = {
+            'type': 'technical',
+            'user_id': self.user_id,
+            'title': 'Test Question',
+            'body': '<p>Safe content</p><script>alert("XSS")</script><p>More safe content</p>',
+            'status': 'open'
+        }
+        
+        response = self.client.post(
+            '/api/questions/',
+            data=json.dumps(question_data),
+            content_type='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 201)
+        response_data = json.loads(response.data)
+        
+        stored_body = response_data['question']['body']
+        self.assertNotIn('<script>', stored_body)
+        self.assertNotIn('alert', stored_body)
+        self.assertIn('<p>Safe content</p>', stored_body)
