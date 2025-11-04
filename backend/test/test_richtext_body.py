@@ -1,7 +1,12 @@
 """
-Test for rich text body sanitization in questions.
+Description: Test for rich text body sanitization in questions.
 Tests that question body content is safely sanitized before storage.
+Last Modified By: Bryan Vela
+Created: 2025-11-01
+Last Modified: 
+    2025-10-26 - File created with test sanitation logic.
 """
+
 import unittest
 import json
 from app import create_app
@@ -86,3 +91,29 @@ class TestRichTextBodySanitization(unittest.TestCase):
         self.assertIn('<strong>bold</strong>', stored_body)
         self.assertIn('<em>italic</em>', stored_body)
         self.assertIn('<code>code</code>', stored_body)
+        
+    def test_remove_dangerous_attributes(self):
+        """Test that dangerous attributes are removed"""
+        question_data = {
+            'type': 'technical',
+            'user_id': self.user_id,
+            'title': 'Dangerous Attributes Test',
+            'body': '<p onclick="alert(\'XSS\')">Click me</p><img src="x" onerror="alert(\'XSS\')">',
+            'status': 'open'
+        }
+        
+        response = self.client.post(
+            '/api/questions/',
+            data=json.dumps(question_data),
+            content_type='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 201)
+        response_data = json.loads(response.data)
+        
+        stored_body = response_data['question']['body']
+        self.assertNotIn('onclick', stored_body)
+        self.assertNotIn('onerror', stored_body)
+        
+if __name__ == '__main__':
+    unittest.main()
