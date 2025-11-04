@@ -62,3 +62,27 @@ class TestRichTextBodySanitization(unittest.TestCase):
         self.assertNotIn('<script>', stored_body)
         self.assertNotIn('alert', stored_body)
         self.assertIn('<p>Safe content</p>', stored_body)
+
+    def test_preserve_safe_html_formatting(self):
+        """Test that safe HTML formatting is preserved"""
+        question_data = {
+            'type': 'technical',
+            'user_id': self.user_id,
+            'title': 'Formatting Test',
+            'body': '<p>This is <strong>bold</strong> and <em>italic</em> text with <code>code</code>.</p>',
+            'status': 'open'
+        }
+        
+        response = self.client.post(
+            '/api/questions/',
+            data=json.dumps(question_data),
+            content_type='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 201)
+        response_data = json.loads(response.data)
+        
+        stored_body = response_data['question']['body']
+        self.assertIn('<strong>bold</strong>', stored_body)
+        self.assertIn('<em>italic</em>', stored_body)
+        self.assertIn('<code>code</code>', stored_body)
