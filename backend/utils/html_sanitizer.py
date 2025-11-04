@@ -8,6 +8,7 @@ Last Modified:
 """
 
 import bleach
+import re
 
 def sanitize_html_body(content):
     """
@@ -22,6 +23,7 @@ def sanitize_html_body(content):
     if not content:
         return ''
     
+    content = re.sub(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>', '', content, flags=re.IGNORECASE)
     # Allowed tags for question body
     allowed_tags = [
         'p', 'br', 'strong', 'b', 'em', 'i', 'u', 

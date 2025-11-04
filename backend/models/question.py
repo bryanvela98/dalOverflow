@@ -39,7 +39,8 @@ class Question(BaseModel):
     )
     answers = db.relationship(
         'Answer',
-        back_populates='question'
+        back_populates='question',
+        lazy ='dynamic'
     )
     status = db.Column(db.String(255))
     #accepted_answers_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=False)

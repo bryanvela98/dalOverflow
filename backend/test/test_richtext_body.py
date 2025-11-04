@@ -9,6 +9,13 @@ Last Modified:
 
 import unittest
 import json
+import os
+from datetime import datetime, timezone
+
+# Override environment variables for testing BEFORE importing anything else
+os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
+os.environ['DB_URL'] = 'sqlite:///:memory:'
+
 from app import create_app
 from database import db
 from models.user import User
@@ -17,21 +24,26 @@ from models.question import Question
 class TestRichTextBodySanitization(unittest.TestCase):
     def setUp(self):
         """Set up test client and database"""
+        # Use the existing app factory from app.py with overridden env vars
         self.app = create_app()
+        
+        # Set additional test configuration
         self.app.config['TESTING'] = True
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        
         self.client = self.app.test_client()
         
         with self.app.app_context():
             db.create_all()
             
-            # Create test user using the existing method
+            # Create test user with all required fields
             user_data = {
                 'username': 'testuser',
                 'email': 'test123@example.com',
                 'password': '12345',
                 'display_name': 'Test User',
                 'reputation': 0,
+                'registration_date': datetime.now(timezone.utc),
                 'university': 'Test University'
             }
             self.test_user = User.create(user_data)
@@ -53,12 +65,18 @@ class TestRichTextBodySanitization(unittest.TestCase):
             'body': '<p>Safe content</p><script>alert("XSS")</script><p>More safe content</p>',
             'status': 'open'
         }
-        
+
         response = self.client.post(
             '/api/questions/',
             data=json.dumps(question_data),
             content_type='application/json'
         )
+
+        # Debug: Print response details if not 201
+        if response.status_code != 201:
+            print(f"Status Code: {response.status_code}")
+            print(f"Response: {response.get_json()}")
+            print(f"Data: {response.get_data()}")
         
         self.assertEqual(response.status_code, 201)
         response_data = json.loads(response.data)
