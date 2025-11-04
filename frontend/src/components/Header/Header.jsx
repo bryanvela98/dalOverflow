@@ -23,6 +23,7 @@ export default function Header() {
           <NotificationBell />  {/* ← 改成这个 */}
           
           <button>Log in</button>
+          <button>Log out</button>
           <button>Sign Up</button>
         </div>
       </div>

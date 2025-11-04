@@ -75,6 +75,11 @@
   border: 1px solid #dadadc;
 }
 
+.header-buttons button:nth-child(3) {
+  background-color: #fecd09;
+  border: 1px solid #dadadc;
+}
+
 .logo {
   width: 20px;
   height: 20px;
