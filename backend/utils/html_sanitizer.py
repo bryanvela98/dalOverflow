@@ -28,3 +28,21 @@ def sanitize_html_body(content):
         'code', 'pre', 'blockquote', 'ul', 'ol', 'li',
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a'
     ]
+    
+    # Allowed attributes
+    allowed_attributes = {
+        'a': ['href', 'title'],
+        'code': ['class'],
+        'pre': ['class']
+    }
+    
+    # Clean the content
+    clean_content = bleach.clean(
+        content,
+        tags=allowed_tags,
+        attributes=allowed_attributes,
+        protocols=['http', 'https', 'mailto'],
+        strip=True
+    )
+    
+    return clean_content
