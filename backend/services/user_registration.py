@@ -5,6 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from database import db
 from models.user import User
+import bcrypt
 
 
 class UserRegistrationService:
@@ -26,7 +27,9 @@ class UserRegistrationService:
                 #send otp to the email for verification
                 self.send_otp(email)
                 self.pending_email = email  #so that the user isn't created without verification
-                self.pending_password = password  #so that the user isn't created without verification
+                # self.pending_password = password  #so that the user isn't created without verification
+                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+                self.pending_password = hashed_password.decode('utf-8')
                 return True
             return False
 
@@ -77,9 +80,43 @@ class UserRegistrationService:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(sender, app_password)
             server.send_message(msg)
+            
+    def reset_otp(self, email):
+        sender = "daloverflow@gmail.com"
+        app_password = "oaif xgfq wowp tqyx"
+        receiver = email
+        #generate an OTP to send
+        self.instance_otp = self.generate_otp()
+
+        msg = MIMEMultipart()
+        msg["From"] = sender
+        msg["To"] = receiver
+        msg["Subject"] = "Password Reset"
+
+        body = f"Your OTP for resetting the password is {str(self.instance_otp)}"
+        msg.attach(MIMEText(body, "plain"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender, app_password)
+            server.send_message(msg)
+            
+    def reset_password(self, email, otp, new_password):
+        if not self.check_otp(otp):
+            return False
+        
+        user = User.query.filter_by(email=email).first()
+        if user:
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            user.password = hashed_password.decode('utf-8')
+            db.session.commit()
+            return True
+        return False
+        
 
     def generate_otp(self):
         return random.randint(100000, 999999)
 
     def check_otp(self, user_otp):
         return str(self.instance_otp) == user_otp
+    
+    

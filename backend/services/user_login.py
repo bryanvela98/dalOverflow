@@ -1,6 +1,6 @@
 from models.user import User
 from database import db
-
+import bcrypt
 class UserLoginServices:
     def __init__(self):
         self.current_user = None
@@ -11,7 +11,8 @@ class UserLoginServices:
 
         if user:
             # Verify the password matches
-            if user.password == password:  #need to hash password
+            # if user.password == password:  #need to hash password #hashed
+            if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
                 self.current_user = user
                 return True
         return False

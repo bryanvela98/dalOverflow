@@ -33,6 +33,7 @@ def create_app():
     app.register_blueprint(registration_bp, url_prefix='/api/auth')
     app.register_blueprint(login_bp, url_prefix='/api/auth')
 
+
     # Create all database tables
     with app.app_context():
         db.create_all()
