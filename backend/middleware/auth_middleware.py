@@ -40,3 +40,25 @@ def login_required(view_func):
     return wrapped_view
 
 
+def token_required(f):
+    def wrapper(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        # print(f"Token: {token}")  
+
+        if not token: return jsonify({'error': 'No token'}), 401
+        
+        try:
+            token = token.replace('Bearer ', '')
+            # print(f"Cleaned token: {token}")  
+
+            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+            # print(f"Decoded data: {data}")
+            
+            user = User.query.filter_by(username=data['username']).first()
+            # print(f"User found: {user}")
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify({'error':'Invalid token'}), 401
+        
+        return f(user, *args, **kwargs)
+    return wrapper
