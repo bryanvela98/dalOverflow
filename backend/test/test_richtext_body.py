@@ -1,137 +1,115 @@
 """
-Description: Test for rich text body sanitization in questions.
-Tests that question body content is safely sanitized before storage.
+Description: Unit tests for HTML sanitization in question body content.
+Tests the sanitize_html_body function directly without database integration.
 Last Modified By: Bryan Vela
 Created: 2025-11-01
 Last Modified: 
-    2025-10-26 - File created with test sanitation logic.
+    2025-11-09 - Refactored to unit tests for sanitization function only.
 """
 
 import unittest
-import json
-import os
-from datetime import datetime, timezone
+from utils.html_sanitizer import sanitize_html_body
 
-# Override environment variables for testing BEFORE importing anything else
-os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
-os.environ['DB_URL'] = 'sqlite:///:memory:'
-
-from app import create_app
-from database import db
-from models.user import User
-from models.question import Question
-
-class TestRichTextBodySanitization(unittest.TestCase):
-    def setUp(self):
-        """Set up test client and database"""
-        # Use the existing app factory from app.py with overridden env vars
-        self.app = create_app()
-        
-        # Set additional test configuration
-        self.app.config['TESTING'] = True
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        
-        self.client = self.app.test_client()
-        
-        with self.app.app_context():
-            db.create_all()
-            
-            # Create test user with all required fields
-            user_data = {
-                'username': 'testuser',
-                'email': 'test123@example.com',
-                'password': '12345',
-                'display_name': 'Test User',
-                'reputation': 0,
-                'registration_date': datetime.now(timezone.utc),
-                'university': 'Test University'
-            }
-            self.test_user = User.create(user_data)
-            self.user_id = self.test_user.id
+class TestHtmlSanitization(unittest.TestCase):
     
-    def tearDown(self):
-        """Clean up after tests"""
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-            
-            
     def test_sanitize_dangerous_script_tags(self):
-        """Test that script tags are removed from body"""
-        question_data = {
-            'type': 'technical',
-            'user_id': self.user_id,
-            'title': 'Test Question',
-            'body': '<p>Safe content</p><script>alert("XSS")</script><p>More safe content</p>',
-            'status': 'open'
-        }
-
-        response = self.client.post(
-            '/api/questions/',
-            data=json.dumps(question_data),
-            content_type='application/json'
-        )
-
-        # Debug: Print response details if not 201
-        if response.status_code != 201:
-            print(f"Status Code: {response.status_code}")
-            print(f"Response: {response.get_json()}")
-            print(f"Data: {response.get_data()}")
+        """Test that script tags are removed from content"""
+        input_html = '<p>Safe content</p><script>alert("XSS")</script><p>More safe content</p>'
         
-        self.assertEqual(response.status_code, 201)
-        response_data = json.loads(response.data)
+        result = sanitize_html_body(input_html)
         
-        stored_body = response_data['question']['body']
-        self.assertNotIn('<script>', stored_body)
-        self.assertNotIn('alert', stored_body)
-        self.assertIn('<p>Safe content</p>', stored_body)
+        self.assertNotIn('<script>', result)
+        self.assertNotIn('alert', result)
+        self.assertIn('<p>Safe content</p>', result)
+        self.assertIn('<p>More safe content</p>', result)
 
     def test_preserve_safe_html_formatting(self):
         """Test that safe HTML formatting is preserved"""
-        question_data = {
-            'type': 'technical',
-            'user_id': self.user_id,
-            'title': 'Formatting Test',
-            'body': '<p>This is <strong>bold</strong> and <em>italic</em> text with <code>code</code>.</p>',
-            'status': 'open'
-        }
+        input_html = '<p>This is <strong>bold</strong> and <em>italic</em> text with <code>code</code>.</p>'
         
-        response = self.client.post(
-            '/api/questions/',
-            data=json.dumps(question_data),
-            content_type='application/json'
-        )
+        result = sanitize_html_body(input_html)
         
-        self.assertEqual(response.status_code, 201)
-        response_data = json.loads(response.data)
-        
-        stored_body = response_data['question']['body']
-        self.assertIn('<strong>bold</strong>', stored_body)
-        self.assertIn('<em>italic</em>', stored_body)
-        self.assertIn('<code>code</code>', stored_body)
+        self.assertIn('<strong>bold</strong>', result)
+        self.assertIn('<em>italic</em>', result)
+        self.assertIn('<code>code</code>', result)
+        self.assertEqual(result, input_html) 
         
     def test_remove_dangerous_attributes(self):
         """Test that dangerous attributes are removed"""
-        question_data = {
-            'type': 'technical',
-            'user_id': self.user_id,
-            'title': 'Dangerous Attributes Test',
-            'body': '<p onclick="alert(\'XSS\')">Click me</p><img src="x" onerror="alert(\'XSS\')">',
-            'status': 'open'
-        }
+        input_html = '<p onclick="alert(\'XSS\')">Click me</p><img src="x" onerror="alert(\'XSS\')">'
         
-        response = self.client.post(
-            '/api/questions/',
-            data=json.dumps(question_data),
-            content_type='application/json'
-        )
+        result = sanitize_html_body(input_html)
         
-        self.assertEqual(response.status_code, 201)
-        response_data = json.loads(response.data)
+        self.assertNotIn('onclick', result)
+        self.assertNotIn('onerror', result)
+        self.assertIn('<p>Click me</p>', result)
+        # img tag should be removed completely since it's not in allowed tags
+        self.assertNotIn('<img', result)
+
+    def test_empty_content(self):
+        """Test handling of empty content"""
+        self.assertEqual(sanitize_html_body(''), '')
+        self.assertEqual(sanitize_html_body(None), '')
+
+    def test_plain_text_content(self):
+        """Test that plain text passes through unchanged"""
+        input_text = 'This is just plain text with no HTML.'
+        result = sanitize_html_body(input_text)
+        self.assertEqual(result, input_text)
+
+    def test_nested_script_tags(self):
+        """Test handling of nested or malformed script tags"""
+        input_html = '<p>Safe</p><script><script>alert("nested")</script></script><p>More safe</p>'
         
-        stored_body = response_data['question']['body']
-        self.assertNotIn('onclick', stored_body)
-        self.assertNotIn('onerror', stored_body)
+        result = sanitize_html_body(input_html)
+        
+        self.assertNotIn('<script>', result)
+        self.assertNotIn('alert', result)
+        self.assertNotIn('nested', result)
+        self.assertIn('<p>Safe</p>', result)
+        self.assertIn('<p>More safe</p>', result)
+
+    def test_case_insensitive_script_removal(self):
+        """Test that script tags are removed regardless of case"""
+        input_html = '<p>Safe</p><SCRIPT>alert("XSS")</SCRIPT><Script>alert("XSS2")</Script>'
+        
+        result = sanitize_html_body(input_html)
+        
+        self.assertNotIn('alert', result)
+        self.assertNotIn('XSS', result)
+        self.assertNotIn('XSS2', result)
+        self.assertEqual(result, '<p>Safe</p>')
+
+    def test_allowed_link_attributes(self):
+        """Test that allowed attributes on links are preserved"""
+        input_html = '<p><a href="https://dal.com" title="dal">Link</a></p>'
+        
+        result = sanitize_html_body(input_html)
+        
+        self.assertIn('href="https://dal.com"', result)
+        self.assertIn('title="dal"', result)
+        self.assertIn('<a', result)
+
+    def test_disallowed_protocols(self):
+        """Test that disallowed protocols are removed"""
+        input_html = '<a href="javascript:alert(\'XSS\')">Bad Link</a>'
+        
+        result = sanitize_html_body(input_html)
+        
+        self.assertNotIn('javascript:', result)
+        self.assertNotIn('alert', result)
+        # Link should remain but without the href
+        self.assertIn('<a>Bad Link</a>', result)
+
+    def test_code_and_pre_tags_with_classes(self):
+        """Test that code and pre tags preserve allowed class attributes"""
+        input_html = '<pre class="language-python"><code class="highlight">print("hello")</code></pre>'
+        
+        result = sanitize_html_body(input_html)
+        
+        self.assertIn('class="language-python"', result)
+        self.assertIn('class="highlight"', result)
+        self.assertIn('print("hello")', result)
         
 if __name__ == '__main__':
     unittest.main()
