@@ -117,14 +117,16 @@ export default function UserRegistration() {
         required
         disabled={showOtpField}
       />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        disabled={showOtpField}
-      />
+
+      {!showOtpField && (
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+      )}
 
       {showOtpField && (
         <input

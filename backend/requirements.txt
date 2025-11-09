@@ -14,3 +14,5 @@ typing_extensions==4.15.0
 Werkzeug==3.1.3
 zipp==3.23.0
 python-dotenv == 25.3
+bcrypt==4.0.1
+PyJWT==2.8.0
