@@ -2,11 +2,13 @@
 Description: User routes for handling user-related API endpoints.
 Created By: Devang
 Created: 2025-11-01
-Last Modified: 
+Last Modified: Saayonee @ 12.28 AM Nov 9
     
 """
 from functools import wraps
-from flask import request, redirect, url_for, session
+from flask import request, redirect, url_for, session, jsonify, current_app
+from models.user import User
+import jwt
 
 #!!! when session is ready, uncomment the following code
 # def login_required(view_func):
@@ -36,3 +38,5 @@ def login_required(view_func):
             return redirect(url_for('login.login', next=next_url))
         return view_func(*args,**kwargs)
     return wrapped_view
+
+

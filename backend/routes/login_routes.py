@@ -8,6 +8,7 @@ Last Modified: 2025-11-01
 """
 from flask import Blueprint, request, jsonify, session
 from services.user_login import UserLoginServices
+from middleware.auth_middleware import token_required
 
 # Create Blueprint for login routes
 login_bp = Blueprint('login', __name__)
@@ -38,7 +39,7 @@ def login():
             return jsonify({'success': False, 'message': 'Invalid email or password'})
             
     except Exception as e:
-        print(e);
+        print(e)
         return jsonify({'success': False, 'message': 'Login failed'})
 
 @login_bp.route('/logout', methods=['POST'])
@@ -67,4 +68,18 @@ def login_page():
     return jsonify({
         'message': 'Kindly login for access, thanks!',
         'next': next_url
+    })
+    
+@login_bp.route('/validate', methods=['GET'])
+@token_required
+def validate_token(current_user):
+    print(f"Validate route reached - user: {current_user.username}")  # DEBUG
+
+    return jsonify({
+        'valid': True,
+        'user': {
+            'user_id': current_user.id,
+            'username': current_user.username,
+            'email': current_user.email
+        }
     })

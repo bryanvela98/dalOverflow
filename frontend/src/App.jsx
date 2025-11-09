@@ -5,13 +5,21 @@ import QuestionPage from "./pages/QuestionPage";
 import Tags from "./components/Tags/Tags";
 import QuestionDetails from "./components/Question/QuestionDetail";
 import LoginRegistration from "./pages/LoginRegistration";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/ask" element={<CreateQuestion />} />
+        <Route
+          path="/ask"
+          element={
+            <ProtectedRoute>
+              <CreateQuestion />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/questions/:id" element={<QuestionPage />} />
         <Route path="/question/:id" element={<QuestionDetails />} />
         <Route path="/tags" element={<Tags />} />
