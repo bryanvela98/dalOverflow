@@ -9,6 +9,22 @@ export default function UserRegistration() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    //frontend validation for dal.ca
+    if (!email.endsWith("@dal.ca")) {
+      setMessage("Please use a valid Dalhousie email address (@dal.ca)");
+      return;
+    }
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setMessage(
+        "Password must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol"
+      );
+      return;
+    }
+
     console.log("Registering:", { email, password });
 
     try {

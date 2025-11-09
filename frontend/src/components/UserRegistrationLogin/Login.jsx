@@ -27,6 +27,8 @@ export default function Login() {
       if (data.success) {
         setMessage("Login successful! Redirecting...");
         console.log("Login successful:", data.user);
+        localStorage.setItem("token", data.user.token);
+        console.log("Token: ", data.user.token);
         navigate("/");
       } else {
         setMessage("Login failed: " + data.message);
