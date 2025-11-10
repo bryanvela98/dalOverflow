@@ -6,7 +6,7 @@ Last Modified:
     2025-11-07 - Refactored to unit tests for fuzzy search function only.
 """
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from utils.fuzzy_search import *
 
 class TestFuzzySearchBasic(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestFuzzySearchBasic(unittest.TestCase):
         with patch('utils.fuzzy_search.get_all_questions') as mock_get:
             mock_get.return_value = mock_questions
             
-            results = search_questions('Flask Tutorial')
+            results = search_questions('what is the most common use of flask?')
             
             self.assertEqual(len(results), 1)
             self.assertEqual(results[0]['id'], 1)
