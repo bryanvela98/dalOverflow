@@ -519,6 +519,38 @@
   font-weight: bold;
 }
 
+/*this is styling for code snippet inputs and language selection*/
+.form-select {
+  background-color: white;
+  color: black;
+  width: 200px;
+  padding: 2px;
+}
+
+.form-select:focus {
+  border-color: #ffc107;
+  outline: none;
+}
+
+.form-select option {
+  background-color: white;
+}
+
+.code-snippet {
+  background-color: white;
+  color: black;
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid rgb(198, 198, 198);
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+}
+
+.code-snippet:focus {
+  outline: none;
+  border-color: #ffc107;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .create-question-page {
