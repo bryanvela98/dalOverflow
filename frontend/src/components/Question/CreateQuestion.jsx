@@ -246,7 +246,9 @@ const CreateQuestion = () => {
         showNotification("Question created successfully!", "success");
 
         setTimeout(() => {
-          navigate("/questions/:id", { state: { refresh: true } });
+          navigate(`/questions/${mockQuestionId}`, {
+            state: { refresh: true },
+          });
         }, 1500);
 
         // Return mock response
@@ -254,7 +256,7 @@ const CreateQuestion = () => {
       }
 
       // Production mode: real API call
-      const response = await fetch("/api/questions/:id", {
+      const response = await fetch("/api/questions/${mockQuestionId}", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

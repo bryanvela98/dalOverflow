@@ -6,7 +6,7 @@ import "./CreateQuestionPage.css";
 /**
  * Create Question Page Component (Issue #2)
  * Pure JavaScript version
- * ✅ FIXED: Removed .slice(0, 10) limit on tags display
+ * FIXED: Removed .slice(0, 10) limit on tags display
  */
 const CreateQuestionPage = ({
   availableTags = [],
@@ -321,7 +321,7 @@ const CreateQuestionPage = ({
                 <div className="tag-dropdown">
                   {filteredTags.length > 0 ? (
                     <>
-                      {/* ✅ FIXED: Removed .slice(0, 10) - Now shows ALL filtered tags */}
+                      {/* FIXED: Removed .slice(0, 10) - Now shows ALL filtered tags */}
                       {filteredTags.map((tag) => (
                         <button
                           key={tag.id}
