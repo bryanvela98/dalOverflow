@@ -112,30 +112,32 @@ const CreateQuestion = () => {
         return [];
       }
 
-      console.log("Searching similar questions:", title);
-
-      // Mock implementation for now
-      const mockSimilarQuestions = [
+      const response = await fetch(
+        `http://localhost:5001/api/questions/search?query=${encodeURIComponent(
+          title.trim()
+        )}`,
         {
-          id: 1,
-          title: "How to implement user authentication in React?",
-          similarity: 0.85,
-          voteCount: 25,
-          answerCount: 5,
-          viewCount: 350,
-        },
-        {
-          id: 2,
-          title: "React authentication best practices",
-          similarity: 0.72,
-          voteCount: 18,
-          answerCount: 3,
-          viewCount: 220,
-        },
-      ].filter((q) => q.title.toLowerCase().includes(title.toLowerCase()));
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+        }
+      );
 
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      return mockSimilarQuestions;
+      if (!response.ok) {
+        return [];
+      }
+
+      const data = await response.json();
+
+      // Simple transformation - backend already sorted by score
+      return data.results.slice(0, 5).map((question) => ({
+        id: question.id,
+        title: question.title,
+        similarity: question.score,
+      }));
     } catch (error) {
       console.error("Search error:", error);
       return [];
