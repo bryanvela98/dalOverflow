@@ -72,7 +72,7 @@ def create_question():
         tag_ids = data.get('tag_ids', [])
         
         # Validate required fields
-        required_fields = ['user_id', 'title', 'body', 'tags']#, 'accepted_answer_id']
+        required_fields = ['user_id', 'title', 'body']#, 'accepted_answer_id']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'{field} is required'}), 400

@@ -18,81 +18,106 @@ const CreateQuestion = () => {
     }, 5000);
   };
 
-  // Temporary mock tags until backend is ready
+  // Mock tags data - make sure these match your database tag IDs
   const mockTags = [
-    { id: "1", name: "javascript", description: "JavaScript programming" },
-    { id: "2", name: "react", description: "React.js framework" },
-    { id: "3", name: "nodejs", description: "Node.js backend" },
-    { id: "4", name: "css", description: "CSS styling" },
-    { id: "5", name: "html", description: "HTML markup" },
-    { id: "6", name: "python", description: "Python programming" },
-    { id: "7", name: "java", description: "Java programming" },
-    { id: "8", name: "sql", description: "SQL databases" },
+    { id: 1, name: "javascript", description: "JavaScript programming" },
+    { id: 2, name: "react", description: "React.js framework" },
+    { id: 3, name: "nodejs", description: "Node.js backend" },
+    { id: 4, name: "css", description: "CSS styling" },
+    { id: 5, name: "html", description: "HTML markup" },
+    { id: 6, name: "python", description: "Python programming" },
   ];
 
-  // FIXED: Handle form submission with actual database
+  // FIXED: Handle form submission with correct data structure
   const handleSubmit = async (questionData) => {
     try {
-      console.log("🔄 Starting submission...");
+      console.log("Starting submission...");
 
+      // Get actual user data from localStorage
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const userId = userData.id || 6; // Fallback to 6 as in your example
+
+      // Transform data to match backend expectations EXACTLY
       const backendData = {
-        user_id: "user123", // Make sure this matches your user ID format
+        type: "technical", // Required field
+        user_id: userId, // Number, not string
         title: questionData.title,
-        body: questionData.description,
-        tags: questionData.tags, // This should be an array of tag IDs
+        body: questionData.description, // Changed from description to body
+        tag_ids: questionData.tags.map((tag) => parseInt(tag)), // Changed from tags to tag_ids, array of numbers
+        status: "open", // Required field
       };
 
-      console.log("📤 Sending to API:", backendData);
+      console.log("Sending to backend:", backendData);
 
-      const response = await fetch("/api/questions", {
+      const response = await fetch("http://localhost:5001/api/questions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        credentials: "include",
         body: JSON.stringify(backendData),
       });
 
-      console.log("📥 Response status:", response.status);
+      console.log("Response status:", response.status);
 
-      if (!response.ok) {
-        // Try to get error message from response
-        const errorText = await response.text();
-        console.error("❌ Server error response:", errorText);
+      // Handle non-JSON responses
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Server returned non-JSON:", text.substring(0, 200));
+
+        if (response.status === 404) {
+          throw new Error(
+            "Questions API endpoint not found. Check backend routes."
+          );
+        }
         throw new Error(
-          `Server returned ${response.status}: ${response.statusText}`
+          `Server error: ${response.status} ${response.statusText}`
         );
       }
 
       const result = await response.json();
-      console.log("✅ Success response:", result);
+      console.log("Backend response:", result);
 
-      showNotification("Question created successfully!", "success");
+      if (response.ok) {
+        showNotification("Question created successfully!", "success");
 
-      setTimeout(() => {
-        navigate(`/questions/${result.question.id}`);
-      }, 1500);
+        // Navigate to the newly created question
+        setTimeout(() => {
+          if (result.question && result.question.id) {
+            navigate(`/questions/${result.question.id}`);
+          } else {
+            navigate("/questions");
+          }
+        }, 1500);
 
-      return result;
+        return result;
+      } else {
+        throw new Error(
+          result.error || `Failed to create question: ${response.status}`
+        );
+      }
     } catch (error) {
-      console.error("❌ Submission error:", error);
+      console.error("Submission error:", error);
       showNotification(error.message, "error");
       throw error;
     }
   };
 
-  // FIXED: Search similar questions - use simple mock for now
+  // FIXED: Search similar questions
   const handleSearchSimilar = async (title) => {
     try {
       if (!title.trim() || title.length < 5) {
         return [];
       }
 
-      console.log("🔍 Searching similar questions:", title);
+      console.log("Searching similar questions:", title);
 
-      // Simple mock implementation
+      // Mock implementation for now
       const mockSimilarQuestions = [
         {
-          id: "1",
+          id: 1,
           title: "How to implement user authentication in React?",
           similarity: 0.85,
           voteCount: 25,
@@ -100,7 +125,7 @@ const CreateQuestion = () => {
           viewCount: 350,
         },
         {
-          id: "2",
+          id: 2,
           title: "React authentication best practices",
           similarity: 0.72,
           voteCount: 18,
@@ -112,23 +137,23 @@ const CreateQuestion = () => {
       await new Promise((resolve) => setTimeout(resolve, 300));
       return mockSimilarQuestions;
     } catch (error) {
-      console.error("❌ Search error:", error);
+      console.error("Search error:", error);
       return [];
     }
   };
 
-  // FIXED: Create tag - use mock for now
+  // FIXED: Create tag
   const handleCreateTag = async (tagName) => {
     try {
       if (!tagName.trim()) {
         throw new Error("Tag name cannot be empty");
       }
 
-      console.log("🏷️ Creating tag:", tagName);
+      console.log("Creating tag:", tagName);
 
       // Mock tag creation for now
       const newTag = {
-        id: `tag-${Date.now()}`,
+        id: Date.now(),
         name: tagName.trim().toLowerCase(),
         description: `User-created tag: ${tagName}`,
         isPersonal: true,
@@ -137,7 +162,7 @@ const CreateQuestion = () => {
       await new Promise((resolve) => setTimeout(resolve, 200));
       return newTag;
     } catch (error) {
-      console.error("❌ Tag creation error:", error);
+      console.error("Tag creation error:", error);
       throw new Error(`Failed to create tag: ${error.message}`);
     }
   };
@@ -147,7 +172,7 @@ const CreateQuestion = () => {
 
   // Get actual user ID
   const userData = JSON.parse(localStorage.getItem("user") || "{}");
-  const currentUserId = userData.id || "user123";
+  const currentUserId = userData.id || 6;
 
   return (
     <>
