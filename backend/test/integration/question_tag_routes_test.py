@@ -69,3 +69,57 @@ class QuestionTagRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(response.status_code, 404)
         data = response.get_json()
         self.assertIn('error', data)
+
+    # question with one tag
+    def test_get_tags_with_one_tag(self):
+        """question with one tag returns that tag"""
+        # Associate one tag with question
+        self.create_test_question_tag(self.question1.id, self.tag_python.id)
+        db.session.commit()
+        
+        response = self.client.get(f'/api/questions/{self.question1.id}/tags')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(len(data['tags']), 1)
+        self.assertEqual(data['tags'][0]['tag_name'], 'Python')
+
+    # question with multiple tags
+    def test_get_tags_with_multiple_tags(self):
+        """question with multiple tags returns all tags"""
+        # Associate multiple tags with question
+        self.create_test_question_tag(self.question1.id, self.tag_python.id)
+        self.create_test_question_tag(self.question1.id, self.tag_programming.id)
+        db.session.commit()
+        
+        response = self.client.get(f'/api/questions/{self.question1.id}/tags')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(len(data['tags']), 2)
+        
+        tag_names = [tag['tag_name'] for tag in data['tags']]
+        self.assertIn('Python', tag_names)
+        self.assertIn('Programming', tag_names)
+
+    # questions endpoint exists
+    def test_get_questions_endpoint_exists(self):
+        """GET /api/tags/{id}/questions endpoint exists"""
+        response = self.client.get(f'/api/tags/{self.tag_python.id}/questions')
+        
+        # Should not return 404 (endpoint exists)
+        self.assertNotEqual(response.status_code, 404)
+        
+        # Should return JSON
+        data = response.get_json()
+        self.assertIsNotNone(data)
+
+    # questions with no tags
+    def test_get_questions_empty_response(self):
+        """Tag with no questions returns empty list"""
+        response = self.client.get(f'/api/tags/{self.tag_python.id}/questions')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('questions', data)
+        self.assertEqual(len(data['questions']), 0)
