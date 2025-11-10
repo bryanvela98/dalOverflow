@@ -1,375 +1,599 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "./QuestionDetailPage.css";
 
-/**
- * Question Detail Page Component (Issue #5)
- * Pure JavaScript version
- */
-const QuestionDetailPage = ({
-  question,
-  answers,
-  comments,
-  currentUser,
-  onVote,
-  onBookmark,
-  onEdit,
-  onDelete,
-  onShare,
-  onReport,
-  onTagClick,
-}) => {
-  const [copiedCodeBlock, setCopiedCodeBlock] = useState(null);
+const QuestionDetailPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [question, setQuestion] = useState(null);
+  const [answers, setAnswers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [newAnswer, setNewAnswer] = useState("");
+  const [showAnswerForm, setShowAnswerForm] = useState(false);
 
-  const formatTimeAgo = (date) => {
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    const now = new Date();
-    const diffInSeconds = Math.floor(
-      (now.getTime() - dateObj.getTime()) / 1000
+  // Mock current user - replace with actual auth context
+  const currentUser = {
+    id: "user123",
+    username: "Current User",
+    email: "user@dal.ca",
+    reputation: 1500,
+    isProfessor: false,
+    isTA: true,
+  };
+
+  useEffect(() => {
+    loadQuestionData();
+  }, [id]);
+
+  const loadQuestionData = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`http://localhost:5001/api/questions/${id}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch question: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Backend data:", data);
+
+      // Transform backend data to match our component structure
+      const transformedQuestion = transformQuestionData(data.question);
+      const transformedAnswers = transformAnswersData(data.answers || []);
+
+      setQuestion(transformedQuestion);
+      setAnswers(transformedAnswers);
+    } catch (error) {
+      console.error("Error fetching question:", error);
+      setError("Failed to load question. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Transform backend question data
+  const transformQuestionData = (backendQuestion) => {
+    if (!backendQuestion) return null;
+
+    return {
+      id: backendQuestion.id,
+      title: backendQuestion.title,
+      description: backendQuestion.body,
+      body: backendQuestion.body,
+      author: {
+        id: backendQuestion.user_id,
+        username: `User ${backendQuestion.user_id}`,
+        reputation: 1500,
+        isProfessor: false,
+        isTA: false,
+      },
+      tags: backendQuestion.tags
+        ? backendQuestion.tags.map((tag) => ({
+            id: tag.id,
+            name: tag.tag_name,
+            description: tag.tag_description || "",
+          }))
+        : [],
+      voteCount: 0,
+      viewCount: backendQuestion.view_count || 0,
+      commentCount: 0,
+      answerCount: backendQuestion.answers ? backendQuestion.answers.length : 0,
+      isAnswered: backendQuestion.answers && backendQuestion.answers.length > 0,
+      hasAcceptedAnswer: false,
+      isBookmarked: false,
+      isAnonymous: false,
+      courseCode: "CSCI 3130",
+      createdAt: backendQuestion.created_at,
+      updatedAt: backendQuestion.updated_at,
+      status: backendQuestion.status,
+      type: backendQuestion.type,
+    };
+  };
+
+  // Transform backend answers data
+  const transformAnswersData = (backendAnswers) => {
+    return backendAnswers.map((answer) => ({
+      id: answer.id,
+      questionId: answer.question_id,
+      body: answer.content,
+      author: {
+        id: answer.user_id,
+        name: `User ${answer.user_id}`,
+        username: `User ${answer.user_id}`,
+      },
+      voteCount: answer.upvotes || 0,
+      isAccepted: answer.is_accepted || false,
+      createdAt: answer.created_at,
+    }));
+  };
+
+  // Vote handler
+  const handleVote = async (type, targetId, direction) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/${type}s/${targetId}/vote`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            direction,
+            userId: currentUser.id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Vote failed: ${response.status}`);
+      }
+
+      await loadQuestionData();
+    } catch (error) {
+      console.error("Error voting:", error);
+      alert("Failed to submit vote. Please try again.");
+    }
+  };
+
+  // Bookmark handler
+  const handleBookmark = async (questionId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/questions/${questionId}/bookmark`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: currentUser.id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Bookmark failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setQuestion((prev) =>
+        prev ? { ...prev, isBookmarked: result.isBookmarked } : null
+      );
+    } catch (error) {
+      console.error("Error bookmarking:", error);
+      alert("Failed to update bookmark. Please try again.");
+    }
+  };
+
+  // Submit answer handler
+  const handleSubmitAnswer = async (e) => {
+    e.preventDefault();
+
+    if (!newAnswer.trim()) {
+      alert("Please enter an answer before submitting.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/questions/${id}/answers`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: newAnswer,
+            userId: currentUser.id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Answer submission failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Answer submitted:", result);
+
+      // Reset form and reload data
+      setNewAnswer("");
+      setShowAnswerForm(false);
+      await loadQuestionData();
+
+      alert("Answer submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting answer:", error);
+      alert("Failed to submit answer. Please try again.");
+    }
+  };
+
+  // Edit handler
+  const handleEdit = (questionId) => {
+    navigate(`/questions/${questionId}/edit`);
+  };
+
+  // Delete handler
+  const handleDelete = async (questionId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this question? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/questions/${questionId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: currentUser.id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.status}`);
+      }
+
+      alert("Question deleted successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting question:", error);
+      alert("Failed to delete question. Please try again.");
+    }
+  };
+
+  // Share handler
+  const handleShare = () => {
+    const url = window.location.href;
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: question?.title,
+          url: url,
+        })
+        .catch(() => {
+          copyToClipboard(url);
+        });
+    } else {
+      copyToClipboard(url);
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => alert("Link copied to clipboard!"))
+      .catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        alert("Link copied to clipboard!");
+      });
+  };
+
+  // Report handler
+  const handleReport = async (type, targetId) => {
+    const reason = prompt(
+      `Please enter the reason for reporting this ${type}:`
     );
+    if (!reason) return;
 
-    if (diffInSeconds < 60) return "just now";
-    if (diffInSeconds < 3600)
-      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400)
-      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800)
-      return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    try {
+      const response = await fetch(`http://localhost:5001/api/reports`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type,
+          targetId,
+          reason,
+          userId: currentUser.id,
+        }),
+      });
 
-    return dateObj.toLocaleDateString("en-US", {
+      if (!response.ok) {
+        throw new Error(`Report failed: ${response.status}`);
+      }
+
+      alert("Thank you for reporting. Our team will review this content.");
+    } catch (error) {
+      console.error("Error reporting:", error);
+      alert("Failed to submit report. Please try again.");
+    }
+  };
+
+  // Tag click handler
+  const handleTagClick = (tagName) => {
+    navigate(`/tags/${tagName}`);
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
-  // AC 3: Add copy button to code blocks
-  useEffect(() => {
-    const codeBlocks = document.querySelectorAll("pre");
-    codeBlocks.forEach((block, index) => {
-      if (!block.querySelector(".code-copy-button")) {
-        const wrapper = document.createElement("div");
-        wrapper.className = "code-block-wrapper";
-        block.parentNode?.insertBefore(wrapper, block);
-        wrapper.appendChild(block);
+  // Loading state
+  if (loading) {
+    return (
+      <div className="question-detail-loading">
+        <div className="spinner"></div>
+        <p>Loading question...</p>
+      </div>
+    );
+  }
 
-        const button = document.createElement("button");
-        button.className = "code-copy-button";
-        button.textContent = copiedCodeBlock === index ? "Copied!" : "Copy";
-        button.onclick = () => handleCopyCode(block.textContent || "", index);
-        wrapper.appendChild(button);
-      }
-    });
-  }, [question.description, copiedCodeBlock]);
+  // Error state
+  if (error) {
+    return (
+      <div className="question-detail-error">
+        <h2>Error Loading Question</h2>
+        <p>{error}</p>
+        <button onClick={loadQuestionData} className="retry-btn">
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
-  const handleCopyCode = (code, index) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCodeBlock(index);
-    setTimeout(() => setCopiedCodeBlock(null), 2000);
-  };
-
-  const isAuthor = currentUser && currentUser.id === question.authorId;
-
-  // AC 6: Handle anonymous display
-  const displayAuthor = question.isAnonymous
-    ? {
-        username: "Anonymous Dalhousie Student",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous`,
-        reputation: 0,
-        isProfessor: false,
-        isTA: false,
-      }
-    : question.author;
+  // Question not found
+  if (!question) {
+    return (
+      <div className="question-detail-not-found">
+        <h2>Question not found</h2>
+        <p>
+          The question you're looking for doesn't exist or may have been
+          removed.
+        </p>
+        <button onClick={() => navigate("/")} className="home-btn">
+          Back to Home
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="question-detail-page">
-      <div className="question-detail-container">
-        {/* AC 1: Question Header */}
-        <header className="question-header">
-          <div className="question-header-main">
+    <div className="question-detail-container">
+      {/* Question Header */}
+      <div className="question-header">
+        <div className="question-title-section">
+          <h1 className="question-title">{question.title}</h1>
+          <div className="question-actions">
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowAnswerForm(!showAnswerForm)}
+            >
+              Answer Question
+            </button>
+            <button
+              className={`btn btn-bookmark ${
+                question.isBookmarked ? "bookmarked" : ""
+              }`}
+              onClick={() => handleBookmark(question.id)}
+            >
+              {question.isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
+            </button>
+            <button className="btn btn-secondary" onClick={handleShare}>
+              Share
+            </button>
+          </div>
+        </div>
+
+        <div className="question-meta">
+          <div className="meta-item">
+            <span className="meta-label">Asked</span>
+            <span className="meta-value">{formatDate(question.createdAt)}</span>
+          </div>
+          <div className="meta-item">
+            <span className="meta-label">Viewed</span>
+            <span className="meta-value">{question.viewCount} times</span>
+          </div>
+          <div className="meta-item">
+            <span className="meta-label">Status</span>
+            <span className={`status-badge ${question.status}`}>
+              {question.status}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Question Content */}
+      <div className="question-content">
+        <div className="vote-section">
+          <button
+            className="vote-btn upvote"
+            onClick={() => handleVote("question", question.id, "up")}
+          >
+            ▲
+          </button>
+          <span className="vote-count">{question.voteCount}</span>
+          <button
+            className="vote-btn downvote"
+            onClick={() => handleVote("question", question.id, "down")}
+          >
+            ▼
+          </button>
+        </div>
+
+        <div className="content-main">
+          <div
+            className="question-body"
+            dangerouslySetInnerHTML={{ __html: question.body }}
+          />
+
+          <div className="question-tags">
+            {question.tags.map((tag) => (
+              <button
+                key={tag.id}
+                className="tag"
+                onClick={() => handleTagClick(tag.name)}
+              >
+                {tag.name}
+              </button>
+            ))}
+          </div>
+
+          <div className="question-footer">
+            <div className="question-actions-footer">
+              {currentUser.id === question.author.id && (
+                <>
+                  <button
+                    className="btn-link"
+                    onClick={() => handleEdit(question.id)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn-link delete"
+                    onClick={() => handleDelete(question.id)}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+              <button
+                className="btn-link"
+                onClick={() => handleReport("question", question.id)}
+              >
+                Report
+              </button>
+            </div>
+
+            <div className="author-info">
+              <div className="author-details">
+                <span className="asked-by">Asked by</span>
+                <span className="author-name">{question.author.username}</span>
+                <span className="author-reputation">
+                  {question.author.reputation}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Answers Section */}
+      <div className="answers-section">
+        <div className="answers-header">
+          <h2>
+            {answers.length} Answer{answers.length !== 1 ? "s" : ""}
+          </h2>
+        </div>
+
+        {answers.map((answer) => (
+          <div
+            key={answer.id}
+            className={`answer-card ${answer.isAccepted ? "accepted" : ""}`}
+          >
             <div className="vote-section">
               <button
-                className="vote-button vote-button--up"
-                onClick={() => onVote("question", question.id, "up")}
-                aria-label="Upvote"
+                className="vote-btn upvote"
+                onClick={() => handleVote("answer", answer.id, "up")}
               >
                 ▲
               </button>
-              <span className="vote-count">{question.voteCount}</span>
+              <span className="vote-count">{answer.voteCount}</span>
               <button
-                className="vote-button vote-button--down"
-                onClick={() => onVote("question", question.id, "down")}
-                aria-label="Downvote"
+                className="vote-btn downvote"
+                onClick={() => handleVote("answer", answer.id, "down")}
               >
                 ▼
               </button>
+              {answer.isAccepted && (
+                <div className="accepted-badge" title="Accepted Answer">
+                  ✓
+                </div>
+              )}
             </div>
 
-            <div className="question-header-content">
-              <h1 className="question-title">{question.title}</h1>
-
-              <div className="question-meta">
-                <span className="meta-item">
-                  Asked {formatTimeAgo(question.createdAt)}
-                </span>
-                <span className="meta-divider">•</span>
-                <span className="meta-item">
-                  Viewed {question.viewCount.toLocaleString()} times
-                </span>
-                {question.updatedAt !== question.createdAt && (
-                  <>
-                    <span className="meta-divider">•</span>
-                    <span className="meta-item">
-                      Modified {formatTimeAgo(question.updatedAt)}
-                    </span>
-                  </>
-                )}
-              </div>
-
-              {/* AC 5: Course Tags */}
-              <div className="question-tags">
-                {question.tags.map((tag) => (
-                  <button
-                    key={tag.id}
-                    className="tag-badge tag-badge--clickable"
-                    onClick={() => onTagClick(tag.id)}
-                    title={tag.description}
-                  >
-                    {tag.name}
-                  </button>
-                ))}
-                {question.courseCode && (
-                  <span
-                    className="course-badge"
-                    title={`Course: ${question.courseCode}`}
-                  >
-                    {question.courseCode}
-                  </span>
-                )}
-              </div>
-
-              <div className="status-indicators">
-                {question.hasAcceptedAnswer ? (
-                  <span className="status-badge status-badge--accepted">
-                    ✓ Accepted Answer
-                  </span>
-                ) : question.isAnswered ? (
-                  <span className="status-badge status-badge--answered">
-                    Answered
-                  </span>
-                ) : (
-                  <span className="status-badge status-badge--unanswered">
-                    Unanswered
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* AC 3: Question Description */}
-        <div className="question-body">
-          <div
-            className="question-description"
-            dangerouslySetInnerHTML={{ __html: question.description }}
-          />
-        </div>
-
-        {/* AC 4: Question Metadata Actions */}
-        <div className="question-actions">
-          <div className="actions-left">
-            <span className="action-stat">
-              {question.answerCount}{" "}
-              {question.answerCount === 1 ? "Answer" : "Answers"}
-            </span>
-            <span className="action-stat">
-              {question.commentCount}{" "}
-              {question.commentCount === 1 ? "Comment" : "Comments"}
-            </span>
-          </div>
-
-          <div className="actions-right">
-            <button
-              className={`action-button ${
-                question.isBookmarked ? "action-button--active" : ""
-              }`}
-              onClick={() => onBookmark(question.id)}
-              title="Bookmark this question"
-            >
-              <span className="action-icon">
-                {question.isBookmarked ? "★" : "☆"}
-              </span>
-              Bookmark
-            </button>
-
-            <button
-              className="action-button"
-              onClick={() => onShare(question.id)}
-              title="Share this question"
-            >
-              <span className="action-icon">↗</span>
-              Share
-            </button>
-
-            <button
-              className="action-button"
-              onClick={() => onReport("question", question.id)}
-              title="Report or flag this question"
-            >
-              <span className="action-icon">⚑</span>
-              Report
-            </button>
-
-            {isAuthor && (
-              <>
-                <button
-                  className="action-button action-button--edit"
-                  onClick={() => onEdit(question.id)}
-                  title="Edit your question"
-                >
-                  <span className="action-icon">✎</span>
-                  Edit
-                </button>
-
-                <button
-                  className="action-button action-button--danger"
-                  onClick={() => onDelete(question.id)}
-                  title="Delete your question"
-                >
-                  <span className="action-icon">×</span>
-                  Delete
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Answers Section */}
-        {answers.length > 0 && (
-          <div className="answers-section">
-            <h2 className="answers-header">
-              {answers.length} {answers.length === 1 ? "Answer" : "Answers"}
-            </h2>
-
-            {answers.map((answer) => (
+            <div className="answer-content">
               <div
-                key={answer.id}
-                className={`answer-card ${
-                  answer.isAccepted ? "answer-card--accepted" : ""
-                }`}
-              >
-                {answer.isAccepted && (
-                  <div className="answer-accepted-badge">✓ Accepted Answer</div>
-                )}
+                className="answer-body"
+                dangerouslySetInnerHTML={{ __html: answer.body }}
+              />
 
-                <div className="answer-content">
-                  <div className="vote-section">
-                    <button
-                      className="vote-button vote-button--up"
-                      onClick={() => onVote("answer", answer.id, "up")}
-                    >
-                      ▲
-                    </button>
-                    <span className="vote-count">{answer.voteCount}</span>
-                    <button
-                      className="vote-button vote-button--down"
-                      onClick={() => onVote("answer", answer.id, "down")}
-                    >
-                      ▼
-                    </button>
-                  </div>
+              <div className="answer-footer">
+                <div className="answer-actions">
+                  <button
+                    className="btn-link"
+                    onClick={() => handleReport("answer", answer.id)}
+                  >
+                    Report
+                  </button>
+                </div>
 
-                  <div className="answer-body">
-                    <div
-                      className="answer-text"
-                      dangerouslySetInnerHTML={{ __html: answer.body }}
-                    />
-
-                    <div className="answer-footer">
-                      <span className="answer-time">
-                        Answered {formatTimeAgo(answer.createdAt)}
-                      </span>
-                    </div>
+                <div className="author-info">
+                  <div className="author-details">
+                    <span className="answered-by">Answered</span>
+                    <span className="author-name">
+                      {answer.author.username}
+                    </span>
+                    <span className="answer-date">
+                      {formatDate(answer.createdAt)}
+                    </span>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+          </div>
+        ))}
+
+        {answers.length === 0 && (
+          <div className="no-answers">
+            <p>No answers yet. Be the first to answer this question!</p>
           </div>
         )}
       </div>
 
-      {/* AC 2: Author Information Sidebar */}
-      <aside className="question-sidebar">
-        <div className="author-card">
-          <h3 className="author-card-title">
-            {question.isAnonymous ? "Posted by" : "Asked by"}
-          </h3>
-
-          <div className="author-info">
-            <img
-              src={
-                displayAuthor?.avatar ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayAuthor?.username}`
-              }
-              alt={displayAuthor?.username}
-              className="author-avatar"
+      {/* Answer Form */}
+      {showAnswerForm && (
+        <div className="answer-form-section">
+          <h3>Your Answer</h3>
+          <form onSubmit={handleSubmitAnswer}>
+            <textarea
+              className="answer-textarea"
+              value={newAnswer}
+              onChange={(e) => setNewAnswer(e.target.value)}
+              placeholder="Write your answer here... You can use HTML tags for formatting."
+              rows={10}
+              required
             />
-
-            <div className="author-details">
-              <div className="author-name-row">
-                {question.isAnonymous ? (
-                  <span className="author-name author-name--anonymous">
-                    {displayAuthor?.username}
-                  </span>
-                ) : (
-                  <a
-                    href={`/users/${question.authorId}`}
-                    className="author-name"
-                  >
-                    {displayAuthor?.username}
-                  </a>
-                )}
-
-                {!question.isAnonymous && displayAuthor?.isProfessor && (
-                  <span
-                    className="verification-badge verification-badge--professor"
-                    title="Verified Professor"
-                  >
-                    👨‍🏫 Professor
-                  </span>
-                )}
-                {!question.isAnonymous && displayAuthor?.isTA && (
-                  <span
-                    className="verification-badge verification-badge--ta"
-                    title="Teaching Assistant"
-                  >
-                    🎓 TA
-                  </span>
-                )}
-              </div>
-
-              {!question.isAnonymous && (
-                <div className="author-reputation">
-                  <span className="reputation-icon">⭐</span>
-                  <span className="reputation-score">
-                    {displayAuthor?.reputation?.toLocaleString()} reputation
-                  </span>
-                </div>
-              )}
-
-              <div className="author-posted-time">
-                Asked on{" "}
-                {new Date(question.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
+            <div className="form-actions">
+              <button type="submit" className="btn btn-primary">
+                Post Your Answer
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowAnswerForm(false)}
+              >
+                Cancel
+              </button>
             </div>
-          </div>
+          </form>
         </div>
-      </aside>
+      )}
     </div>
   );
 };

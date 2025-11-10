@@ -3,14 +3,13 @@ import axios from "axios";
 import "../styles/QuestionPage.css";
 import { useParams } from "react-router-dom";
 
-
 export default function QuestionPage() {
   const [question, setQuestion] = useState(null);
   const { id } = useParams();
 
   useEffect(() => {
     axios
-      .get(`http://127.0.0.1:5000/api/questions/${id}`)
+      .get(`http://127.0.0.1:5001/api/questions/${id}`)
       .then((response) => {
         console.log(response.data);
         setQuestion(response.data.question);

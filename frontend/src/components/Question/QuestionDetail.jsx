@@ -30,7 +30,7 @@ const QuestionDetail = () => {
 
   const handleVote = async (type, targetId, direction) => {
     try {
-      await fetch(`http://localhost:5000/api/${type}s/${targetId}/vote`, {
+      await fetch(`http://localhost:5001/api/${type}s/${targetId}/vote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ direction }),
