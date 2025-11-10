@@ -119,49 +119,55 @@ const BasicQuestionDetail = () => {
     const fetchUserData = async (questionData) => {
       if (!isMounted) return;
 
-      const userIds = new Set();
+      const usersMap = { ...mockAnswerUsers }; // Start with mock answer users
 
-      // Only add question author (we'll fetch this from backend)
-      if (questionData.user_id) {
-        userIds.add(questionData.user_id);
+      // Try to get user from localStorage first (login data)
+      try {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        if (currentUser && questionData.user_id) {
+          usersMap[questionData.user_id] = {
+            username: currentUser.username || `User ${questionData.user_id}`,
+            reputation: currentUser.reputation || 0,
+            is_professor: currentUser.is_professor || false,
+            is_ta: currentUser.is_ta || false,
+            avatar: currentUser.avatar,
+            join_date: currentUser.join_date,
+          };
+        }
+      } catch (error) {
+        console.error("Error getting user from localStorage:", error);
       }
 
-      // Fetch user data for question author only from backend
-      const userPromises = Array.from(userIds).map((userId) =>
-        fetch(`http://localhost:5001/api/users/${userId}`)
-          .then((response) => response.json())
-          .then((userData) => ({ userId, userData }))
-          .catch((error) => {
-            console.error(`Error fetching user ${userId}:`, error);
-            return {
-              userId,
-              userData: {
-                user: {
-                  username: `User ${userId}`,
-                  reputation: 0,
-                  is_professor: false,
-                  is_ta: false,
-                },
-              },
+      // If we still don't have the user, try the database API
+      if (questionData.user_id && !usersMap[questionData.user_id]) {
+        try {
+          const response = await fetch(
+            `http://localhost:5001/api/users/${user_id}`
+          );
+          if (response.ok) {
+            const userData = await response.json();
+            usersMap[questionData.user_id] = userData?.user || {
+              username: `User ${questionData.user_id}`,
+              reputation: 0,
+              is_professor: false,
+              is_ta: false,
             };
-          })
-      );
-
-      const userResults = await Promise.all(userPromises);
-
-      if (isMounted) {
-        const usersMap = { ...mockAnswerUsers }; // Start with mock answer users
-
-        // Add real question author from backend
-        userResults.forEach(({ userId, userData }) => {
-          usersMap[userId] = userData?.user || {
-            username: `User ${userId}`,
+          } else {
+            throw new Error("API returned error");
+          }
+        } catch (error) {
+          console.error(`Error fetching user ${questionData.user_id}:`, error);
+          // Final fallback
+          usersMap[questionData.user_id] = {
+            username: `User ${questionData.user_id}`,
             reputation: 0,
             is_professor: false,
             is_ta: false,
           };
-        });
+        }
+      }
 
+      if (isMounted) {
         setUsers(usersMap);
       }
     };

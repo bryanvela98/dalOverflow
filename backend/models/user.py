@@ -47,3 +47,8 @@ class User(BaseModel):
             'university': self.university
         })
         return base_dict
+    
+@classmethod
+def get_by_id(cls, user_id):
+    """Get a user by ID."""
+    return cls.query.get(user_id)
