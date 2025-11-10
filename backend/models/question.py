@@ -84,3 +84,5 @@ class Question(BaseModel):
         db.session.add(question)
         db.session.commit()
         return question
+    
+    

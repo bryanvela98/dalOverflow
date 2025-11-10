@@ -15,280 +15,81 @@ const CreateQuestion = () => {
     setNotification({ show: true, type, message });
     setTimeout(() => {
       setNotification({ show: false, type: "", message: "" });
-    }, 3000);
+    }, 5000);
   };
 
-  // Simulated tag data
+  // Temporary mock tags until backend is ready
   const mockTags = [
-    {
-      id: "tag-1",
-      name: "javascript",
-      description: "For questions about JavaScript programming",
-      isPersonal: false,
-    },
-    {
-      id: "tag-2",
-      name: "react",
-      description: "For React.js related questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-3",
-      name: "nodejs",
-      description: "For Node.js backend questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-4",
-      name: "css",
-      description: "For CSS styling questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-5",
-      name: "html",
-      description: "For HTML markup questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-6",
-      name: "python",
-      description: "For Python programming questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-7",
-      name: "java",
-      description: "For Java programming questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-8",
-      name: "typescript",
-      description: "For TypeScript questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-9",
-      name: "mongodb",
-      description: "For MongoDB database questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-10",
-      name: "express",
-      description: "For Express.js framework questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-11",
-      name: "vue",
-      description: "For Vue.js questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-12",
-      name: "angular",
-      description: "For Angular questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-13",
-      name: "sql",
-      description: "For SQL database questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-14",
-      name: "git",
-      description: "For Git version control questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-15",
-      name: "docker",
-      description: "For Docker containerization questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-16",
-      name: "aws",
-      description: "For Amazon Web Services questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-17",
-      name: "api",
-      description: "For API development questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-18",
-      name: "rest",
-      description: "For RESTful API questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-19",
-      name: "graphql",
-      description: "For GraphQL questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-20",
-      name: "authentication",
-      description: "For authentication and security questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-21",
-      name: "database",
-      description: "For general database questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-22",
-      name: "frontend",
-      description: "For frontend development questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-23",
-      name: "backend",
-      description: "For backend development questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-24",
-      name: "fullstack",
-      description: "For full-stack development questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-25",
-      name: "debugging",
-      description: "For debugging and troubleshooting questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-26",
-      name: "performance",
-      description: "For performance optimization questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-27",
-      name: "testing",
-      description: "For testing and QA questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-28",
-      name: "deployment",
-      description: "For deployment questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-29",
-      name: "security",
-      description: "For security questions",
-      isPersonal: false,
-    },
-    {
-      id: "tag-30",
-      name: "algorithms",
-      description: "For algorithms and data structures",
-      isPersonal: false,
-    },
+    { id: "1", name: "javascript", description: "JavaScript programming" },
+    { id: "2", name: "react", description: "React.js framework" },
+    { id: "3", name: "nodejs", description: "Node.js backend" },
+    { id: "4", name: "css", description: "CSS styling" },
+    { id: "5", name: "html", description: "HTML markup" },
+    { id: "6", name: "python", description: "Python programming" },
+    { id: "7", name: "java", description: "Java programming" },
+    { id: "8", name: "sql", description: "SQL databases" },
   ];
 
+  // FIXED: Handle form submission with actual database
   const handleSubmit = async (questionData) => {
     try {
-      // Development mode: simulate backend response
-      const DEV_MODE = true; // Set to false when backend is ready
+      console.log("🔄 Starting submission...");
 
-      if (DEV_MODE) {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      const backendData = {
+        user_id: "user123", // Make sure this matches your user ID format
+        title: questionData.title,
+        body: questionData.description,
+        tags: questionData.tags, // This should be an array of tag IDs
+      };
 
-        // Mock successful response
-        const mockQuestionId = `q-${Date.now()}`;
+      console.log("📤 Sending to API:", backendData);
 
-        const newQuestion = {
-          id: mockQuestionId,
-          title: questionData.title,
-          description: questionData.description,
-          tags: questionData.tags,
-          votes: 0,
-          answers: 0,
-          views: 0,
-          isAnswered: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          author: {
-            id: "user123",
-            name: questionData.isAnonymous
-              ? "Anonymous Dalhousie Student"
-              : "Current User",
-          },
-        };
-
-        // store to localStorage
-        const existingQuestions = JSON.parse(
-          localStorage.getItem("userQuestions") || "[]"
-        );
-        const updatedQuestions = [newQuestion, ...existingQuestions];
-        localStorage.setItem("userQuestions", JSON.stringify(updatedQuestions));
-
-        console.log("Question saved to localStorage:", newQuestion);
-
-        // display success
-        showNotification("Question created successfully!", "success");
-
-        setTimeout(() => {
-          navigate(`/questions/${mockQuestionId}`, {
-            state: { refresh: true },
-          });
-        }, 1500);
-
-        // Return mock response
-        return newQuestion;
-      }
-
-      // Production mode: real API call
-      const response = await fetch("/api/questions/${mockQuestionId}", {
+      const response = await fetch("/api/questions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        credentials: "include",
-        body: JSON.stringify(questionData),
+        body: JSON.stringify(backendData),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        showNotification("Question created successfully!", "success");
-        setTimeout(() => {
-          navigate("/questions", { state: { refresh: true } });
-        }, 1500);
-        return data;
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create question");
+      console.log("📥 Response status:", response.status);
+
+      if (!response.ok) {
+        // Try to get error message from response
+        const errorText = await response.text();
+        console.error("❌ Server error response:", errorText);
+        throw new Error(
+          `Server returned ${response.status}: ${response.statusText}`
+        );
       }
+
+      const result = await response.json();
+      console.log("✅ Success response:", result);
+
+      showNotification("Question created successfully!", "success");
+
+      setTimeout(() => {
+        navigate(`/questions/${result.question.id}`);
+      }, 1500);
+
+      return result;
     } catch (error) {
-      console.error("Error:", error);
-      showNotification(error.message || "Failed to create question", "error");
+      console.error("❌ Submission error:", error);
+      showNotification(error.message, "error");
       throw error;
     }
   };
 
+  // FIXED: Search similar questions - use simple mock for now
   const handleSearchSimilar = async (title) => {
-    // Development mode: return mock data
-    const DEV_MODE = true;
+    try {
+      if (!title.trim() || title.length < 5) {
+        return [];
+      }
 
-    if (DEV_MODE) {
+      console.log("🔍 Searching similar questions:", title);
+
+      // Simple mock implementation
       const mockSimilarQuestions = [
         {
           id: "1",
@@ -306,80 +107,51 @@ const CreateQuestion = () => {
           answerCount: 3,
           viewCount: 220,
         },
-        {
-          id: "3",
-          title: "JWT token authentication in Node.js",
-          similarity: 0.65,
-          voteCount: 12,
-          answerCount: 2,
-          viewCount: 180,
-        },
       ].filter((q) => q.title.toLowerCase().includes(title.toLowerCase()));
 
-      // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 300));
       return mockSimilarQuestions;
-    }
-
-    // Production mode
-    try {
-      const response = await fetch(
-        `/api/questions/similar?title=${encodeURIComponent(title)}`,
-        {
-          credentials: "include",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      const data = await response.json();
-      return data.similar_questions || [];
     } catch (error) {
-      console.error("Error searching similar questions:", error);
+      console.error("❌ Search error:", error);
       return [];
     }
   };
 
+  // FIXED: Create tag - use mock for now
   const handleCreateTag = async (tagName) => {
     try {
-      //  mock tag
-      const DEV_MODE = true;
-
-      if (DEV_MODE) {
-        const newTag = {
-          id: `tag-${Date.now()}`,
-          name: tagName,
-          description: `Custom tag: ${tagName}`,
-          isPersonal: true,
-        };
-        return newTag;
+      if (!tagName.trim()) {
+        throw new Error("Tag name cannot be empty");
       }
 
-      // call API
-      const response = await fetch("/api/tags", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({ name: tagName }),
-      });
+      console.log("🏷️ Creating tag:", tagName);
 
-      if (response.ok) {
-        return await response.json();
-      } else {
-        throw new Error("Failed to create tag");
-      }
+      // Mock tag creation for now
+      const newTag = {
+        id: `tag-${Date.now()}`,
+        name: tagName.trim().toLowerCase(),
+        description: `User-created tag: ${tagName}`,
+        isPersonal: true,
+      };
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      return newTag;
     } catch (error) {
-      console.error("Error creating tag:", error);
-      throw error;
+      console.error("❌ Tag creation error:", error);
+      throw new Error(`Failed to create tag: ${error.message}`);
     }
   };
 
+  // Use mock tags until backend is ready
+  const [availableTags, setAvailableTags] = useState(mockTags);
+
+  // Get actual user ID
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const currentUserId = userData.id || "user123";
+
   return (
     <>
-      {/* Task 33: Notification Component */}
+      {/* Notification */}
       {notification.show && (
         <div
           className={`notification ${notification.type}`}
@@ -417,18 +189,18 @@ const CreateQuestion = () => {
               padding: "0 4px",
             }}
           >
-            × ×
+            ×
           </button>
         </div>
       )}
 
       <CreateQuestionPage
-        availableTags={mockTags}
+        availableTags={availableTags}
         userPersonalTags={[]}
         onSubmit={handleSubmit}
         onSearchSimilar={handleSearchSimilar}
         onCreateTag={handleCreateTag}
-        currentUserId="user123"
+        currentUserId={currentUserId}
         showToast={showNotification}
       />
     </>

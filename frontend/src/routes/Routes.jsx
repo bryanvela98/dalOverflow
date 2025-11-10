@@ -19,8 +19,8 @@ const Routes = () => {
       <Route path="/" element={<LandingPage />}>
         {/*  */}
         <Route index element={<QuestionPage />} />
-        <Route path="questions" element={<QuestionPage />} />
         <Route path="questions/:id" element={<QuestionDetailContainer />} />
+        <Route path="questions" element={<QuestionPage />} />
         <Route path="articles" element={<ArticlesPage />} />
         <Route path="tags" element={<Tags />} />
 

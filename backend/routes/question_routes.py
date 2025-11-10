@@ -69,7 +69,7 @@ def create_question():
         data = request.get_json()
         
         # Validate required fields
-        required_fields = ['user_id', 'title', 'body', ]#, 'accepted_answer_id']
+        required_fields = ['user_id', 'title', 'body', 'tags']#, 'accepted_answer_id']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'{field} is required'}), 400
@@ -91,7 +91,7 @@ def title_fuzzy_search():
         JSON response containing search results.
     """
     try:
-        query = request.args.get('query', '').strip()
+        query = request.args.get('query', '').strip() or request.args.get('title', '').strip()
         
         if not query:
             return jsonify({
