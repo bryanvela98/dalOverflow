@@ -160,3 +160,18 @@ class TestDataCreation:
         except Exception as e:
             db.session.rollback()
             raise e
+
+    def create_test_question_tag(self, question_id, tag_id):
+        """Helper method to create a question-tag association"""
+        from models.questiontag import QuestionTag
+        
+        try:
+            question_tag = QuestionTag.create({
+                'question_id': question_id,
+                'tag_id': tag_id
+            })
+            db.session.flush()  # Ensure association gets an ID
+            return question_tag
+        except Exception as e:
+            db.session.rollback()
+            raise e
