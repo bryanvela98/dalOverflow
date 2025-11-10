@@ -138,16 +138,15 @@ const BasicQuestionDetail = () => {
         console.error("Error getting user from localStorage:", error);
       }
 
-      // If we still don't have the user, try the database API
-      if (questionData.user_id && !usersMap[questionData.user_id]) {
+      if (user_id && !usersMap[user_id]) {
         try {
           const response = await fetch(
             `http://localhost:5001/api/users/${user_id}`
           );
           if (response.ok) {
             const userData = await response.json();
-            usersMap[questionData.user_id] = userData?.user || {
-              username: `User ${questionData.user_id}`,
+            usersMap[user_id] = userData?.user || {
+              username: `User ${user_id}`,
               reputation: 0,
               is_professor: false,
               is_ta: false,
@@ -156,10 +155,10 @@ const BasicQuestionDetail = () => {
             throw new Error("API returned error");
           }
         } catch (error) {
-          console.error(`Error fetching user ${questionData.user_id}:`, error);
+          console.error(`Error fetching user ${user_id}:`, error);
           // Final fallback
-          usersMap[questionData.user_id] = {
-            username: `User ${questionData.user_id}`,
+          usersMap[user_id] = {
+            username: `User ${user_id}`,
             reputation: 0,
             is_professor: false,
             is_ta: false,
