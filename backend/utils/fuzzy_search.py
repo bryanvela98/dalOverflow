@@ -5,6 +5,7 @@ Created: 2025-11-07
 Last Modified: 
     2025-11-07 - Creation and logic.
 """
+import re
 
 def get_all_questions():
     """Get all questions from the database."""
@@ -30,7 +31,7 @@ def calculate_score(query, title):
         return 0.0
     
     # Clean and normalize text - remove punctuation and convert to lowercase
-    import re
+
     clean_query = re.sub(r'[^\w\s]', '', query.lower().strip())
     clean_title = re.sub(r'[^\w\s]', '', title.lower().strip())
     
@@ -56,7 +57,7 @@ def calculate_score(query, title):
     # Score based on meaningful word overlap
     title_score = title_overlap / total_query_words
     
-    # Weight the score - make it more generous for partial matches
+    # Weight the score - generous for partial matches
     final_score = title_score * 0.9
 
     return min(final_score, 1.0)  # Cap at 1.0

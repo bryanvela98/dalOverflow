@@ -95,7 +95,7 @@ def title_fuzzy_search():
                 'message': 'No query provided'
             }), 200
         
-        # Use fuzzy search utility
+        # uuse fuzzy search utility
         results = search_questions(query)
         
         return jsonify({

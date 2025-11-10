@@ -8,7 +8,7 @@ Last Modified:
 import unittest
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))) # this is to ensure imports work correctly
 
 from test.test_base import DatabaseTestCase, TestDataCreation
 from database import db
@@ -24,7 +24,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
             # Create test user and questions
             self.test_user = self.create_test_user()
             
-            # Create test questions with different titles for fuzzy search testing
+            # test questions with different titles for fuzzy search testing
             self.question1 = self.create_test_question(
                 user_id=self.test_user.id,
                 title="How to implement Python fuzzy search?",
@@ -49,7 +49,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
 
     def test_fuzzy_search_endpoint_exists(self):
         """Test that the fuzzy search endpoint exists and returns proper structure"""
-        # Test the endpoint exists and responds
+        # endpoint exists and responds
         response = self.client.get('/api/questions/search?query=test')
         
         # Should return 200 even if no results
@@ -67,10 +67,10 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         
-        # Should return the exact match
+        # return the exact match
         self.assertTrue(len(data['results']) >= 1)
         
-        # First result should be the exact match with highest score
+        # First result should exact match with highest score
         first_result = data['results'][0]
         self.assertEqual(first_result['title'], "what is python best practices?")
         self.assertEqual(first_result['score'], 1.0)
@@ -82,7 +82,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         
-        # Should return results containing "Python" (case insensitive)
+        # return results containing "Python"
         self.assertTrue(len(data['results']) >= 1, f"Expected at least 1 result, got {len(data['results'])}")
         
         for result in data['results']:
@@ -115,7 +115,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         
-        # Should return empty results
+        # Should return empty 
         self.assertEqual(data['results'], [])
         self.assertIn('message', data)
         self.assertEqual(data['message'], 'No query provided')
