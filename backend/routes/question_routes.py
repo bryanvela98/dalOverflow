@@ -78,3 +78,30 @@ def create_question():
     except Exception as e:
         logging.error(f"Error creating question: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+
+@question_bp.route('/search', methods=['GET'])
+def title_fuzzy_search():
+    """Search questions using fuzzy matching.
+
+    Returns:
+        JSON response containing search results.
+    """
+    try:
+        query = request.args.get('query', '').strip()
+        
+        if not query:
+            return jsonify({
+                'results': [],
+                'message': 'No query provided'
+            }), 200
+        
+        # Use fuzzy search utility
+        results = search_questions(query)
+        
+        return jsonify({
+            'results': results
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"Error searching questions: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500

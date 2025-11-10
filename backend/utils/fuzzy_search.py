@@ -7,8 +7,13 @@ Last Modified:
 """
 
 def get_all_questions():
-
-    return []
+    """Get all questions from the database."""
+    try:
+        from models.question import Question
+        questions = Question.get_all()
+        return [question.to_dict() for question in questions] if questions else []
+    except Exception:
+        return []
 
 def calculate_score(query, title):
     """
