@@ -5,7 +5,7 @@ import QuestionPage from "./pages/QuestionPage";
 import Tags from "./components/Tags/Tags";
 import QuestionDetails from "./components/Question/QuestionDetail";
 import LoginRegistration from "./pages/LoginRegistration";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (

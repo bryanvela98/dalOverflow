@@ -1,398 +1,437 @@
-import React from 'react';
-import CreateQuestionPage from "./CreateQuestionPage"; 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import CreateQuestionPage from "./CreateQuestionPage";
 
 const CreateQuestion = () => {
-  // Simulated label data (to be retrieved later from the Flask API)
+  const navigate = useNavigate();
+  const [notification, setNotification] = useState({
+    show: false,
+    type: "",
+    message: "",
+  });
+
+  // Show notification helper
+  const showNotification = (message, type) => {
+    setNotification({ show: true, type, message });
+    setTimeout(() => {
+      setNotification({ show: false, type: "", message: "" });
+    }, 3000);
+  };
+
+  // Simulated tag data
   const mockTags = [
     {
-      id: '1',
-      name: 'JavaScript',
-      description: 'JavaScript programming language',
-      totalQuestions: 1250,
-      askedToday: 15,
-      askedThisWeek: 89,
-      isNew: false,
+      id: "tag-1",
+      name: "javascript",
+      description: "For questions about JavaScript programming",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '2',
-      name: 'Python',
-      description: 'Python programming language',
-      totalQuestions: 890,
-      askedToday: 12,
-      askedThisWeek: 67,
-      isNew: false,
+      id: "tag-2",
+      name: "react",
+      description: "For React.js related questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '3',
-      name: 'React',
-      description: 'React library for building user interfaces',
-      totalQuestions: 756,
-      askedToday: 8,
-      askedThisWeek: 54,
-      isNew: false,
+      id: "tag-3",
+      name: "nodejs",
+      description: "For Node.js backend questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '4',
-      name: 'Flask',
-      description: 'Flask web framework for Python',
-      totalQuestions: 450,
-      askedToday: 5,
-      askedThisWeek: 32,
-      isNew: false,
+      id: "tag-4",
+      name: "css",
+      description: "For CSS styling questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '5',
-      name: 'Database',
-      description: 'Database design and SQL queries',
-      totalQuestions: 890,
-      askedToday: 10,
-      askedThisWeek: 65,
-      isNew: false,
+      id: "tag-5",
+      name: "html",
+      description: "For HTML markup questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '6',
-      name: 'Algorithms',
-      description: 'Algorithm design and analysis',
-      totalQuestions: 620,
-      askedToday: 7,
-      askedThisWeek: 45,
-      isNew: false,
+      id: "tag-6",
+      name: "python",
+      description: "For Python programming questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '7',
-      name: 'Git',
-      description: 'Version control with Git',
-      totalQuestions: 340,
-      askedToday: 4,
-      askedThisWeek: 28,
-      isNew: true,
+      id: "tag-7",
+      name: "java",
+      description: "For Java programming questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '8',
-      name: 'API',
-      description: 'RESTful API design',
-      totalQuestions: 280,
-      askedToday: 3,
-      askedThisWeek: 18,
-      isNew: false,
+      id: "tag-8",
+      name: "typescript",
+      description: "For TypeScript questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '9',
-      name: 'Debugging',
-      description: 'Debugging techniques and tools',
-      totalQuestions: 190,
-      askedToday: 2,
-      askedThisWeek: 12,
-      isNew: false,
+      id: "tag-9",
+      name: "mongodb",
+      description: "For MongoDB database questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '10',
-      name: 'HTML',
-      description: 'HTML markup language',
-      totalQuestions: 560,
-      askedToday: 6,
-      askedThisWeek: 38,
-      isNew: false,
+      id: "tag-10",
+      name: "express",
+      description: "For Express.js framework questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '11',
-      name: 'Excel',
-      description: 'Microsoft Excel spreadsheet application',
-      totalQuestions: 1580,
-      askedToday: 22,
-      askedThisWeek: 145,
-      isNew: false,
+      id: "tag-11",
+      name: "vue",
+      description: "For Vue.js questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '12',
-      name: 'Array-Formula',
-      description: 'Excel and Google Sheets array formulas',
-      totalQuestions: 234,
-      askedToday: 3,
-      askedThisWeek: 18,
-      isNew: false,
+      id: "tag-12",
+      name: "angular",
+      description: "For Angular questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '13',
-      name: 'COUNTIF',
-      description: 'Excel COUNTIF function for conditional counting',
-      totalQuestions: 156,
-      askedToday: 2,
-      askedThisWeek: 12,
-      isNew: false,
+      id: "tag-13",
+      name: "sql",
+      description: "For SQL database questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '14',
-      name: 'Formulas',
-      description: 'Spreadsheet formulas and functions',
-      totalQuestions: 892,
-      askedToday: 11,
-      askedThisWeek: 76,
-      isNew: false,
+      id: "tag-14",
+      name: "git",
+      description: "For Git version control questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '15',
-      name: 'Spreadsheet',
-      description: 'General spreadsheet applications (Excel, Google Sheets, etc.)',
-      totalQuestions: 678,
-      askedToday: 8,
-      askedThisWeek: 52,
-      isNew: false,
+      id: "tag-15",
+      name: "docker",
+      description: "For Docker containerization questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '16',
-      name: 'Google-Sheets',
-      description: 'Google Sheets online spreadsheet application',
-      totalQuestions: 423,
-      askedToday: 5,
-      askedThisWeek: 34,
-      isNew: false,
+      id: "tag-16",
+      name: "aws",
+      description: "For Amazon Web Services questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '17',
-      name: 'VBA',
-      description: 'Visual Basic for Applications (Excel macros)',
-      totalQuestions: 512,
-      askedToday: 6,
-      askedThisWeek: 41,
-      isNew: false,
+      id: "tag-17",
+      name: "api",
+      description: "For API development questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '18',
-      name: 'Data-Analysis',
-      description: 'Data analysis techniques and tools',
-      totalQuestions: 734,
-      askedToday: 9,
-      askedThisWeek: 63,
-      isNew: false,
+      id: "tag-18",
+      name: "rest",
+      description: "For RESTful API questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '19',
-      name: 'CSS',
-      description: 'Cascading Style Sheets for styling web pages',
-      totalQuestions: 845,
-      askedToday: 10,
-      askedThisWeek: 71,
-      isNew: false,
+      id: "tag-19",
+      name: "graphql",
+      description: "For GraphQL questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '20',
-      name: 'Node.js',
-      description: 'JavaScript runtime built on Chrome V8 engine',
-      totalQuestions: 678,
-      askedToday: 8,
-      askedThisWeek: 55,
-      isNew: false,
+      id: "tag-20",
+      name: "authentication",
+      description: "For authentication and security questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '21',
-      name: 'SQL',
-      description: 'Structured Query Language for databases',
-      totalQuestions: 923,
-      askedToday: 12,
-      askedThisWeek: 78,
-      isNew: false,
+      id: "tag-21",
+      name: "database",
+      description: "For general database questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '22',
-      name: 'MongoDB',
-      description: 'NoSQL document-oriented database',
-      totalQuestions: 456,
-      askedToday: 5,
-      askedThisWeek: 39,
-      isNew: false,
+      id: "tag-22",
+      name: "frontend",
+      description: "For frontend development questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '23',
-      name: 'TypeScript',
-      description: 'Typed superset of JavaScript',
-      totalQuestions: 534,
-      askedToday: 6,
-      askedThisWeek: 44,
-      isNew: false,
+      id: "tag-23",
+      name: "backend",
+      description: "For backend development questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '24',
-      name: 'Django',
-      description: 'High-level Python web framework',
-      totalQuestions: 412,
-      askedToday: 5,
-      askedThisWeek: 33,
-      isNew: false,
+      id: "tag-24",
+      name: "fullstack",
+      description: "For full-stack development questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '25',
-      name: 'Docker',
-      description: 'Platform for containerizing applications',
-      totalQuestions: 389,
-      askedToday: 4,
-      askedThisWeek: 31,
-      isNew: false,
+      id: "tag-25",
+      name: "debugging",
+      description: "For debugging and troubleshooting questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '26',
-      name: 'Linux',
-      description: 'Linux operating system and commands',
-      totalQuestions: 567,
-      askedToday: 7,
-      askedThisWeek: 46,
-      isNew: false,
+      id: "tag-26",
+      name: "performance",
+      description: "For performance optimization questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '27',
-      name: 'Machine-Learning',
-      description: 'Machine learning algorithms and techniques',
-      totalQuestions: 645,
-      askedToday: 8,
-      askedThisWeek: 53,
-      isNew: true,
+      id: "tag-27",
+      name: "testing",
+      description: "For testing and QA questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '28',
-      name: 'Testing',
-      description: 'Software testing and quality assurance',
-      totalQuestions: 378,
-      askedToday: 4,
-      askedThisWeek: 29,
-      isNew: false,
+      id: "tag-28",
+      name: "deployment",
+      description: "For deployment questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '29',
-      name: 'AWS',
-      description: 'Amazon Web Services cloud platform',
-      totalQuestions: 491,
-      askedToday: 6,
-      askedThisWeek: 38,
-      isNew: false,
+      id: "tag-29",
+      name: "security",
+      description: "For security questions",
       isPersonal: false,
-      createdAt: new Date(),
     },
     {
-      id: '30',
-      name: 'Vue',
-      description: 'Progressive JavaScript framework',
-      totalQuestions: 367,
-      askedToday: 4,
-      askedThisWeek: 27,
-      isNew: false,
+      id: "tag-30",
+      name: "algorithms",
+      description: "For algorithms and data structures",
       isPersonal: false,
-      createdAt: new Date(),
     },
   ];
 
   const handleSubmit = async (questionData) => {
     try {
-      const response = await fetch('http://localhost:5000/api/questions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // Development mode: simulate backend response
+      const DEV_MODE = true; // Set to false when backend is ready
+
+      if (DEV_MODE) {
+        // Simulate API delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Mock successful response
+        const mockQuestionId = `q-${Date.now()}`;
+
+        const newQuestion = {
+          id: mockQuestionId,
+          title: questionData.title,
+          description: questionData.description,
+          tags: questionData.tags,
+          votes: 0,
+          answers: 0,
+          views: 0,
+          isAnswered: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          author: {
+            id: "user123",
+            name: questionData.isAnonymous
+              ? "Anonymous Dalhousie Student"
+              : "Current User",
+          },
+        };
+
+        // store to localStorage
+        const existingQuestions = JSON.parse(
+          localStorage.getItem("userQuestions") || "[]"
+        );
+        const updatedQuestions = [newQuestion, ...existingQuestions];
+        localStorage.setItem("userQuestions", JSON.stringify(updatedQuestions));
+
+        console.log("Question saved to localStorage:", newQuestion);
+
+        // display success
+        showNotification("Question created successfully!", "success");
+
+        setTimeout(() => {
+          navigate(`/questions/${mockQuestionId}`, {
+            state: { refresh: true },
+          });
+        }, 1500);
+
+        // Return mock response
+        return newQuestion;
+      }
+
+      // Production mode: real API call
+      const response = await fetch("/api/questions/${mockQuestionId}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
         body: JSON.stringify(questionData),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        alert('Question created successfully!');
-        window.location.href = `/questions/${data.id}`;
+        showNotification("Question created successfully!", "success");
+        setTimeout(() => {
+          navigate("/questions", { state: { refresh: true } });
+        }, 1500);
+        return data;
       } else {
-        throw new Error('Failed to create question');
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create question");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
+      showNotification(error.message || "Failed to create question", "error");
       throw error;
     }
   };
 
   const handleSearchSimilar = async (title) => {
+    // Development mode: return mock data
+    const DEV_MODE = true;
+
+    if (DEV_MODE) {
+      const mockSimilarQuestions = [
+        {
+          id: "1",
+          title: "How to implement user authentication in React?",
+          similarity: 0.85,
+          voteCount: 25,
+          answerCount: 5,
+          viewCount: 350,
+        },
+        {
+          id: "2",
+          title: "React authentication best practices",
+          similarity: 0.72,
+          voteCount: 18,
+          answerCount: 3,
+          viewCount: 220,
+        },
+        {
+          id: "3",
+          title: "JWT token authentication in Node.js",
+          similarity: 0.65,
+          voteCount: 12,
+          answerCount: 2,
+          viewCount: 180,
+        },
+      ].filter((q) => q.title.toLowerCase().includes(title.toLowerCase()));
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return mockSimilarQuestions;
+    }
+
+    // Production mode
     try {
       const response = await fetch(
-        `http://localhost:5000/api/questions/similar?title=${encodeURIComponent(title)}`
+        `/api/questions/similar?title=${encodeURIComponent(title)}`,
+        {
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       const data = await response.json();
       return data.similar_questions || [];
     } catch (error) {
-      console.error('Error searching similar questions:', error);
+      console.error("Error searching similar questions:", error);
       return [];
     }
   };
 
   const handleCreateTag = async (tagName) => {
     try {
-      const response = await fetch('http://localhost:5000/api/tags', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      //  mock tag
+      const DEV_MODE = true;
+
+      if (DEV_MODE) {
+        const newTag = {
+          id: `tag-${Date.now()}`,
+          name: tagName,
+          description: `Custom tag: ${tagName}`,
+          isPersonal: true,
+        };
+        return newTag;
+      }
+
+      // call API
+      const response = await fetch("/api/tags", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
         body: JSON.stringify({ name: tagName }),
       });
-      return await response.json();
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        throw new Error("Failed to create tag");
+      }
     } catch (error) {
-      console.error('Error creating tag:', error);
+      console.error("Error creating tag:", error);
       throw error;
     }
   };
 
   return (
-    <CreateQuestionPage
-      availableTags={mockTags}
-      userPersonalTags={[]}
-      onSubmit={handleSubmit}
-      onSearchSimilar={handleSearchSimilar}
-      onCreateTag={handleCreateTag}
-      currentUserId="user123"
-    />
+    <>
+      {/* Task 33: Notification Component */}
+      {notification.show && (
+        <div
+          className={`notification ${notification.type}`}
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            padding: "16px 24px",
+            borderRadius: "8px",
+            backgroundColor:
+              notification.type === "success" ? "#10b981" : "#ef4444",
+            color: "white",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            animation: "slideIn 0.3s ease-out",
+          }}
+        >
+          <span style={{ fontSize: "20px" }}>
+            {notification.type === "success" ? "✓" : "⚠"}
+          </span>
+          <span>{notification.message}</span>
+          <button
+            onClick={() =>
+              setNotification({ show: false, type: "", message: "" })
+            }
+            style={{
+              background: "none",
+              border: "none",
+              color: "white",
+              fontSize: "20px",
+              cursor: "pointer",
+              padding: "0 4px",
+            }}
+          >
+            × ×
+          </button>
+        </div>
+      )}
+
+      <CreateQuestionPage
+        availableTags={mockTags}
+        userPersonalTags={[]}
+        onSubmit={handleSubmit}
+        onSearchSimilar={handleSearchSimilar}
+        onCreateTag={handleCreateTag}
+        currentUserId="user123"
+        showToast={showNotification}
+      />
+    </>
   );
 };
 
