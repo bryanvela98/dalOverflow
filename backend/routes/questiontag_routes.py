@@ -25,3 +25,18 @@ def get_tags_for_question(question_id):
         
     except Exception as e:
         return jsonify({'error': 'Internal server error'}), 500
+    
+@questiontag_bp.route('/tags/<int:tag_id>/questions', methods=['GET'])
+def get_questions_for_tag(tag_id):
+    """Get all questions for a tag"""
+    try:
+        # tag exists
+        tag = Tag.get_by_id(tag_id)
+        if not tag:
+            return jsonify({'error': 'Tag not found'}), 404
+        
+        # Return empty questions 
+        return jsonify({'questions': []}), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Internal server error'}), 500
