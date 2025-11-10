@@ -11,6 +11,8 @@ const BasicQuestionDetail = () => {
   const [copiedCodeId, setCopiedCodeId] = useState(null);
 
   useEffect(() => {
+    let isMounted = true; // Flag to prevent state updates if component unmounts
+
     const fetchQuestion = async () => {
       try {
         const response = await fetch(
@@ -18,18 +20,24 @@ const BasicQuestionDetail = () => {
         );
         const data = await response.json();
         console.log("Question data:", data);
-        setQuestion(data.question);
 
-        // Fetch user data for question author and answer authors
-        await fetchUserData(data.question);
+        if (isMounted) {
+          setQuestion(data.question);
+          // Fetch user data for question author and answer authors
+          await fetchUserData(data.question);
+        }
       } catch (error) {
         console.error("Error fetching question:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     const fetchUserData = async (questionData) => {
+      if (!isMounted) return; // Exit early if component unmounted
+
       const userIds = new Set();
 
       // Add question author
@@ -68,20 +76,27 @@ const BasicQuestionDetail = () => {
       );
 
       const userResults = await Promise.all(userPromises);
-      const usersMap = {};
-      userResults.forEach(({ userId, userData }) => {
-        usersMap[userId] = userData?.user || {
-          username: `User ${userId}`,
-          reputation: 0,
-          is_professor: false,
-          is_ta: false,
-        };
-      });
 
-      setUsers(usersMap);
+      if (isMounted) {
+        const usersMap = {};
+        userResults.forEach(({ userId, userData }) => {
+          usersMap[userId] = userData?.user || {
+            username: `User ${userId}`,
+            reputation: 0,
+            is_professor: false,
+            is_ta: false,
+          };
+        });
+
+        setUsers(usersMap);
+      }
     };
 
     fetchQuestion();
+
+    return () => {
+      isMounted = false; // Cleanup function
+    };
   }, [id]);
 
   const getUserInfo = (userId) => {
@@ -308,7 +323,6 @@ const BasicQuestionDetail = () => {
               <div className="answers-list">
                 {question.answers && question.answers.length > 0 ? (
                   question.answers.map((answer, index) => {
-                    const answerAuthor = getUserInfo(answer.user_id);
                     const answerCodeBlocks = extractCodeFromHTML(
                       answer.content
                     );
