@@ -55,6 +55,7 @@ def get_tag_by_id(tag_id):
 
 
 @tag_bp.route('/', methods=['POST'])
+@login_required
 def create_tag():
     """Create a new tag.
 
@@ -63,6 +64,16 @@ def create_tag():
     """
     try:
         data = request.get_json()
+        
+        # Validate required fields
+        if not data or not data.get('tag_name'):
+            return jsonify({'error': 'tag_name is required'}), 400
+        
+        # Check if tag already exists
+        existing_tag = Tag.query.filter_by(tag_name=data['tag_name'].lower()).first()
+        if existing_tag:
+            return jsonify({'error': 'Tag already exists'}), 409
+        
         tag = Tag.create(data)
         return jsonify({
             "message": "Tag created successfully",

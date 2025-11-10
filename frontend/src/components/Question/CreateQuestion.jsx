@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CreateQuestionPage from "./CreateQuestionPage";
 
 const CreateQuestion = () => {
   const navigate = useNavigate();
+  const [availableTags, setAvailableTags] = useState([]);
+  const [tagsLoading, setTagsLoading] = useState(true);
   const [notification, setNotification] = useState({
     show: false,
     type: "",
@@ -18,15 +20,68 @@ const CreateQuestion = () => {
     }, 5000);
   };
 
-  // Mock tags data - make sure these match your database tag IDs
-  const mockTags = [
-    { id: 1, name: "javascript", description: "JavaScript programming" },
-    { id: 2, name: "react", description: "React.js framework" },
-    { id: 3, name: "nodejs", description: "Node.js backend" },
-    { id: 4, name: "css", description: "CSS styling" },
-    { id: 5, name: "html", description: "HTML markup" },
-    { id: 6, name: "python", description: "Python programming" },
-  ];
+  const loadTags = useCallback(async () => {
+    try {
+      setTagsLoading(true);
+      const response = await fetch("http://localhost:5001/api/tags", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch tags: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Tags from backend:", data);
+
+      // Transform backend tags to match frontend expectations
+      const transformedTags = data.tags.map((tag) => ({
+        id: tag.id,
+        name: tag.tag_name,
+        description: tag.tag_description || tag.tag_name,
+        isPersonal: false, // Default to false for DB tags
+      }));
+
+      setAvailableTags(transformedTags);
+    } catch (error) {
+      console.error("Error loading tags:", error);
+      showNotification("Failed to load tags. Using default tags.", "error");
+
+      // Fallback to some basic tags if API fails
+      setAvailableTags([
+        {
+          id: 1,
+          name: "javascript",
+          description: "JavaScript programming",
+          isPersonal: false,
+        },
+        {
+          id: 2,
+          name: "react",
+          description: "React.js framework",
+          isPersonal: false,
+        },
+        {
+          id: 3,
+          name: "python",
+          description: "Python programming",
+          isPersonal: false,
+        },
+      ]);
+    } finally {
+      setTagsLoading(false);
+    }
+  }, []);
+
+  // Load tags from backend on component mount
+  useEffect(() => {
+    loadTags();
+  }, [loadTags]);
 
   // FIXED: Handle form submission with correct data structure
   const handleSubmit = async (questionData) => {
@@ -144,7 +199,7 @@ const CreateQuestion = () => {
     }
   };
 
-  // FIXED: Create tag
+  // FIXED: Create tag with real API call
   const handleCreateTag = async (tagName) => {
     try {
       if (!tagName.trim()) {
@@ -153,24 +208,50 @@ const CreateQuestion = () => {
 
       console.log("Creating tag:", tagName);
 
-      // Mock tag creation for now
+      const tagData = {
+        tag_name: tagName.trim().toLowerCase(),
+        tag_description: `User-created tag: ${tagName}`,
+      };
+
+      const response = await fetch("http://localhost:5001/api/tags", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify(tagData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `Failed to create tag: ${response.status}`
+        );
+      }
+
+      const result = await response.json();
+      console.log("Tag created successfully:", result);
+
+      // Transform the response to match frontend expectations
       const newTag = {
-        id: Date.now(),
-        name: tagName.trim().toLowerCase(),
-        description: `User-created tag: ${tagName}`,
+        id: result.tag.id,
+        name: result.tag.tag_name,
+        description: result.tag.tag_description,
         isPersonal: true,
       };
 
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // Add the new tag to the available tags list
+      setAvailableTags((prev) => [...prev, newTag]);
+
+      showNotification("Tag created successfully!", "success");
       return newTag;
     } catch (error) {
       console.error("Tag creation error:", error);
+      showNotification(`Failed to create tag: ${error.message}`, "error");
       throw new Error(`Failed to create tag: ${error.message}`);
     }
   };
-
-  // Use mock tags until backend is ready
-  const [availableTags, setAvailableTags] = useState(mockTags);
 
   // Get actual user ID
   const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -221,15 +302,41 @@ const CreateQuestion = () => {
         </div>
       )}
 
-      <CreateQuestionPage
-        availableTags={availableTags}
-        userPersonalTags={[]}
-        onSubmit={handleSubmit}
-        onSearchSimilar={handleSearchSimilar}
-        onCreateTag={handleCreateTag}
-        currentUserId={currentUserId}
-        showToast={showNotification}
-      />
+      {/* Show loading state while fetching tags */}
+      {tagsLoading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "400px",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              width: "48px",
+              height: "48px",
+              border: "4px solid #e5e7eb",
+              borderTopColor: "#2563eb",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              marginBottom: "16px",
+            }}
+          />
+          <p>Loading tags...</p>
+        </div>
+      ) : (
+        <CreateQuestionPage
+          availableTags={availableTags}
+          userPersonalTags={[]}
+          onSubmit={handleSubmit}
+          onSearchSimilar={handleSearchSimilar}
+          onCreateTag={handleCreateTag}
+          currentUserId={currentUserId}
+          showToast={showNotification}
+        />
+      )}
     </>
   );
 };
