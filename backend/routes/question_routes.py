@@ -68,13 +68,17 @@ def create_question():
     try:
         data = request.get_json()
         
+        #extracting tags ids
+        tag_ids = data.get('tag_ids', [])
+        
         # Validate required fields
         required_fields = ['user_id', 'title', 'body', ]#, 'accepted_answer_id']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'{field} is required'}), 400
 
-        question = Question.create_with_sanitized_body(data)
+        # Create question with tags
+        question = Question.create_with_tags(data, tag_ids)
         return jsonify({
             'message': 'Question created successfully',
             'question': question.to_dict()
