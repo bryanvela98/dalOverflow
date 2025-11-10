@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './QuestionDetailPage.css';
+import React, { useState, useEffect } from "react";
+import "./QuestionDetailPage.css";
 
 /**
  * Question Detail Page Component (Issue #5)
@@ -21,36 +21,41 @@ const QuestionDetailPage = ({
   const [copiedCodeBlock, setCopiedCodeBlock] = useState(null);
 
   const formatTimeAgo = (date) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const dateObj = typeof date === "string" ? new Date(date) : date;
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
+    const diffInSeconds = Math.floor(
+      (now.getTime() - dateObj.getTime()) / 1000
+    );
 
-    if (diffInSeconds < 60) return 'just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    
-    return dateObj.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    if (diffInSeconds < 60) return "just now";
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)} days ago`;
+
+    return dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   // AC 3: Add copy button to code blocks
   useEffect(() => {
-    const codeBlocks = document.querySelectorAll('pre');
+    const codeBlocks = document.querySelectorAll("pre");
     codeBlocks.forEach((block, index) => {
-      if (!block.querySelector('.code-copy-button')) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'code-block-wrapper';
+      if (!block.querySelector(".code-copy-button")) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "code-block-wrapper";
         block.parentNode?.insertBefore(wrapper, block);
         wrapper.appendChild(block);
 
-        const button = document.createElement('button');
-        button.className = 'code-copy-button';
-        button.textContent = copiedCodeBlock === index ? 'Copied!' : 'Copy';
-        button.onclick = () => handleCopyCode(block.textContent || '', index);
+        const button = document.createElement("button");
+        button.className = "code-copy-button";
+        button.textContent = copiedCodeBlock === index ? "Copied!" : "Copy";
+        button.onclick = () => handleCopyCode(block.textContent || "", index);
         wrapper.appendChild(button);
       }
     });
@@ -65,13 +70,15 @@ const QuestionDetailPage = ({
   const isAuthor = currentUser && currentUser.id === question.authorId;
 
   // AC 6: Handle anonymous display
-  const displayAuthor = question.isAnonymous ? {
-    username: 'Anonymous Dalhousie Student',
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous`,
-    reputation: 0,
-    isProfessor: false,
-    isTA: false,
-  } : question.author;
+  const displayAuthor = question.isAnonymous
+    ? {
+        username: "Anonymous Dalhousie Student",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous`,
+        reputation: 0,
+        isProfessor: false,
+        isTA: false,
+      }
+    : question.author;
 
   return (
     <div className="question-detail-page">
@@ -82,7 +89,7 @@ const QuestionDetailPage = ({
             <div className="vote-section">
               <button
                 className="vote-button vote-button--up"
-                onClick={() => onVote('question', question.id, 'up')}
+                onClick={() => onVote("question", question.id, "up")}
                 aria-label="Upvote"
               >
                 ▲
@@ -90,7 +97,7 @@ const QuestionDetailPage = ({
               <span className="vote-count">{question.voteCount}</span>
               <button
                 className="vote-button vote-button--down"
-                onClick={() => onVote('question', question.id, 'down')}
+                onClick={() => onVote("question", question.id, "down")}
                 aria-label="Downvote"
               >
                 ▼
@@ -131,7 +138,10 @@ const QuestionDetailPage = ({
                   </button>
                 ))}
                 {question.courseCode && (
-                  <span className="course-badge" title={`Course: ${question.courseCode}`}>
+                  <span
+                    className="course-badge"
+                    title={`Course: ${question.courseCode}`}
+                  >
                     {question.courseCode}
                   </span>
                 )}
@@ -168,21 +178,25 @@ const QuestionDetailPage = ({
         <div className="question-actions">
           <div className="actions-left">
             <span className="action-stat">
-              {question.answerCount} {question.answerCount === 1 ? 'Answer' : 'Answers'}
+              {question.answerCount}{" "}
+              {question.answerCount === 1 ? "Answer" : "Answers"}
             </span>
             <span className="action-stat">
-              {question.commentCount} {question.commentCount === 1 ? 'Comment' : 'Comments'}
+              {question.commentCount}{" "}
+              {question.commentCount === 1 ? "Comment" : "Comments"}
             </span>
           </div>
 
           <div className="actions-right">
             <button
-              className={`action-button ${question.isBookmarked ? 'action-button--active' : ''}`}
+              className={`action-button ${
+                question.isBookmarked ? "action-button--active" : ""
+              }`}
               onClick={() => onBookmark(question.id)}
               title="Bookmark this question"
             >
               <span className="action-icon">
-                {question.isBookmarked ? '★' : '☆'}
+                {question.isBookmarked ? "★" : "☆"}
               </span>
               Bookmark
             </button>
@@ -198,7 +212,7 @@ const QuestionDetailPage = ({
 
             <button
               className="action-button"
-              onClick={() => onReport('question', question.id)}
+              onClick={() => onReport("question", question.id)}
               title="Report or flag this question"
             >
               <span className="action-icon">⚑</span>
@@ -233,29 +247,32 @@ const QuestionDetailPage = ({
         {answers.length > 0 && (
           <div className="answers-section">
             <h2 className="answers-header">
-              {answers.length} {answers.length === 1 ? 'Answer' : 'Answers'}
+              {answers.length} {answers.length === 1 ? "Answer" : "Answers"}
             </h2>
 
             {answers.map((answer) => (
-              <div key={answer.id} className={`answer-card ${answer.isAccepted ? 'answer-card--accepted' : ''}`}>
+              <div
+                key={answer.id}
+                className={`answer-card ${
+                  answer.isAccepted ? "answer-card--accepted" : ""
+                }`}
+              >
                 {answer.isAccepted && (
-                  <div className="answer-accepted-badge">
-                    ✓ Accepted Answer
-                  </div>
+                  <div className="answer-accepted-badge">✓ Accepted Answer</div>
                 )}
 
                 <div className="answer-content">
                   <div className="vote-section">
                     <button
                       className="vote-button vote-button--up"
-                      onClick={() => onVote('answer', answer.id, 'up')}
+                      onClick={() => onVote("answer", answer.id, "up")}
                     >
                       ▲
                     </button>
                     <span className="vote-count">{answer.voteCount}</span>
                     <button
                       className="vote-button vote-button--down"
-                      onClick={() => onVote('answer', answer.id, 'down')}
+                      onClick={() => onVote("answer", answer.id, "down")}
                     >
                       ▼
                     </button>
@@ -284,12 +301,15 @@ const QuestionDetailPage = ({
       <aside className="question-sidebar">
         <div className="author-card">
           <h3 className="author-card-title">
-            {question.isAnonymous ? 'Posted by' : 'Asked by'}
+            {question.isAnonymous ? "Posted by" : "Asked by"}
           </h3>
 
           <div className="author-info">
             <img
-              src={displayAuthor?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayAuthor?.username}`}
+              src={
+                displayAuthor?.avatar ||
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayAuthor?.username}`
+              }
               alt={displayAuthor?.username}
               className="author-avatar"
             />
@@ -301,18 +321,27 @@ const QuestionDetailPage = ({
                     {displayAuthor?.username}
                   </span>
                 ) : (
-                  <a href={`/users/${question.authorId}`} className="author-name">
+                  <a
+                    href={`/users/${question.authorId}`}
+                    className="author-name"
+                  >
                     {displayAuthor?.username}
                   </a>
                 )}
 
                 {!question.isAnonymous && displayAuthor?.isProfessor && (
-                  <span className="verification-badge verification-badge--professor" title="Verified Professor">
+                  <span
+                    className="verification-badge verification-badge--professor"
+                    title="Verified Professor"
+                  >
                     👨‍🏫 Professor
                   </span>
                 )}
                 {!question.isAnonymous && displayAuthor?.isTA && (
-                  <span className="verification-badge verification-badge--ta" title="Teaching Assistant">
+                  <span
+                    className="verification-badge verification-badge--ta"
+                    title="Teaching Assistant"
+                  >
                     🎓 TA
                   </span>
                 )}
@@ -328,12 +357,13 @@ const QuestionDetailPage = ({
               )}
 
               <div className="author-posted-time">
-                Asked on {new Date(question.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
+                Asked on{" "}
+                {new Date(question.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </div>
             </div>
