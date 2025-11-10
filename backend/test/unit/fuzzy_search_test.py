@@ -71,6 +71,24 @@ class TestFuzzySearchBasic(unittest.TestCase):
             results = search_questions('JavaScript')  # No match
             
             self.assertEqual(results, [])
+    def test_search_word_order_independent(self):
+            """Test that word order doesn't affect matching"""
+            from utils.fuzzy_search import search_questions
             
+            mock_questions = [
+                {'id': 1, 'title': 'whats the best Python Flask Tutorial?'},
+            ]
+            
+            with patch('utils.fuzzy_search.get_all_questions') as mock_get:
+                mock_get.return_value = mock_questions
+                
+                # Both queries should find the same result
+                results1 = search_questions('Flask Python')
+                results2 = search_questions('Python Flask')
+                
+                self.assertEqual(len(results1), 1)
+                self.assertEqual(len(results2), 1)
+                self.assertEqual(results1[0]['score'], results2[0]['score'])
+                
 if __name__ == '__main__':
     unittest.main()
