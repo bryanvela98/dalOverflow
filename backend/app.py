@@ -26,6 +26,7 @@ def create_app():
     from routes.registration_routes import registration_bp
     from routes.login_routes import login_bp
     from routes.questiontag_routes import questiontag_bp
+    from routes.tag_routes import tag_bp
 
 
     
@@ -35,6 +36,7 @@ def create_app():
     app.register_blueprint(question_bp, url_prefix='/api/questions')
     app.register_blueprint(registration_bp, url_prefix='/api/auth')
     app.register_blueprint(login_bp, url_prefix='/api/auth')
+    app.register_blueprint(tag_bp, url_prefix='/api/tags')
     app.register_blueprint(questiontag_bp, url_prefix='/api')
     
 
