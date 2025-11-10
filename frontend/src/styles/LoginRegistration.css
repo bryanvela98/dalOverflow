@@ -1,0 +1,75 @@
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8f9fa;
+  height: 100vh;
+  justify-content: center;
+}
+
+.toggle-buttons {
+  display: flex;
+  border: 2px solid #fecd09;
+  border-radius: 25px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.toggle-buttons button {
+  background: transparent;
+  border: none;
+  padding: 10px 40px;
+  cursor: pointer;
+  color: #fecd09;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.toggle-buttons button.active {
+  background: #fecd09;
+  color: white;
+}
+
+.toggle-buttons button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #fecd09;
+}
+
+.form-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 320px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-form input {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.auth-form button {
+  padding: 10px;
+  background: #fecd09;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auth-form button:hover {
+  background: #fecd09;
+}
+
+.forgot-password {
+  margin-top: 15px;
+  text-align: center;
+}

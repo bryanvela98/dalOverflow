@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "title": "How do I implement authentication in React with Flask?",
+    "description": "I'm building a full-stack application with React frontend and Flask backend. I need to implement user authentication but I'm not sure about the best approach.Should I use JWT tokens? How do I handle secure login and registration?",
+    "tags": ["JavaScript", "Python", "React"],
+    "isAnonymous": false,
+    "createdBy": "user123",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "views": 150,
+    "upvotes": 5,
+    "answers": [
+      {
+        "id": 1,
+        "content": "You should use JWT tokens for stateless authentication...",
+        "createdBy": "user456",
+        "createdAt": "2024-01-15T11:00:00.000Z",
+        "upvotes": 3
+      },
+      {
+        "id": 2,
+        "content": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Magnam asperiores quo quos ullam error voluptas laboriosam, impedit debitis vero doloribus ducimus nesciunt quia ratione minima. Praesentium unde cum repudiandae aspernatur!",
+        "createdBy": "user234",
+        "createdAt": "2024-01-15T11:00:00.000Z",
+        "upvotes": -1
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "What are the best practices for React component structure?",
+    "description": "I'm new to React and wondering about the best way to structure components for a large application.",
+    "tags": [2, 4],
+    "isAnonymous": true,
+    "createdBy": "anonymous",
+    "createdAt": "2024-01-16T09:15:00.000Z",
+    "views": 89,
+    "upvotes": 2,
+    "answers": []
+  }
+]
