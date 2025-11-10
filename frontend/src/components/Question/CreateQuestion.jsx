@@ -18,15 +18,15 @@ const CreateQuestion = () => {
     }, 5000);
   };
 
-  // Mock tags data - make sure these match your database tag IDs
-  const mockTags = [
-    { id: 1, name: "javascript", description: "JavaScript programming" },
-    { id: 2, name: "react", description: "React.js framework" },
-    { id: 3, name: "nodejs", description: "Node.js backend" },
-    { id: 4, name: "css", description: "CSS styling" },
-    { id: 5, name: "html", description: "HTML markup" },
-    { id: 6, name: "python", description: "Python programming" },
-  ];
+  // // Mock tags data - make sure these match your database tag IDs
+  // const mockTags = [
+  //   { id: 1, name: "javascript", description: "JavaScript programming" },
+  //   { id: 2, name: "react", description: "React.js framework" },
+  //   { id: 3, name: "nodejs", description: "Node.js backend" },
+  //   { id: 4, name: "css", description: "CSS styling" },
+  //   { id: 5, name: "html", description: "HTML markup" },
+  //   { id: 6, name: "python", description: "Python programming" },
+  // ];
 
   // FIXED: Handle form submission with correct data structure
   const handleSubmit = async (questionData) => {
