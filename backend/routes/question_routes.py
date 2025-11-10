@@ -15,7 +15,6 @@ import logging  # For logging purposes
 question_bp = Blueprint('questions', __name__)
 
 @question_bp.route('/', methods=['GET'])
-@login_required
 def get_questions():
     """Get all questions.
 
