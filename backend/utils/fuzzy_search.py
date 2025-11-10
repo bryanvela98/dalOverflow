@@ -29,12 +29,17 @@ def calculate_score(query, title):
     if not query or not title:
         return 0.0
     
+    # Clean and normalize text - remove punctuation and convert to lowercase
+    import re
+    clean_query = re.sub(r'[^\w\s]', '', query.lower().strip())
+    clean_title = re.sub(r'[^\w\s]', '', title.lower().strip())
+    
     # Exact title match gets highest score
-    if query.lower().strip() == title.lower().strip():
+    if clean_query == clean_title:
         return 1.0
     
-    query_words = set(query.lower().split())
-    title_words = set(title.lower().split())
+    query_words = set(clean_query.split())
+    title_words = set(clean_title.split())
     
     # removing common stop words to improve matching
     stop_words = {'the', 'is', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'what', 'how', 'when', 'where', 'why'}
@@ -51,8 +56,8 @@ def calculate_score(query, title):
     # Score based on meaningful word overlap
     title_score = title_overlap / total_query_words
     
-    # Weight the score
-    final_score = title_score * 0.8
+    # Weight the score - make it more generous for partial matches
+    final_score = title_score * 0.9
 
     return min(final_score, 1.0)  # Cap at 1.0
 
