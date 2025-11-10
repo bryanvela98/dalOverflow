@@ -18,9 +18,52 @@ const QuestionDetailContainer = () => {
   };
 
   useEffect(() => {
+    let isMounted = true; // Flag to prevent state updates if component unmounts
+
+    const loadQuestionData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          `http://localhost:5001/api/questions/${id}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch question: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Backend data:", data);
+
+        if (isMounted) {
+          // Transform backend data to match frontend expectations
+          const transformedQuestion = transformQuestionData(data.question);
+          const transformedAnswers = transformAnswersData(data.answers || []);
+
+          setQuestion(transformedQuestion);
+          setAnswers(transformedAnswers);
+        }
+      } catch (error) {
+        console.error("Error fetching question:", error);
+        if (isMounted) {
+          setError("Failed to load question. Please try again later.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
     loadQuestionData();
+
+    return () => {
+      isMounted = false; // Cleanup function
+    };
   }, [id]);
 
+  // Separate loadQuestionData function for manual reload
   const loadQuestionData = async () => {
     setLoading(true);
     setError(null);

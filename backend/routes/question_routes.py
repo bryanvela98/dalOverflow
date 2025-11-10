@@ -47,7 +47,7 @@ def get_question_by_id(question_id):
         
         # Increment view count when question is accessed
         question.increment_view_count()
-        
+
         return jsonify({
             "question": question.to_dict()
         })
