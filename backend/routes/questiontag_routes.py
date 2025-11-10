@@ -21,19 +21,20 @@ def get_tags_for_question(question_id):
         if not question:
             return jsonify({'error': 'Question not found'}), 404
         
-        # Get tags through QuestionTag relationships
-        question_tags = QuestionTag.query.filter_by(question_id=question_id).all()
-        tags = []
-        for qt in question_tags:
-            tag = Tag.get_by_id(qt.tag_id)
-            if tag:
-                tags.append(tag.to_dict())
+        # Optimized query with JOIN (single DB call)
+        tags = db.session.query(Tag)\
+            .join(QuestionTag, Tag.id == QuestionTag.tag_id)\
+            .filter(QuestionTag.question_id == question_id)\
+            .all()
         
-        return jsonify({'tags': tags}), 200
+        return jsonify({
+            'tags': [tag.to_dict() for tag in tags],
+            'count': len(tags)
+        }), 200
         
     except Exception as e:
         return jsonify({'error': 'Internal server error'}), 500
-    
+
 @questiontag_bp.route('/tags/<int:tag_id>/questions', methods=['GET'])
 def get_questions_for_tag(tag_id):
     """Get all questions for a tag"""
@@ -42,15 +43,16 @@ def get_questions_for_tag(tag_id):
         if not tag:
             return jsonify({'error': 'Tag not found'}), 404
         
-        # Get questions through QuestionTag relationships
-        question_tags = QuestionTag.query.filter_by(tag_id=tag_id).all()
-        questions = []
-        for qt in question_tags:
-            question = Question.get_by_id(qt.question_id)
-            if question:
-                questions.append(question.to_dict())
+        # Optimized query
+        questions = db.session.query(Question)\
+            .join(QuestionTag, Question.id == QuestionTag.question_id)\
+            .filter(QuestionTag.tag_id == tag_id)\
+            .all()
         
-        return jsonify({'questions': questions}), 200
+        return jsonify({
+            'questions': [question.to_dict() for question in questions],
+            'count': len(questions)
+        }), 200
         
     except Exception as e:
         return jsonify({'error': 'Internal server error'}), 500
