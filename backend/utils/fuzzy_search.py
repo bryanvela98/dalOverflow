@@ -21,16 +21,30 @@ def calculate_score(query, title):
     Returns:
         float: Similarity score between 0 and 1
     """
-    query_lower = query.lower()
-    title_lower = title.lower()
-    
-    # Simple exact match scoring
-    if query_lower == title_lower:
-        return 1.0
-    elif query_lower in title_lower:
-        return 0.8
-    else:
+    if not query or not title:
         return 0.0
+    
+    query_words = set(query.lower().split())
+    title_words = set(title.lower().split())
+    
+    # exact title match
+    if query.lower().strip() == title.lower().strip():
+        return 1.0
+    
+    # Calculate word overlap
+    title_overlap = len(query_words.intersection(title_words))
+    total_query_words = len(query_words)
+    
+    if total_query_words == 0:
+        return 0.0
+    
+    # Score based on word overlap
+    title_score = title_overlap / total_query_words
+    
+    # Weight title matches higher than body matches
+    final_score = title_score * 0.8
+
+    return min(final_score, 1.0)  # Cap at 1.0
 
 def search_questions(query):
     
