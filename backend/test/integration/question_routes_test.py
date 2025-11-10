@@ -130,5 +130,48 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         # Should return results despite extra whitespace
         self.assertTrue(len(data['results']) >= 1, f"Expected at least 1 result, got {len(data['results'])}")
         
+    
+    # Implementing test for question view counter feature
+    
+    def test_question_get_increments_view_count(self):
+        """Test that getting a question increments its view count"""
+        question_id = self.question1.id
+
+        # Initially view_count should be 0
+        response = self.client.get(f'/api/questions/{question_id}')
+        self.assertEqual(response.status_code, 200)
+        
+        data = response.get_json()
+        self.assertEqual(data['question']['view_count'], 1)  # Should be 1 after first view
+        
+        # Second request should increment to 2
+        response = self.client.get(f'/api/questions/{question_id}')
+        self.assertEqual(response.status_code, 200)
+        
+        data = response.get_json()
+        self.assertEqual(data['question']['view_count'], 2)  # Should be 2 after second view
+
+
+    def test_view_count_persists_in_database(self):
+        """Test that view count is properly saved in database"""
+        question_id = self.question1.id
+        
+        # Increment view count multiple times
+        for i in range(5):
+            self.client.get(f'/api/questions/{question_id}')
+        
+        # Fetch question directly from database to verify persistence
+        from models.question import Question
+        question = Question.get_by_id(question_id)
+        self.assertEqual(question.view_count, 5)
+
+    def test_view_count_nonexistent_question(self):
+        """Test view count increment for non-existent question"""
+        response = self.client.get('/api/questions/99999')
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.client.post('/api/questions/99999/view')
+        self.assertEqual(response.status_code, 404)
+        
 if __name__ == '__main__':
     unittest.main()
