@@ -142,14 +142,14 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(response.status_code, 200)
         
         data = response.get_json()
-        self.assertEqual(data['question']['view_count'], 1)  # Should be 1 after first view
+        self.assertEqual(data['question']['view_count'], 1)  #  be 1 after first view
         
         # Second request should increment to 2
         response = self.client.get(f'/api/questions/{question_id}')
         self.assertEqual(response.status_code, 200)
         
         data = response.get_json()
-        self.assertEqual(data['question']['view_count'], 2)  # Should be 2 after second view
+        self.assertEqual(data['question']['view_count'], 2)  # be 2 after second view
 
 
     def test_view_count_persists_in_database(self):
@@ -163,6 +163,9 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         # Fetch question directly from database to verify persistence
         from models.question import Question
         question = Question.get_by_id(question_id)
+        self.assertIsNotNone(question, f"Question with id {question_id} not found in database")
+        
+        assert question is not None
         self.assertEqual(question.view_count, 5)
 
     def test_view_count_nonexistent_question(self):

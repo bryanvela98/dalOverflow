@@ -36,7 +36,7 @@ def get_questions():
 
 @question_bp.route('/<int:question_id>', methods=['GET'])
 def get_question_by_id(question_id):
-    """Get a question by its ID.
+    """Get a question by its ID and increment view count.
 
     Returns:
         JSON response containing the question details.
@@ -45,6 +45,10 @@ def get_question_by_id(question_id):
         question = Question.get_by_id(question_id)
         if not question:
             return jsonify({"message": "Question not found"}), 404
+        
+        # Increment view count when question is accessed
+        question.increment_view_count()
+        
         return jsonify({
             "question": question.to_dict()
         })
