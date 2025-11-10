@@ -9,6 +9,7 @@ Last Modified:
 from flask import Blueprint, request, jsonify
 from middleware.auth_middleware import login_required
 from models.question import Question
+from utils.fuzzy_search import search_questions
 import logging  # For logging purposes
 
 question_bp = Blueprint('questions', __name__)

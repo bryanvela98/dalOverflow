@@ -21,6 +21,7 @@ class DatabaseTestCase(unittest.TestCase):
         
         cls.app = create_app()
         cls.app.config['TESTING'] = True
+        cls.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         cls.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         cls.app_context = cls.app.app_context()
         cls.app_context.push()
@@ -45,12 +46,14 @@ class TestDataCreation(unittest.TestCase):
     def create_test_user(self, username='daluser', email='test@dal.ca'):
         """Helper method to create a test user"""
         from models.user import User
+        from datetime import datetime
         return User.create({
             'username': username,
             'email': email,
             'password': 'password123',
             'display_name': f'Display {username}',
             'reputation': 0,
+            'registration_date': datetime.utcnow(),
             'university': 'Test University'
         })
     
@@ -72,13 +75,3 @@ class TestDataCreation(unittest.TestCase):
             'tag_name': tag_name,
             'tag_description': description
         })
-
-class MockedTestCase(unittest.TestCase):
-    """Base test class for tests that use mocks instead of real database"""
-    
-    def setUp(self):
-        """Set up mock app for unit-style tests"""
-        self.app = create_app()
-        self.app.config['TESTING'] = True
-        self.client = self.app.test_client()
-        
