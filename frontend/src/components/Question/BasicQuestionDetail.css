@@ -667,4 +667,15 @@
   .author-name-container {
     justify-content: center;
   }
+
+  .add-answer-section {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 var(--spacing-xl);
+    margin: 20px 0;
+  }
+
+  .add-answer-button {
+    margin-left: auto;
+  }
 }

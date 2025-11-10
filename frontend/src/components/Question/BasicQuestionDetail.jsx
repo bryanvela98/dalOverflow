@@ -323,7 +323,6 @@ const BasicQuestionDetail = () => {
                 </div>
               </div>
             </div>
-
             {/* Question Body Section */}
             <div className="question-body-section">
               <div className="question-content-container">
@@ -351,7 +350,6 @@ const BasicQuestionDetail = () => {
                 </div>
               </div>
             </div>
-
             {/* Question Actions Section */}
             <div className="question-actions-section">
               <div className="actions-container">
@@ -365,6 +363,13 @@ const BasicQuestionDetail = () => {
                 </div>
 
                 <div className="actions-buttons">
+                  <div className="no-answers-container">
+                    <div className="no-answers-content">
+                      <button className="action-button action-button--primary">
+                        Answer Question
+                      </button>
+                    </div>
+                  </div>
                   <button className="action-button" onClick={handleBookmark}>
                     {question.isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
                   </button>
@@ -384,13 +389,8 @@ const BasicQuestionDetail = () => {
                 </div>
               </div>
             </div>
-
             {/* Answers Section */}
-            <div className="add-answer-section">
-              <button className="action-button action-button--primary add-answer-button">
-                Answer Question
-              </button>
-            </div>
+
             <div className="answers-section">
               <div className="answers-header-container">
                 <h2 className="answers-title">
