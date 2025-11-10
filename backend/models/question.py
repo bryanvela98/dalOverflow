@@ -43,6 +43,7 @@ class Question(BaseModel):
         lazy ='dynamic'
     )
     status = db.Column(db.String(255))
+    view_count = db.Column(db.Integer, default=0)
     #accepted_answers_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=False)
 
     
@@ -56,7 +57,8 @@ class Question(BaseModel):
             'body':self.body,
             'tags': [tag.to_dict() for tag in self.tags.all()],  # Convert relationship to list of tag dicts
             'answers': [answer.to_dict() for answer in self.answers.all()],  # Convert relationship to list of answer dicts
-            'status':self.status
+            'status':self.status,
+            'view_count': self.view_count or 0
             #'accepted_answers_id':self.accepted_answers_id
         })
         return base_dict
@@ -65,6 +67,14 @@ class Question(BaseModel):
         """Sanitize the body content before saving"""
         if self.body:
             self.body = sanitize_html_body(self.body)
+
+    def increment_view_count(self):
+        """Increment the view count for this question"""
+        if self.view_count is None:
+            self.view_count = 0
+        self.view_count += 1
+        db.session.commit()
+        return self.view_count
 
     @classmethod
     def create_with_sanitized_body(cls, data):
