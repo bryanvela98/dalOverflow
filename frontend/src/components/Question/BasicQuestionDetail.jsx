@@ -10,8 +10,74 @@ const BasicQuestionDetail = () => {
   const [loading, setLoading] = useState(true);
   const [copiedCodeId, setCopiedCodeId] = useState(null);
 
+  // Mock answers data
+  const mockAnswers = [
+    {
+      id: 1,
+      user_id: 2,
+      content: `<p>This is a great question! Here's a solution that should work for your case:</p>
+                <p>First, make sure you have the correct dependencies installed:</p>
+                <pre>npm install react-router-dom</pre>
+                <p>Then, you can structure your routes like this:</p>
+                <pre>import { BrowserRouter, Routes, Route } from 'react-router-dom';\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <Routes>\n        <Route path="/" element={<Home />} />\n        <Route path="/questions/:id" element={<QuestionDetail />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}</pre>`,
+      created_at: "2024-01-15T14:30:00Z",
+      upvotes: 8,
+      isAccepted: true,
+    },
+    {
+      id: 2,
+      user_id: 3,
+      content: `<p>Another approach you might consider is using React Query for data fetching:</p>
+                <p>Install React Query:</p>
+                <pre>npm install @tanstack/react-query</pre>
+                <p>Then use it in your component:</p>
+                <pre>import { useQuery } from '@tanstack/react-query';\n\nconst fetchQuestion = async (id) => {\n  const response = await fetch(\`/api/questions/\${id}\`);\n  return response.json();\n};\n\nfunction QuestionDetail() {\n  const { id } = useParams();\n  const { data, isLoading } = useQuery(['question', id], () => fetchQuestion(id));\n  \n  if (isLoading) return <div>Loading...</div>;\n  \n  return <div>{/* render question */}</div>;\n}</pre>`,
+      created_at: "2024-01-15T16:45:00Z",
+      upvotes: 5,
+      isAccepted: false,
+    },
+    {
+      id: 3,
+      user_id: 4,
+      content: `<p>Don't forget to handle error states as well! Here's a complete example with error handling:</p>
+                <pre>const { data, isLoading, error } = useQuery(['question', id], () => fetchQuestion(id));\n\nif (isLoading) return <div>Loading question...</div>;\nif (error) return <div>Error loading question: {error.message}</div>;</pre>
+                <p>This will make your app more robust and user-friendly.</p>`,
+      created_at: "2024-01-16T09:15:00Z",
+      upvotes: 3,
+      isAccepted: false,
+    },
+  ];
+
+  // Mock users data for answer authors only
+  const mockAnswerUsers = {
+    2: {
+      username: "ReactExpert",
+      reputation: 2450,
+      is_professor: false,
+      is_ta: true,
+      avatar: null,
+      join_date: "2023-05-15T00:00:00Z",
+    },
+    3: {
+      username: "CodeMaster",
+      reputation: 1800,
+      is_professor: true,
+      is_ta: false,
+      avatar: null,
+      join_date: "2022-11-20T00:00:00Z",
+    },
+    4: {
+      username: "DevHelper",
+      reputation: 920,
+      is_professor: false,
+      is_ta: false,
+      avatar: null,
+      join_date: "2024-01-01T00:00:00Z",
+    },
+  };
+
   useEffect(() => {
-    let isMounted = true; // Flag to prevent state updates if component unmounts
+    let isMounted = true;
 
     const fetchQuestion = async () => {
       try {
@@ -22,8 +88,23 @@ const BasicQuestionDetail = () => {
         console.log("Question data:", data);
 
         if (isMounted) {
-          setQuestion(data.question);
-          // Fetch user data for question author and answer authors
+          // Enhance the question data with mock answers
+          if (!data.question) {
+            setLoading(false);
+            return; // Stop execution if no question found
+          }
+
+          const enhancedQuestion = {
+            ...data.question,
+            answers: mockAnswers, // Always use mock answers
+            answerCount: mockAnswers.length,
+            isAnswered: true,
+            hasAcceptedAnswer: true,
+          };
+
+          setQuestion(enhancedQuestion);
+
+          // Fetch real user data for question author from backend
           await fetchUserData(data.question);
         }
       } catch (error) {
@@ -36,25 +117,16 @@ const BasicQuestionDetail = () => {
     };
 
     const fetchUserData = async (questionData) => {
-      if (!isMounted) return; // Exit early if component unmounted
+      if (!isMounted) return;
 
       const userIds = new Set();
 
-      // Add question author
+      // Only add question author (we'll fetch this from backend)
       if (questionData.user_id) {
         userIds.add(questionData.user_id);
       }
 
-      // Add answer authors
-      if (questionData.answers) {
-        questionData.answers.forEach((answer) => {
-          if (answer.user_id) {
-            userIds.add(answer.user_id);
-          }
-        });
-      }
-
-      // Fetch user data for all unique user IDs
+      // Fetch user data for question author only from backend
       const userPromises = Array.from(userIds).map((userId) =>
         fetch(`http://localhost:5001/api/users/${userId}`)
           .then((response) => response.json())
@@ -78,7 +150,9 @@ const BasicQuestionDetail = () => {
       const userResults = await Promise.all(userPromises);
 
       if (isMounted) {
-        const usersMap = {};
+        const usersMap = { ...mockAnswerUsers }; // Start with mock answer users
+
+        // Add real question author from backend
         userResults.forEach(({ userId, userData }) => {
           usersMap[userId] = userData?.user || {
             username: `User ${userId}`,
@@ -95,7 +169,7 @@ const BasicQuestionDetail = () => {
     fetchQuestion();
 
     return () => {
-      isMounted = false; // Cleanup function
+      isMounted = false;
     };
   }, [id]);
 
@@ -263,7 +337,7 @@ const BasicQuestionDetail = () => {
                   {codeBlocks.map((code, index) => (
                     <div key={index} className="code-block-wrapper">
                       <div className="code-block-header">
-                        <span className="code-language">Code</span>
+                        <span className="code-language">JavaScript</span>
                         <button
                           className="code-copy-button"
                           onClick={() => handleCopyCode(code, index)}
@@ -312,6 +386,11 @@ const BasicQuestionDetail = () => {
             </div>
 
             {/* Answers Section */}
+            <div className="add-answer-section">
+              <button className="action-button action-button--primary add-answer-button">
+                Answer Question
+              </button>
+            </div>
             <div className="answers-section">
               <div className="answers-header-container">
                 <h2 className="answers-title">
@@ -323,6 +402,7 @@ const BasicQuestionDetail = () => {
               <div className="answers-list">
                 {question.answers && question.answers.length > 0 ? (
                   question.answers.map((answer, index) => {
+                    const answerAuthor = getUserInfo(answer.user_id);
                     const answerCodeBlocks = extractCodeFromHTML(
                       answer.content
                     );
@@ -379,7 +459,9 @@ const BasicQuestionDetail = () => {
                                   className="code-block-wrapper"
                                 >
                                   <div className="code-block-header">
-                                    <span className="code-language">Code</span>
+                                    <span className="code-language">
+                                      JavaScript
+                                    </span>
                                     <button
                                       className="code-copy-button"
                                       onClick={() =>
@@ -402,8 +484,23 @@ const BasicQuestionDetail = () => {
 
                             <div className="answer-footer-container">
                               <div className="answer-meta">
+                                <div className="answer-author">
+                                  <span className="answer-author-name">
+                                    Answered by {answerAuthor.username}
+                                  </span>
+                                  {answerAuthor.is_professor && (
+                                    <span className="verification-badge verification-badge--professor">
+                                      Professor
+                                    </span>
+                                  )}
+                                  {answerAuthor.is_ta && (
+                                    <span className="verification-badge verification-badge--ta">
+                                      TA
+                                    </span>
+                                  )}
+                                </div>
                                 <span className="answer-time">
-                                  Answered {formatDate(answer.created_at)}
+                                  {formatDate(answer.created_at)}
                                 </span>
                               </div>
                               <div className="answer-actions">
@@ -533,7 +630,30 @@ const BasicQuestionDetail = () => {
             </div>
             <div className="card-content">
               <div className="related-questions-container">
-                <p className="no-related">No related questions found.</p>
+                <div className="related-question">
+                  <a href="/questions/2" className="related-question-link">
+                    How to handle nested routes in React Router?
+                  </a>
+                  <div className="related-question-meta">
+                    <span>12 answers</span>
+                  </div>
+                </div>
+                <div className="related-question">
+                  <a href="/questions/3" className="related-question-link">
+                    React Router v6 migration guide
+                  </a>
+                  <div className="related-question-meta">
+                    <span>8 answers</span>
+                  </div>
+                </div>
+                <div className="related-question">
+                  <a href="/questions/4" className="related-question-link">
+                    Protected routes with authentication in React
+                  </a>
+                  <div className="related-question-meta">
+                    <span>15 answers</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
