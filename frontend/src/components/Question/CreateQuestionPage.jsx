@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "./CreateQuestionPage.css";
-
+import BackButton from "../BackButton";
 /**
  * Create Question Page Component (Issue #2)
  * Pure JavaScript version
@@ -165,6 +165,7 @@ const CreateQuestionPage = ({
     <div className="create-question-page">
       <div className="create-question-container">
         <header className="create-question-header">
+          <BackButton />
           <h1>Ask a Question</h1>
         </header>
 
@@ -179,7 +180,7 @@ const CreateQuestionPage = ({
               type="text"
               className={`form-input ${
                 errors.title ? "form-input--error" : ""
-              }`}
+                }`}
               placeholder="e.g., How do I implement user authentication in Node.js with Express?"
               value={title}
               onChange={(e) => {
@@ -239,7 +240,7 @@ const CreateQuestionPage = ({
                   type="button"
                   className={`tab-button ${
                     !showPreview ? "tab-button--active" : ""
-                  }`}
+                    }`}
                   onClick={() => setShowPreview(false)}
                 >
                   Edit
@@ -248,7 +249,7 @@ const CreateQuestionPage = ({
                   type="button"
                   className={`tab-button ${
                     showPreview ? "tab-button--active" : ""
-                  }`}
+                    }`}
                   onClick={() => setShowPreview(true)}
                 >
                   Preview
@@ -309,7 +310,7 @@ const CreateQuestionPage = ({
                 type="text"
                 className={`form-input ${
                   errors.tags ? "form-input--error" : ""
-                }`}
+                  }`}
                 placeholder="Search for tags"
                 value={tagSearchTerm}
                 onChange={(e) => setTagSearchTerm(e.target.value)}
@@ -328,7 +329,7 @@ const CreateQuestionPage = ({
                           type="button"
                           className={`tag-option ${
                             isTagSelected(tag.id) ? "tag-option--selected" : ""
-                          }`}
+                            }`}
                           onClick={() => handleAddTag(tag)}
                           disabled={isTagSelected(tag.id)}
                         >
