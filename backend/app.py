@@ -45,30 +45,6 @@ def create_app():
     # Create all database tables
     with app.app_context():
         db.create_all()
-        
-        # Seed database with sample tags if no tags exist
-        from models.tag import Tag
-        import json
-        import os
-        
-        if Tag.query.count() == 0:
-            try:
-                tags_file_path = os.path.join(os.path.dirname(__file__), 'data', 'tags.json')
-                if os.path.exists(tags_file_path):
-                    with open(tags_file_path, 'r') as file:
-                        tags_data = json.load(file)
-                        
-                    # Create tags from the sample data
-                    for tag_data in tags_data[:10]:  # Only take first 10 tags
-                        tag_dict = {
-                            'tag_name': tag_data['name'].lower(),
-                            'tag_description': tag_data.get('description', tag_data['name'])
-                        }
-                        Tag.create(tag_dict)
-                    
-                    print("Sample tags added to database successfully!")
-            except Exception as e:
-                print(f"Error adding sample tags: {e}")
 
     return app
 
