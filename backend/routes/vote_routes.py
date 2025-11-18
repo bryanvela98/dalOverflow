@@ -4,6 +4,7 @@ Last Modified By: Bryan Vela
 Created: 2025-10-25
 Last Modified: 
     2025-11-17 - File created with user POST GET operations.
+    2025-11-18 - Added user-specific vote retrieval.
 """
 from flask import Blueprint, request, jsonify
 from models.vote import Vote
@@ -109,3 +110,19 @@ def update_vote(vote_id):
     except Exception as e:
         logging.error(f"Error updating vote: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+    
+    
+@vote_bp.route('/user', methods=['GET'])
+def get_user_votes():
+    """
+    Get all votes for a specific user (by user_id query param).
+    /api/votes/user?user_id=5
+    """
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return jsonify({'error': 'user_id is required as a query parameter'}), 400
+
+    votes = Vote.query.filter_by(user_id=user_id).all()
+    return jsonify({
+        'votes': [v.to_dict() for v in votes]
+    }), 200
