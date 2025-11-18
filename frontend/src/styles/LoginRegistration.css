@@ -68,3 +68,8 @@
 .auth-form button:hover {
   background: #fecd09;
 }
+
+.forgot-password {
+  margin-top: 15px;
+  text-align: center;
+}

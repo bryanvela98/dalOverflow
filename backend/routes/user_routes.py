@@ -54,3 +54,25 @@ def create_user():
     except Exception as e:
         logging.error(f"Error creating user: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+    
+@user_bp.route('/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    """Get a single user by ID.
+
+    Args:
+        user_id: The ID of the user to retrieve.
+
+    Returns:
+        JSON response containing the user data.
+    """
+    try:
+        user = User.get_by_id(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        return jsonify({
+            "user": user.to_dict()
+        })
+    except Exception as e:
+        logging.error(f"Error fetching user {user_id}: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500

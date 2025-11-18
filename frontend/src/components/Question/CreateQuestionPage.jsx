@@ -2,15 +2,11 @@ import React, { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "./CreateQuestionPage.css";
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import {} from "react-syntax-highlighter/dist/esm/styles/prism";
-import { vsDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 /**
  * Create Question Page Component (Issue #2)
  * Pure JavaScript version
- * ✅ FIXED: Removed .slice(0, 10) limit on tags display
+ * FIXED: Removed .slice(0, 10) limit on tags display
  */
 const CreateQuestionPage = ({
   availableTags = [],
@@ -31,8 +27,6 @@ const CreateQuestionPage = ({
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [code_snippet, set_CS] = useState("");
-  const [lang, set_lang] = useState("javascript");
 
   // AC 1: Search similar questions
   useEffect(() => {
@@ -134,8 +128,6 @@ const CreateQuestionPage = ({
       const questionData = {
         title,
         description,
-        code_snippet,
-        lang,
         tags: selectedTags.map((t) => t.id),
         isAnonymous,
       };
@@ -144,8 +136,6 @@ const CreateQuestionPage = ({
 
       setTitle("");
       setDescription("");
-      set_CS("");
-      set_lang("");
       setSelectedTags([]);
       setIsAnonymous(false);
       setErrors({});
@@ -292,41 +282,6 @@ const CreateQuestionPage = ({
           </div>
 
           <div className="form-section">
-            <label htmlFor="code_snippet" className="form-label">
-              Enter you code snippets here
-            </label>
-
-            <select 
-              className="form-select"
-              value={lang}
-              onChange={(e) => set_lang(e.target.value)} 
-            >
-              <option value="javascript">JavaScript</option>
-              <option value="java">Java</option>
-              <option value="python">Python</option>
-              <option value="sql">SQL</option>
-              <option value="cpp">C++</option>
-            </select>
-
-            {!showPreview?(
-              <textarea
-                id="code_snippet"
-                className="form-textarea code-snippet"
-                placeholder="please enter desired code snippets in here"
-                value={code_snippet}
-                onChange={(e) =>set_CS(e.target.value)}
-                rows="15"
-              />
-            ):(
-              code_snippet && (
-                <SyntaxHighlighter language={lang} style={vscDarkPlus}>
-                  {code_snippet}
-                </SyntaxHighlighter>
-              )
-            )}
-          </div>
-
-          <div className="form-section">
             <label htmlFor="tags" className="form-label">
               Tags *
             </label>
@@ -366,7 +321,7 @@ const CreateQuestionPage = ({
                 <div className="tag-dropdown">
                   {filteredTags.length > 0 ? (
                     <>
-                      {/* ✅ FIXED: Removed .slice(0, 10) - Now shows ALL filtered tags */}
+                      {/* FIXED: Removed .slice(0, 10) - Now shows ALL filtered tags */}
                       {filteredTags.map((tag) => (
                         <button
                           key={tag.id}

@@ -24,7 +24,6 @@ class Tag(BaseModel):
 
     tag_name = db.Column(db.String(255))
     tag_description = db.Column(db.Text)
-    tag_creation_date = db.Column(db.Date)
     # Many-to-many relationship with questions
     questions = db.relationship(
         'Question',
@@ -39,7 +38,6 @@ class Tag(BaseModel):
             'id':self.id,
             'tag_name':self.tag_name,
             'tag_description':self.tag_description,
-            'tag_creation_date':self.tag_creation_date,
             'question_count': self.questions.count()
         })
         return base_dict
