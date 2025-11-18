@@ -25,7 +25,7 @@ class Vote(BaseModel):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     vote_type = db.Column(db.String(255))
-    vote_date = db.Column(db.DateTime)
+    target_type = db.Column(db.String(50))  # 'question' or 'answer'
 
     
     def to_dict(self):
@@ -35,6 +35,6 @@ class Vote(BaseModel):
             'question_id':self.question_id,
             'user_id':self.user_id,
             'vote_type':self.vote_type,
-            'vote_date':self.vote_date
+            'target_type':self.target_type
         })
         return base_dict
