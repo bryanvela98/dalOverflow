@@ -40,7 +40,7 @@ def create_vote():
         data = request.get_json()
         
         # Validate required fields
-        required_fields = ['vote_type', 'target_type']
+        required_fields = ['target_id', 'vote_type', 'target_type']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'{field} is required'}), 400
