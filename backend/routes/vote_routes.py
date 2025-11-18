@@ -54,3 +54,23 @@ def create_vote():
         logging.error(f"Error creating vote: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
     
+@vote_bp.route('/<target_type>/<int:target_id>', methods=['GET'])
+def get_vote_count(target_type, target_id):
+    """
+    Get the total vote count for a specific target (question or answer).
+    """
+    try:
+        votes = Vote.query.filter_by(target_type=target_type, target_id=target_id).all()
+        if not votes:
+            return jsonify({"vote_count": 0, "message": "No votes found"}), 200
+
+        # Example: upvote = +1, downvote = -1
+        vote_count = sum(1 if v.vote_type == "upvote" else -1 for v in votes)
+        return jsonify({
+            "vote_count": vote_count,
+            "target_id": target_id,
+            "target_type": target_type
+        }), 200
+    except Exception as e:
+        logging.error(f"Error fetching vote count: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
