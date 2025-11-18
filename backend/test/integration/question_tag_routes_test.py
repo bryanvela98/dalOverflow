@@ -1,3 +1,10 @@
+"""
+Description: Integration tests for question-tag routes API endpoints.
+Author: Bryan Vela
+Created: 2025-11-09
+Last Modified: 
+    2025-11-09 - Endpoint tests.
+"""
 import unittest
 import sys
 import os
