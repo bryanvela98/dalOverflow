@@ -93,5 +93,25 @@ class VoteRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('vote_count', data)
         self.assertEqual(data['vote_count'], 1)
 
+    def test_patch_vote_switch_type(self):
+        """Test PATCH /api/votes/<vote_id> switches vote_type"""
+        # Create an upvote for a question
+        vote = self.create_test_vote(
+            target_id=self.question.id,
+            user_id=self.user.id,
+            vote_type='upvote',
+            target_type='question'
+        )
+        db.session.commit()
+
+        # Switch to downvote
+        patch_payload = {'vote_type': 'downvote'}
+        response = self.client.patch(f'/api/votes/{vote.id}', json=patch_payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('vote', data)
+        self.assertEqual(data['vote']['vote_type'], 'downvote')
+        self.assertEqual(data['vote']['id'], vote.id)
+        
 if __name__ == '__main__':
     unittest.main()

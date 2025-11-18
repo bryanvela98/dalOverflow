@@ -24,7 +24,7 @@ class Vote(BaseModel):
 
     target_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    vote_type = db.Column(db.String(255))
+    vote_type = db.Column(db.String(255)) # 'upvote' or 'downvote'
     target_type = db.Column(db.String(50))  # 'question' or 'answer'
 
     
