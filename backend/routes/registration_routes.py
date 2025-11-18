@@ -85,3 +85,23 @@ def reset_password():
     except Exception as e:
         print(e)
         return jsonify({"success": False, "message": "Error resetting password"}), 500
+
+
+@registration_bp.route("/resend-otp", methods=["POST"])
+def resend_otp():
+    data = request.get_json()
+    email = data.get("email")
+    
+    try:
+        if hasattr(register, 'pending_email') and register.pending_email == email:
+            register.send_otp(email)
+            return jsonify({"success": True, "message": "OTP resent to your email"})
+        elif register.user_exists(email):
+            register.reset_otp(email)
+            return jsonify({"success": True, "message": "OTP resent to your email"})
+        else:
+            return jsonify({"success": False, "message": "No pending registration or user found"}), 400
+            
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False, "message": "Error resending OTP"}), 500
