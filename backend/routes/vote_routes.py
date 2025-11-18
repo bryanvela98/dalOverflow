@@ -57,20 +57,55 @@ def create_vote():
 @vote_bp.route('/<target_type>/<int:target_id>', methods=['GET'])
 def get_vote_count(target_type, target_id):
     """
-    Get the total vote count for a specific target (question or answer).
+    Get the total vote count, upvotes, and downvotes for a specific target (question or answer).
     """
     try:
         votes = Vote.query.filter_by(target_type=target_type, target_id=target_id).all()
         if not votes:
-            return jsonify({"vote_count": 0, "message": "No votes found"}), 200
+            return jsonify({
+                "vote_count": 0,
+                "upvotes": 0,
+                "downvotes": 0,
+                "message": "No votes found"
+            }), 200
 
-        # Example: upvote = +1, downvote = -1
-        vote_count = sum(1 if v.vote_type == "upvote" else -1 for v in votes)
+        upvotes = sum(1 for v in votes if v.vote_type == "upvote")
+        downvotes = sum(1 for v in votes if v.vote_type == "downvote")
+        vote_count = upvotes - downvotes
+
         return jsonify({
             "vote_count": vote_count,
+            "upvotes": upvotes,
+            "downvotes": downvotes,
             "target_id": target_id,
             "target_type": target_type
         }), 200
     except Exception as e:
         logging.error(f"Error fetching vote count: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@vote_bp.route('/<int:vote_id>', methods=['PATCH'])
+def update_vote(vote_id):
+    """
+    Update the vote_type of an existing vote (switch upvote/downvote).
+    """
+    try:
+        data = request.get_json()
+        vote = Vote.query.get(vote_id)
+        if not vote:
+            return jsonify({'error': 'Vote not found'}), 404
+
+
+        if 'vote_type' in data:
+            vote.update({'vote_type': data['vote_type']})  # update vote_type
+        else:
+            return jsonify({'error': 'vote_type is required'}), 400
+
+        return jsonify({
+            'message': 'Vote updated successfully',
+            'vote': vote.to_dict()
+        }), 200
+    except Exception as e:
+        logging.error(f"Error updating vote: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
