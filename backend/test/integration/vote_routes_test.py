@@ -2,6 +2,8 @@
 Description: Integration tests for vote routes API endpoints.
 Author: Bryan Vela
 Created: 2025-11-17
+Last Modified: 
+    2025-11-17 - Endpoint tests.
 """
 import unittest
 import sys
