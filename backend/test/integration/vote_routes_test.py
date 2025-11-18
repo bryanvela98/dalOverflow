@@ -113,5 +113,24 @@ class VoteRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(data['vote']['vote_type'], 'downvote')
         self.assertEqual(data['vote']['id'], vote.id)
         
+    def test_get_user_votes(self):
+        """Test GET /api/votes/user returns all votes for a user"""
+        # Creation of votes
+        vote1 = self.create_test_vote(target_id=self.question.id, user_id=self.user.id, vote_type='upvote', target_type='question')
+        vote2 = self.create_test_vote(target_id=self.answer.id, user_id=self.user.id, vote_type='downvote', target_type='answer')
+        # Creation of a vote for another user
+        other_user = self.create_test_user(username="other", email="other@dal.ca")
+        self.create_test_vote(target_id=self.question.id, user_id=other_user.id, vote_type='upvote', target_type='question')
+        db.session.commit()
+
+        response = self.client.get(f'/api/votes/user?user_id={self.user.id}')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('votes', data)
+        vote_ids = [v['id'] for v in data['votes']]
+        self.assertIn(vote1.id, vote_ids)
+        self.assertIn(vote2.id, vote_ids)
+        #  not include votes from other users
+        self.assertEqual(len(data['votes']), 2)
 if __name__ == '__main__':
     unittest.main()
