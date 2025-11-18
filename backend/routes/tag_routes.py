@@ -55,7 +55,6 @@ def get_tag_by_id(tag_id):
 
 
 @tag_bp.route('/', methods=['POST'])
-@login_required
 def create_tag():
     """Create a new tag.
 

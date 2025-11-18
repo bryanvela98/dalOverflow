@@ -145,6 +145,22 @@ class TestDataCreation:
         except Exception as e:
             db.session.rollback()
             raise e
+        
+    def create_test_answer(self, user_id, question_id, body='Test body'):
+        """Helper method to create a test answer"""
+        from models.answer import Answer
+        
+        try:
+            answer = Answer.create({
+                'question_id': question_id,
+                'user_id': user_id,
+                'body': body
+            })
+            db.session.flush()  # Ensure answer gets an ID
+            return answer
+        except Exception as e:
+            db.session.rollback()
+            raise e
     
     def create_test_tag(self, tag_name='TestTag', description='Test tag description'):
         """Helper method to create a test tag"""
@@ -176,12 +192,12 @@ class TestDataCreation:
             db.session.rollback()
             raise e
         
-    def create_test_vote(self, question_id, user_id, vote_type='upvote', target_type='question'):
+    def create_test_vote(self, target_id, user_id, vote_type='upvote', target_type='question'):
         """Helper method to create a test vote"""
         from models.vote import Vote
         try:
             vote = Vote.create({
-                'question_id': question_id,
+                'target_id': target_id,
                 'user_id': user_id,
                 'vote_type': vote_type,
                 'target_type': target_type
