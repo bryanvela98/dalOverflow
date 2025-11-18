@@ -175,3 +175,19 @@ class TestDataCreation:
         except Exception as e:
             db.session.rollback()
             raise e
+        
+    def create_test_vote(self, question_id, user_id, vote_type='upvote', target_type='question'):
+        """Helper method to create a test vote"""
+        from models.vote import Vote
+        try:
+            vote = Vote.create({
+                'question_id': question_id,
+                'user_id': user_id,
+                'vote_type': vote_type,
+                'target_type': target_type
+            })
+            db.session.flush()  # Ensure vote gets an ID
+            return vote
+        except Exception as e:
+            db.session.rollback()
+            raise e
