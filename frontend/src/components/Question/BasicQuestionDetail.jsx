@@ -1,6 +1,8 @@
 // src/components/Question/QuestionDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import "./BasicQuestionDetail.css";
 
 const BasicQuestionDetail = () => {
@@ -9,6 +11,11 @@ const BasicQuestionDetail = () => {
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
   const [copiedCodeId, setCopiedCodeId] = useState(null);
+  const [ansContent, setAnsContent] = useState("");
+  const [isSubmitAns, setIsSubmitAns] = useState(false);
+  const [ansErr, setAnsErr] = useState("");
+  const ansForm = React.useRef(null);
+  const ansList = React.useRef(null);
 
   // Mock answers data
   const mockAnswers = [
@@ -138,6 +145,7 @@ const BasicQuestionDetail = () => {
         console.error("Error getting user from localStorage:", error);
       }
 
+      const user_id = questionData.user_id;
       if (user_id && !usersMap[user_id]) {
         try {
           const response = await fetch(
@@ -177,6 +185,19 @@ const BasicQuestionDetail = () => {
       isMounted = false;
     };
   }, [id]);
+
+  const getAnsInpLen = (html) => {
+    if (!html) return 0;
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return (tempDiv.textContent || "").trim().length;
+  };
+
+  //validate if 20 chars are inputted
+  const isAnsLengVal = () => {
+    const ansLength = getAnsInpLen(ansContent);
+    return ansLength >= 20 && !isSubmitAns;
+  };
 
   const getUserInfo = (userId) => {
     return (
@@ -226,6 +247,74 @@ const BasicQuestionDetail = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
     alert("Link copied to clipboard!");
+  };
+
+  const handleSubmitAnswer = async (e) => {
+    e.preventDefault();
+
+    if (!isAnsLengVal()) {
+      setAnsErr("Answer must be at least 20 characters long.");
+      return;
+    }
+
+    setIsSubmitAns(true);
+    setAnsErr("");
+
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/questions/${id}/answers`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ body: ansContent }),
+        }
+      );
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to post answer");
+      }
+
+      const data = await response.json();
+      const ansNew = data.answer || data || {
+        id: Date.now().toString(),
+        content: ansContent,
+        user_id: question?.user_id || "unknown",
+        upvotes: 0,
+        created_at: new Date().toISOString(),
+        is_accepted: false,
+      };
+
+      setQuestion((prev) => {
+        const updateAns = [...(prev?.answers || []), ansNew];
+        return {
+          ...prev,
+          answers: updateAns,
+          ansCount: updateAns.length,
+          isAnswered: updateAns.length > 0,
+        };
+      });
+
+      setAnsContent("");
+
+      //scroll down to the answer
+      setTimeout(() => {
+        const ansCard = ansList.current?.querySelectorAll?.(".answer-card") ||
+          document.querySelectorAll(".answer-card");
+        const latestAns = ansCard[ansCard.length - 1];
+        if (latestAns) {
+          latestAns.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+
+    } catch (error) {
+      console.error("Error posting answer:", error);
+      setAnsErr(error.message || "Failed to post answer. Please try again.");
+    } finally {
+      setIsSubmitAns(false);
+    }
   };
 
   if (loading) {
@@ -526,13 +615,50 @@ const BasicQuestionDetail = () => {
                       <p>
                         No answers yet. Be the first to answer this question!
                       </p>
-                      <button className="action-button action-button--primary">
-                        Answer Question
-                      </button>
                     </div>
                   </div>
                 )}
               </div>
+
+              <form className="user-ans-input" ref={ansForm} onSubmit={handleSubmitAnswer}>
+                <h3 className="ans-inp-title">Add your answer</h3>
+
+                {ansErr && (
+                  <div className="ans-inp-err">{ansErr}</div>
+                )}
+
+                <div className="ans-inp-content">
+                  <ReactQuill
+                    value={ansContent}
+                    onChange={(content) => {
+                      setAnsContent(content);
+                      if (ansErr) setAnsErr("");
+                    }}
+                    placeholder="Answer here pls![atleast 20 characters]"
+                    modules={{
+                      toolbar: [
+                        [{ header: [1, 2, 3, false] }],
+                        ["bold", "italic", "underline", "strike"],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        ["link", "code-block"],
+                        ["clean"],
+                      ],
+                    }}
+                    className="ans-edit"
+                  />
+                </div>
+
+                <div className="ans-inp-actions">
+                  <button
+                    type="submit"
+                    className="action-button action-button--primary"
+                    disabled={!isAnsLengVal()}
+                  >
+                    {isSubmitAns ? "Posting..." : "Post Answer"}
+                  </button>
+                </div>
+              </form>
+
             </div>
           </div>
         </div>
