@@ -96,6 +96,5 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         data = response.get_json()
         self.assertIsNotNone(data)
 
-
 if __name__ == '__main__':
     unittest.main()

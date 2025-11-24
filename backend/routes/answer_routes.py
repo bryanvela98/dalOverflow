@@ -66,3 +66,63 @@ def get_answer_count(question_id):
         
     except Exception as e:
         return jsonify({'message': f'Error fetching answer count: {str(e)}'}), 500
+    
+
+answers_bp = Blueprint('answers', __name__)
+
+@answers_bp.route('/<int:question_id>/answers', methods=['POST'])
+@token_required
+def create_answer(current_user, question_id):
+    """Create a new answer for a question"""
+    try:
+        answer_service = AnswerServices()
+        
+        data = request.get_json()
+        body = data.get('body', '').strip()
+
+        # Validate answer body
+        if not answer_service.validate_answer_body(body):
+            return jsonify({'message': 'Answer must be at least 20 characters'}), 400
+
+        # Check if question exists
+        if not answer_service.question_exists(question_id):
+            return jsonify({'message': 'Question not found'}), 404
+
+        # Sanitize HTML content
+        sanitized_body = sanitize_html_body(body)
+
+        # Create new answer using service
+        new_answer = answer_service.create_answer(
+            question_id=question_id,
+            user_id=current_user.id,
+            body=sanitized_body
+        )
+
+        if not new_answer:
+            return jsonify({'message': 'Failed to create answer'}), 400
+
+        db.session.add(new_answer)
+        db.session.commit()
+
+        # Fetch user data for response
+        user = User.query.get(current_user.id)
+
+        return jsonify({
+            'message': 'Answer posted successfully',
+            'answer': {
+                'id': new_answer.id,
+                'question_id': new_answer.question_id,
+                'user_id': new_answer.user_id,
+                'content': new_answer.body,
+                'created_at': new_answer.created_at.isoformat(),
+                'upvotes': 0,
+                'isAccepted': False,
+                'user': {
+                    'username': user.username,
+                    'reputation': user.reputation
+                }
+            }
+        }), 201
+
+    except Exception as e:
+        return jsonify({'message': f'Error creating answer: {str(e)}'}), 500
