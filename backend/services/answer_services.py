@@ -13,4 +13,11 @@ class AnswerServices:
         pass
 
     def validate_answer_body(self, body):
+        if not body:
+            return False
+        
+        stripped_body = body.strip()
+        if len(stripped_body) < 20:
+            return False
+        
         return True
