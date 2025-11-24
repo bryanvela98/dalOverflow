@@ -1,7 +1,8 @@
-// src/components/Question/QuestionDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "react-quill/dist/quill.snow.css";
 import "./BasicQuestionDetail.css";
 
@@ -14,73 +15,31 @@ const BasicQuestionDetail = () => {
   const [ansContent, setAnsContent] = useState("");
   const [isSubmitAns, setIsSubmitAns] = useState(false);
   const [ansErr, setAnsErr] = useState("");
+  const [ansSuccess, setAnsSuccess] = useState("");
   const ansForm = React.useRef(null);
   const ansList = React.useRef(null);
 
-  // Mock answers data
-  const mockAnswers = [
-    {
-      id: 1,
-      user_id: 2,
-      content: `<p>This is a great question! Here's a solution that should work for your case:</p>
-                <p>First, make sure you have the correct dependencies installed:</p>
-                <pre>npm install react-router-dom</pre>
-                <p>Then, you can structure your routes like this:</p>
-                <pre>import { BrowserRouter, Routes, Route } from 'react-router-dom';\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <Routes>\n        <Route path="/" element={<Home />} />\n        <Route path="/questions/:id" element={<QuestionDetail />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}</pre>`,
-      created_at: "2024-01-15T14:30:00Z",
-      upvotes: 8,
-      isAccepted: true,
-    },
-    {
-      id: 2,
-      user_id: 3,
-      content: `<p>Another approach you might consider is using React Query for data fetching:</p>
-                <p>Install React Query:</p>
-                <pre>npm install @tanstack/react-query</pre>
-                <p>Then use it in your component:</p>
-                <pre>import { useQuery } from '@tanstack/react-query';\n\nconst fetchQuestion = async (id) => {\n  const response = await fetch(\`/api/questions/\${id}\`);\n  return response.json();\n};\n\nfunction QuestionDetail() {\n  const { id } = useParams();\n  const { data, isLoading } = useQuery(['question', id], () => fetchQuestion(id));\n  \n  if (isLoading) return <div>Loading...</div>;\n  \n  return <div>{/* render question */}</div>;\n}</pre>`,
-      created_at: "2024-01-15T16:45:00Z",
-      upvotes: 5,
-      isAccepted: false,
-    },
-    {
-      id: 3,
-      user_id: 4,
-      content: `<p>Don't forget to handle error states as well! Here's a complete example with error handling:</p>
-                <pre>const { data, isLoading, error } = useQuery(['question', id], () => fetchQuestion(id));\n\nif (isLoading) return <div>Loading question...</div>;\nif (error) return <div>Error loading question: {error.message}</div>;</pre>
-                <p>This will make your app more robust and user-friendly.</p>`,
-      created_at: "2024-01-16T09:15:00Z",
-      upvotes: 3,
-      isAccepted: false,
-    },
-  ];
+  const fetchAnswers = async () => {
+    try {
+      const answersResponse = await fetch(
+        `http://localhost:5001/api/questions/${id}/answers`
+      );
+      const answersData = await answersResponse.json();
+      const answers = answersData.answers || [];
 
-  // Mock users data for answer authors only
-  const mockAnswerUsers = {
-    2: {
-      username: "ReactExpert",
-      reputation: 2450,
-      is_professor: false,
-      is_ta: true,
-      avatar: null,
-      join_date: "2023-05-15T00:00:00Z",
-    },
-    3: {
-      username: "CodeMaster",
-      reputation: 1800,
-      is_professor: true,
-      is_ta: false,
-      avatar: null,
-      join_date: "2022-11-20T00:00:00Z",
-    },
-    4: {
-      username: "DevHelper",
-      reputation: 920,
-      is_professor: false,
-      is_ta: false,
-      avatar: null,
-      join_date: "2024-01-01T00:00:00Z",
-    },
+      setQuestion((prevQuestion) => ({
+        ...prevQuestion,
+        answers: answers,
+        answerCount: answers.length,
+        isAnswered: answers.length > 0,
+        hasAcceptedAnswer: answers.some((a) => a.isAccepted),
+      }));
+
+      return answers;
+    } catch (error) {
+      console.error("Error fetching answers:", error);
+      return [];
+    }
   };
 
   useEffect(() => {
@@ -95,24 +54,27 @@ const BasicQuestionDetail = () => {
         console.log("Question data:", data);
 
         if (isMounted) {
-          // Enhance the question data with mock answers
           if (!data.question) {
             setLoading(false);
-            return; // Stop execution if no question found
+            return;
           }
+
+          const answersResponse = await fetch(
+            `http://localhost:5001/api/questions/${id}/answers`
+          );
+          const answersData = await answersResponse.json();
+          const answers = answersData.answers || [];
 
           const enhancedQuestion = {
             ...data.question,
-            answers: mockAnswers, // Always use mock answers
-            answerCount: mockAnswers.length,
-            isAnswered: true,
-            hasAcceptedAnswer: true,
+            answers: answers,
+            answerCount: answers.length,
+            isAnswered: answers.length > 0,
+            hasAcceptedAnswer: answers.some((a) => a.isAccepted),
           };
 
           setQuestion(enhancedQuestion);
-
-          // Fetch real user data for question author from backend
-          await fetchUserData(data.question);
+          await fetchUserData(data.question, answers);
         }
       } catch (error) {
         console.error("Error fetching question:", error);
@@ -123,53 +85,68 @@ const BasicQuestionDetail = () => {
       }
     };
 
-    const fetchUserData = async (questionData) => {
+    const fetchUserData = async (questionData, answers = []) => {
       if (!isMounted) return;
 
-      const usersMap = { ...mockAnswerUsers }; // Start with mock answer users
+      const usersMap = {};
 
-      // Try to get user from localStorage first (login data)
-      try {
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        if (currentUser && questionData.user_id) {
-          usersMap[questionData.user_id] = {
-            username: currentUser.username || `User ${questionData.user_id}`,
-            reputation: currentUser.reputation || 0,
-            is_professor: currentUser.is_professor || false,
-            is_ta: currentUser.is_ta || false,
-            avatar: currentUser.avatar,
-            join_date: currentUser.join_date,
-          };
-        }
-      } catch (error) {
-        console.error("Error getting user from localStorage:", error);
+      // Collect all unique user IDs from question and answers
+      const userIds = new Set();
+      if (questionData.user_id) {
+        userIds.add(questionData.user_id);
       }
+      answers.forEach((answer) => {
+        if (answer.user_id) {
+          userIds.add(answer.user_id);
+        }
+      });
 
-      const user_id = questionData.user_id;
-      if (user_id && !usersMap[user_id]) {
+      // Fetch user data for each unique user ID
+      for (const userId of userIds) {
         try {
           const response = await fetch(
-            `http://localhost:5001/api/users/${user_id}`
+            `http://localhost:5001/api/users/${userId}`
           );
           if (response.ok) {
             const userData = await response.json();
-            usersMap[user_id] = userData?.user || {
-              username: `User ${user_id}`,
+            usersMap[userId] = userData?.user || {
+              username: `User ${userId}`,
               reputation: 0,
-              is_professor: false,
-              is_ta: false,
             };
+
+            // Log answer count for logged in user
+            const currentUser = JSON.parse(
+              localStorage.getItem("currentUser") || "{}"
+            );
+            console.log("Current user from localStorage:", currentUser);
+            console.log("Fetched user data:", userData);
+            console.log("User ID being checked:", userId);
+
+            if (
+              currentUser.id === userId &&
+              userData?.user?.answer_count !== undefined
+            ) {
+              console.log(
+                `Answer count for logged in user (${userData.user.username}):`,
+                userData.user.answer_count
+              );
+            } else if (userData?.user?.answer_count !== undefined) {
+              console.log(
+                `Answer count for user ${userId} (${userData.user.username}):`,
+                userData.user.answer_count
+              );
+            }
           } else {
-            throw new Error("API returned error");
+            usersMap[userId] = {
+              username: `User ${userId}`,
+              reputation: 0,
+            };
           }
         } catch (error) {
-          console.error(`Error fetching user ${user_id}:`, error);
-          // Final fallback
-          usersMap[user_id] = {
-            username: `User ${user_id}`,
+          console.error(`Error fetching user ${userId}:`, error);
+          usersMap[userId] = {
+            username: `User ${userId}`,
             reputation: 0,
-            is_professor: false,
-            is_ta: false,
           };
         }
       }
@@ -204,8 +181,6 @@ const BasicQuestionDetail = () => {
       users[userId] || {
         username: `User ${userId}`,
         reputation: 0,
-        is_professor: false,
-        is_ta: false,
       }
     );
   };
@@ -230,7 +205,30 @@ const BasicQuestionDetail = () => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
     const preElements = doc.querySelectorAll("pre");
-    return Array.from(preElements).map((pre) => pre.textContent);
+    return Array.from(preElements).map((pre) => {
+      // Try to detect language from class attribute
+      const codeElement = pre.querySelector("code");
+      let language = "Code";
+
+      if (codeElement && codeElement.className) {
+        // Check for language- prefix (e.g., language-python)
+        const match = codeElement.className.match(/language-(\w+)/);
+        if (match) {
+          language = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+        }
+      } else if (pre.className) {
+        // Check pre element class
+        const match = pre.className.match(/language-(\w+)/);
+        if (match) {
+          language = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+        }
+      }
+
+      return {
+        code: pre.textContent,
+        language: language,
+      };
+    });
   };
 
   const handleVote = async (type, targetId, direction) => {
@@ -261,57 +259,72 @@ const BasicQuestionDetail = () => {
     setAnsErr("");
 
     try {
+      const token = localStorage.getItem("token");
+
       const response = await fetch(
         `http://localhost:5001/api/questions/${id}/answers`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ body: ansContent }),
         }
       );
 
+      const data = await response.json();
+      console.log("Response status:", response.status);
+      console.log("Response data:", data);
+
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to post answer");
+        setAnsErr(data.message || "Failed to post answer");
+        return;
       }
 
-      const data = await response.json();
-      const ansNew = data.answer || data || {
-        id: Date.now().toString(),
-        content: ansContent,
-        user_id: question?.user_id || "unknown",
-        upvotes: 0,
-        created_at: new Date().toISOString(),
-        is_accepted: false,
-      };
-
-      setQuestion((prev) => {
-        const updateAns = [...(prev?.answers || []), ansNew];
-        return {
-          ...prev,
-          answers: updateAns,
-          ansCount: updateAns.length,
-          isAnswered: updateAns.length > 0,
-        };
-      });
-
+      // Success - reset form and reload answers
       setAnsContent("");
+      setAnsSuccess("Answer posted successfully!");
+      await fetchAnswers();
 
-      //scroll down to the answer
-      setTimeout(() => {
-        const ansCard = ansList.current?.querySelectorAll?.(".answer-card") ||
-          document.querySelectorAll(".answer-card");
-        const latestAns = ansCard[ansCard.length - 1];
-        if (latestAns) {
-          latestAns.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Fetch updated user data to get new answer count
+      const currentUser = JSON.parse(
+        localStorage.getItem("currentUser") || "{}"
+      );
+      console.log("Current user for answer count update:", currentUser);
+      console.log("User ID from posted answer:", data.answer.user_id);
+
+      // Use the user_id from the answer response
+      const userId = data.answer.user_id;
+      if (userId) {
+        try {
+          const userResponse = await fetch(
+            `http://localhost:5001/api/users/${userId}`
+          );
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            console.log(
+              "Answer Posted!Updated answer count for logged in user:",
+              userData.user.answer_count
+            );
+          } else {
+            console.log(
+              "Failed to fetch user data, status:",
+              userResponse.status
+            );
+          }
+        } catch (error) {
+          console.error("Error fetching updated user data:", error);
         }
-      }, 100);
+      } else {
+        console.log("No user ID found to fetch answer count");
+      }
 
+      // Clear success message after 3 seconds
+      setTimeout(() => setAnsSuccess(""), 3000);
     } catch (error) {
-      console.error("Error posting answer:", error);
-      setAnsErr(error.message || "Failed to post answer. Please try again.");
+      console.error("Fetch error:", error);
+      setAnsErr("Error posting answer: " + error.message);
     } finally {
       setIsSubmitAns(false);
     }
@@ -427,18 +440,28 @@ const BasicQuestionDetail = () => {
 
                 {/* Code Blocks Container */}
                 <div className="code-blocks-container">
-                  {codeBlocks.map((code, index) => (
+                  {codeBlocks.map((block, index) => (
                     <div key={index} className="code-block-wrapper">
                       <div className="code-block-header">
-                        <span className="code-language">JavaScript</span>
+                        <span className="code-language">{block.language}</span>
                         <button
                           className="code-copy-button"
-                          onClick={() => handleCopyCode(code, index)}
+                          onClick={() => handleCopyCode(block.code, index)}
                         >
                           {copiedCodeId === index ? "Copied!" : "Copy"}
                         </button>
                       </div>
-                      <pre className="code-content">{code}</pre>
+                      <SyntaxHighlighter
+                        language={block.language.toLowerCase()}
+                        style={vscDarkPlus}
+                        customStyle={{
+                          margin: 0,
+                          borderRadius: "0 0 8px 8px",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {block.code}
+                      </SyntaxHighlighter>
                     </div>
                   ))}
                 </div>
@@ -547,20 +570,20 @@ const BasicQuestionDetail = () => {
 
                             {/* Answer Code Blocks */}
                             <div className="answer-code-blocks">
-                              {answerCodeBlocks.map((code, codeIndex) => (
+                              {answerCodeBlocks.map((block, codeIndex) => (
                                 <div
                                   key={codeIndex}
                                   className="code-block-wrapper"
                                 >
                                   <div className="code-block-header">
                                     <span className="code-language">
-                                      JavaScript
+                                      {block.language}
                                     </span>
                                     <button
                                       className="code-copy-button"
                                       onClick={() =>
                                         handleCopyCode(
-                                          code,
+                                          block.code,
                                           `answer-${index}-${codeIndex}`
                                         )
                                       }
@@ -571,7 +594,17 @@ const BasicQuestionDetail = () => {
                                         : "Copy"}
                                     </button>
                                   </div>
-                                  <pre className="code-content">{code}</pre>
+                                  <SyntaxHighlighter
+                                    language={block.language.toLowerCase()}
+                                    style={vscDarkPlus}
+                                    customStyle={{
+                                      margin: 0,
+                                      borderRadius: "0 0 8px 8px",
+                                      fontSize: "14px",
+                                    }}
+                                  >
+                                    {block.code}
+                                  </SyntaxHighlighter>
                                 </div>
                               ))}
                             </div>
@@ -582,16 +615,6 @@ const BasicQuestionDetail = () => {
                                   <span className="answer-author-name">
                                     Answered by {answerAuthor.username}
                                   </span>
-                                  {answerAuthor.is_professor && (
-                                    <span className="verification-badge verification-badge--professor">
-                                      Professor
-                                    </span>
-                                  )}
-                                  {answerAuthor.is_ta && (
-                                    <span className="verification-badge verification-badge--ta">
-                                      TA
-                                    </span>
-                                  )}
                                 </div>
                                 <span className="answer-time">
                                   {formatDate(answer.created_at)}
@@ -620,11 +643,16 @@ const BasicQuestionDetail = () => {
                 )}
               </div>
 
-              <form className="user-ans-input" ref={ansForm} onSubmit={handleSubmitAnswer}>
+              <form
+                className="user-ans-input"
+                ref={ansForm}
+                onSubmit={handleSubmitAnswer}
+              >
                 <h3 className="ans-inp-title">Add your answer</h3>
 
-                {ansErr && (
-                  <div className="ans-inp-err">{ansErr}</div>
+                {ansErr && <div className="ans-inp-err">{ansErr}</div>}
+                {ansSuccess && (
+                  <div className="ans-inp-success">{ansSuccess}</div>
                 )}
 
                 <div className="ans-inp-content">
@@ -633,6 +661,7 @@ const BasicQuestionDetail = () => {
                     onChange={(content) => {
                       setAnsContent(content);
                       if (ansErr) setAnsErr("");
+                      if (ansSuccess) setAnsSuccess("");
                     }}
                     placeholder="Answer here pls![atleast 20 characters]"
                     modules={{
@@ -658,7 +687,6 @@ const BasicQuestionDetail = () => {
                   </button>
                 </div>
               </form>
-
             </div>
           </div>
         </div>
@@ -693,18 +721,7 @@ const BasicQuestionDetail = () => {
                     >
                       {questionAuthor.username}
                     </a>
-                    <div className="verification-badges">
-                      {questionAuthor.is_professor && (
-                        <span className="verification-badge verification-badge--professor">
-                          Professor
-                        </span>
-                      )}
-                      {questionAuthor.is_ta && (
-                        <span className="verification-badge verification-badge--ta">
-                          TA
-                        </span>
-                      )}
-                    </div>
+                    <div className="verification-badges"></div>
                   </div>
                   <div className="author-reputation-container">
                     <span className="reputation-icon">⭐</span>

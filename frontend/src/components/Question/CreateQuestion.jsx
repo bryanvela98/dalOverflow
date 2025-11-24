@@ -90,7 +90,29 @@ const CreateQuestion = () => {
 
       // Get actual user data from localStorage
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = userData.id || 6; // Fallback to 6 as in your example
+      const token = localStorage.getItem("token");
+
+      // Check if user is logged in
+      if (!token) {
+        throw new Error("Please log in to create a question");
+      }
+
+      // Try to get userId from stored user data, or decode from token
+      let userId = userData.id;
+
+      if (!userId && token) {
+        // Decode token to get user id (JWT tokens have payload in the middle section)
+        try {
+          const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+          userId = tokenPayload.user_id || tokenPayload.id || tokenPayload.sub;
+        } catch (e) {
+          console.error("Could not decode token:", e);
+        }
+      }
+
+      if (!userId) {
+        throw new Error("Could not determine user ID. Please log in again.");
+      }
 
       // Transform data to match backend expectations EXACTLY
       const backendData = {
