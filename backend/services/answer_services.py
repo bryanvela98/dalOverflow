@@ -44,4 +44,6 @@ class AnswerServices:
         
         return new_answer
 
-    
+    def get_answers_by_question(self, question_id):
+        answers = Answer.query.filter_by(question_id=question_id).all()
+        return answers
