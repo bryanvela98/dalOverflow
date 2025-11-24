@@ -57,3 +57,27 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         # Verify response has answers array
         self.assertIn('answers', data)
         self.assertIsInstance(data['answers'], list)
+        
+    def test_get_answer_count_endpoint_exists(self):
+        """Test that the answer count endpoint exists and returns proper structure"""
+        response = self.client.get(f'/api/questions/{self.test_question.id}/answers/count')
+        
+        # Should not return 404 (endpoint exists)
+        self.assertNotEqual(response.status_code, 404)
+        
+        # Should return JSON
+        data = response.get_json()
+        self.assertIsNotNone(data)
+
+    def test_get_answer_count_response_structure(self):
+        """Test that answer count endpoint returns correct response structure"""
+        response = self.client.get(f'/api/questions/{self.test_question.id}/answers/count')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        
+        # Verify response has required fields
+        self.assertIn('question_id', data)
+        self.assertIn('answer_count', data)
+        self.assertIsInstance(data['question_id'], int)
+        self.assertIsInstance(data['answer_count'], int)
