@@ -7,9 +7,6 @@ Last Modified:
 """
 import unittest
 from unittest.mock import MagicMock
-from models.answer import Answer
-from models.user import User
-from models.question import Question
 from services.answer_services import AnswerServices
 from datetime import datetime
 
@@ -26,10 +23,6 @@ class TestAnswerValidation(unittest.TestCase):
         self.assertTrue(result)
     
     
-
-
-if __name__ == '__main__':
-    unittest.main()
 
 
 if __name__ == '__main__':
