@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 from services.answer_services import AnswerServices
 from models.question import Question
 from datetime import datetime
+from models.answer import Answer
 
 class TestAnswerValidation(unittest.TestCase):
     """Test answer validation logic"""
@@ -71,6 +72,38 @@ class TestAnswerCreation(unittest.TestCase):
         )
         
         self.assertIsNone(result)
+        
+
+class TestAnswerRetrieval(unittest.TestCase):
+    """Test answer retrieval from database"""
+    
+    def setUp(self):
+        self.answer_service = AnswerServices()
+        self.mock_db = MagicMock()
+    
+    def test_get_answers_by_question_id(self):
+        """Test retrieving answers for a specific question"""
+        mock_answer1 = MagicMock()
+        mock_answer1.id = 1
+        mock_answer1.question_id = 1
+        mock_answer1.body = "First answer with sufficient length here."
+        
+        mock_answer2 = MagicMock()
+        mock_answer2.id = 2
+        mock_answer2.question_id = 1
+        mock_answer2.body = "Second answer also with sufficient length."
+        
+        Answer.query = MagicMock()
+        Answer.query.filter_by = MagicMock()
+        Answer.query.filter_by.return_value.all = MagicMock(
+            return_value=[mock_answer1, mock_answer2]
+        )
+        
+        result = self.answer_service.get_answers_by_question(question_id=1)
+        
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].question_id, 1)
+        self.assertEqual(result[1].question_id, 1)
 
 
 if __name__ == '__main__':
