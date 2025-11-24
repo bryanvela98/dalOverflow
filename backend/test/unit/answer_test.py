@@ -48,6 +48,29 @@ class TestAnswerCreation(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.question_id, 1)
         self.assertEqual(result.user_id, 1)
+        
+    def test_create_answer_with_invalid_body(self):
+        """Test creating answer with invalid body returns None"""
+        result = self.answer_service.create_answer(
+            question_id=1,
+            user_id=1,
+            body="short"
+        )
+        
+        self.assertIsNone(result)
+    
+    def test_create_answer_with_nonexistent_question(self):
+        """Test creating answer for non-existent question returns None"""
+        Question.query = MagicMock()
+        Question.query.get = MagicMock(return_value=None)
+        
+        result = self.answer_service.create_answer(
+            question_id=999,
+            user_id=1,
+            body="This is a valid answer body with sufficient length."
+        )
+        
+        self.assertIsNone(result)
 
 
 if __name__ == '__main__':
