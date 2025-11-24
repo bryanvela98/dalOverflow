@@ -51,3 +51,4 @@ class AnswerServices:
     def get_answers_by_user(self, user_id):
         answers = Answer.query.filter_by(user_id=user_id).all()
         return answers
+    

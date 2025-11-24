@@ -139,6 +139,23 @@ class TestAnswerRetrieval(unittest.TestCase):
         
         self.assertEqual(len(result), 0)
         self.assertIsInstance(result, list)
+        
+class TestAnswerCount(unittest.TestCase):
+    """Test answer counting functionality"""
+    
+    def setUp(self):
+        self.answer_service = AnswerServices()
+        self.mock_db = MagicMock()
+    
+    def test_count_answers_for_user(self):
+        """Test counting total answers for a user"""
+        Answer.query = MagicMock()
+        Answer.query.filter_by = MagicMock()
+        Answer.query.filter_by.return_value.count = MagicMock(return_value=5)
+        
+        result = self.answer_service.count_answers_by_user(user_id=1)
+        
+        self.assertEqual(result, 5)
 
 
 
