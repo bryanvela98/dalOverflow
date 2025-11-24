@@ -66,9 +66,6 @@ def get_answer_count(question_id):
         
     except Exception as e:
         return jsonify({'message': f'Error fetching answer count: {str(e)}'}), 500
-    
-
-answers_bp = Blueprint('answers', __name__)
 
 @answers_bp.route('/<int:question_id>/answers', methods=['POST'])
 @token_required
