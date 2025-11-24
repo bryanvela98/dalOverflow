@@ -32,6 +32,15 @@ export default function Login() {
         setMessage("Login successful! Redirecting...");
         console.log("Login successful:", data.user);
         localStorage.setItem("token", data.user.token);
+        // Store user data including ID for creating questions/answers
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: data.user.user_id || data.user.id,
+            username: data.user.username,
+            email: data.user.email,
+          })
+        );
         console.log("Token: ", data.user.token);
         navigate("/");
       } else {
