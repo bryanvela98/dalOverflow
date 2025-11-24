@@ -46,3 +46,14 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         # Should return JSON
         data = response.get_json()
         self.assertIsNotNone(data)
+        
+    def test_get_answers_response_structure(self):
+        """Test that GET answers endpoint returns correct response structure"""
+        response = self.client.get(f'/api/questions/{self.test_question.id}/answers')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        
+        # Verify response has answers array
+        self.assertIn('answers', data)
+        self.assertIsInstance(data['answers'], list)
