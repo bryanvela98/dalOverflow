@@ -128,6 +128,18 @@ class TestAnswerRetrieval(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].user_id, 1)
         self.assertEqual(result[1].user_id, 1)
+        
+    def test_get_answers_empty_result(self):
+        """Test retrieving answers when none exist"""
+        Answer.query = MagicMock()
+        Answer.query.filter_by = MagicMock()
+        Answer.query.filter_by.return_value.all = MagicMock(return_value=[])
+        
+        result = self.answer_service.get_answers_by_question(question_id=999)
+        
+        self.assertEqual(len(result), 0)
+        self.assertIsInstance(result, list)
+
 
 
 if __name__ == '__main__':
