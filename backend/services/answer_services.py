@@ -47,3 +47,7 @@ class AnswerServices:
     def get_answers_by_question(self, question_id):
         answers = Answer.query.filter_by(question_id=question_id).all()
         return answers
+    
+    def get_answers_by_user(self, user_id):
+        answers = Answer.query.filter_by(user_id=user_id).all()
+        return answers
