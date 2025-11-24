@@ -156,6 +156,16 @@ class TestAnswerCount(unittest.TestCase):
         result = self.answer_service.count_answers_by_user(user_id=1)
         
         self.assertEqual(result, 5)
+        
+    def test_count_answers_for_question(self):
+        """Test counting total answers for a question"""
+        Answer.query = MagicMock()
+        Answer.query.filter_by = MagicMock()
+        Answer.query.filter_by.return_value.count = MagicMock(return_value=3)
+        
+        result = self.answer_service.count_answers_by_question(question_id=1)
+        
+        self.assertEqual(result, 3)
 
 
 
