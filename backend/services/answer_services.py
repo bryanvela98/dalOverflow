@@ -29,4 +29,17 @@ class AnswerServices:
         return question is not None
     
     def create_answer(self, question_id, user_id, body):
-        return True
+        if not self.validate_answer_body(body):
+            return None
+        
+        if not self.question_exists(question_id):
+            return None
+        
+        new_answer = Answer(
+            question_id=question_id,
+            user_id=user_id,
+            body=body.strip(),
+            created_at=datetime.utcnow()
+        )
+        
+        return new_answer
