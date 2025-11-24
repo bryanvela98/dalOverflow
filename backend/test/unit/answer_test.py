@@ -104,6 +104,30 @@ class TestAnswerRetrieval(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].question_id, 1)
         self.assertEqual(result[1].question_id, 1)
+        
+    def test_get_answers_by_user_id(self):
+        """Test retrieving all answers by a specific user"""
+        mock_answer1 = MagicMock()
+        mock_answer1.id = 1
+        mock_answer1.user_id = 1
+        mock_answer1.body = "First answer from user."
+        
+        mock_answer2 = MagicMock()
+        mock_answer2.id = 2
+        mock_answer2.user_id = 1
+        mock_answer2.body = "Second answer from same user."
+        
+        Answer.query = MagicMock()
+        Answer.query.filter_by = MagicMock()
+        Answer.query.filter_by.return_value.all = MagicMock(
+            return_value=[mock_answer1, mock_answer2]
+        )
+        
+        result = self.answer_service.get_answers_by_user(user_id=1)
+        
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].user_id, 1)
+        self.assertEqual(result[1].user_id, 1)
 
 
 if __name__ == '__main__':
