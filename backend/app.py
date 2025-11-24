@@ -29,6 +29,7 @@ def create_app():
     from routes.tag_routes import tag_bp
 
 
+
     
     # Register the notification blueprint with a URL prefix
     app.register_blueprint(notification_bp, url_prefix='/api/notifications')
