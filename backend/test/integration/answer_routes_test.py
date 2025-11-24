@@ -81,3 +81,21 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('answer_count', data)
         self.assertIsInstance(data['question_id'], int)
         self.assertIsInstance(data['answer_count'], int)
+
+    def test_create_answer_endpoint_exists(self):
+        """Test that the POST answer endpoint exists"""
+        response = self.client.post(
+            f'/api/questions/{self.test_question.id}/answers',
+            json={'body': 'This is a test answer with sufficient length.'}
+        )
+        
+        # Should not return 404 (endpoint exists)
+        self.assertNotEqual(response.status_code, 404)
+        
+        # Should return JSON
+        data = response.get_json()
+        self.assertIsNotNone(data)
+
+
+if __name__ == '__main__':
+    unittest.main()
