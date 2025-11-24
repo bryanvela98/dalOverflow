@@ -52,3 +52,7 @@ class AnswerServices:
         answers = Answer.query.filter_by(user_id=user_id).all()
         return answers
     
+    def count_answers_by_user(self, user_id):
+        count = Answer.query.filter_by(user_id=user_id).count()
+        return count
+    
