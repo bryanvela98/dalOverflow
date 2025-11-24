@@ -45,3 +45,24 @@ def get_answers(question_id):
 
     except Exception as e:
         return jsonify({'message': f'Error fetching answers: {str(e)}'}), 500
+    
+@answers_bp.route('/<int:question_id>/answers/count', methods=['GET'])
+def get_answer_count(question_id):
+    """Get the count of answers for a question"""
+    try:
+        answer_service = AnswerServices()
+        
+        # Check if question exists
+        if not answer_service.question_exists(question_id):
+            return jsonify({'message': 'Question not found'}), 404
+        
+        # Get answer count using service
+        count = answer_service.count_answers_by_question(question_id)
+        
+        return jsonify({
+            'question_id': question_id,
+            'answer_count': count
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'message': f'Error fetching answer count: {str(e)}'}), 500
