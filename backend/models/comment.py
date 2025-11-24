@@ -1,9 +1,9 @@
 """
 Description: Abstract base model for all database tables using SQLAlchemy.
-Last Modified By: Mahek
+Last Modified By: Bryan
 Created: 2025-10-25
 Last Modified: 
-    2025-10-26 - File created and implemented basic CRUD operations.
+    2025-11-24 - File created and implemented basic CRUD operations.
 """
 from .base_model import BaseModel
 from database import db
@@ -14,25 +14,23 @@ class Answer(BaseModel):
 
     Attributes:
     id = Primary Key.
-    question_id = foreign key to the question table
     user_id = foreign key to the user table
-    body = body of the answer
+    question_id = foreign key to the question table
+    answer_id = foreign key to the answer table
+    content = body of the answer
 
     """
 
-    __tablename__ = "answers"
+    __tablename__ = "commennts"
 
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    body = db.Column(db.Text)
-    question = db.relationship(
-        'Question',
-        back_populates='answers'
-    )
-    comments = db.relationship(
-        'Comment',
-        back_populates='answer',
-        lazy ='dynamic'
+    answer_id = db.Column(db.Integer, db.ForeignKey('answers.id'), nullable=False)
+    content = db.Column(db.Text)
+
+    answer = db.relationship(
+        'Answer',
+        back_populates='comments'
     )
 
 
@@ -41,8 +39,8 @@ class Answer(BaseModel):
         base_dict = super().to_dict()
         base_dict.update({
             'id':self.id,
-            'question_id':self.question_id,
             'user_id':self.user_id,
-            'body':self.body
+            'answer_id':self.answer_id,
+            'content':self.content
         })
         return base_dict
