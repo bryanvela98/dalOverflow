@@ -142,6 +142,17 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         data = response.get_json()
         self.assertIn('error', data)
         self.assertIn('comment not found', data['error'].lower())
-        
+    
+    def test_get_all_comments(self):
+        """Test GET /api/comments returns all comments"""
+        response = self.client.get('/api/comments')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('comments', data)
+        self.assertIsInstance(data['comments'], list)
+        comment_ids = [c['id'] for c in data['comments']]
+        self.assertIn(self.comment1.id, comment_ids)
+        self.assertIn(self.comment2.id, comment_ids)
+    
 if __name__ == '__main__':
     unittest.main()
