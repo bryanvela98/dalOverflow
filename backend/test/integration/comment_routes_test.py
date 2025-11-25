@@ -4,6 +4,7 @@ Author: Bryan Vela
 Created: 2025-11-24
 Last Modified: 
     2025-11-24 - Endpoint tests.
+    2025-11-25 - Added patch comment tests and delete comment tests.
 """
 import unittest
 import sys
@@ -85,7 +86,38 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('error', data)
         self.assertIn('content', data['error'].lower())
 
-
+    # Patch comment tests
+    def test_patch_comment_success(self):
+        """Test PATCH /api/comments/<comment_id> updates a comment successfully"""
+        patch_payload = {
+            'content': 'This is an updated comment content'
+        }
         
+        response = self.client.patch(f'/api/comments/{self.comment1.id}', json=patch_payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('comment', data)
+        self.assertEqual(data['comment']['content'], 'This is an updated comment content')
+        self.assertEqual(data['comment']['id'], self.comment1.id)
+        self.assertIn('message', data)
+        
+    def test_patch_comment_not_found(self):
+        """Test PATCH /api/comments/<comment_id> fails when comment doesn't exist"""
+        patch_payload = {'content': 'Updated content'}
+        response = self.client.patch('/api/comments/99999', json=patch_payload)
+        self.assertEqual(response.status_code, 404)
+        data = response.get_json()
+        self.assertIn('error', data)
+        self.assertIn('comment not found', data['error'].lower())
+
+    def test_patch_comment_empty_content(self):
+        """Test PATCH /api/comments/<comment_id> fails when content is empty"""
+        patch_payload = {'content': ''}
+        response = self.client.patch(f'/api/comments/{self.comment1.id}', json=patch_payload)
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertIn('error', data)
+        self.assertIn('content', data['error'].lower())
+    
 if __name__ == '__main__':
     unittest.main()
