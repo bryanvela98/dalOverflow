@@ -11,7 +11,7 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime
 from middleware.auth_middleware import token_required
 from database import db
-from models import Answer, User, Question
+from models import User
 from utils.html_sanitizer import sanitize_html_body
 from services.answer_services import AnswerServices
 

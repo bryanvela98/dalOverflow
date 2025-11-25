@@ -8,9 +8,9 @@ Last Modified:
 from .base_model import BaseModel
 from database import db
 
-class Answer(BaseModel):
+class Comment(BaseModel):
     """
-    Answer model representing the answers given to the questions posted.
+    Comment model representing the comments made on answers.
 
     Attributes:
     id = Primary Key.
@@ -21,7 +21,7 @@ class Answer(BaseModel):
 
     """
 
-    __tablename__ = "commennts"
+    __tablename__ = "comments"
 
     
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

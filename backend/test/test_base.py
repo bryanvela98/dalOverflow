@@ -207,3 +207,19 @@ class TestDataCreation:
         except Exception as e:
             db.session.rollback()
             raise e
+        
+        
+    def create_test_comment(self, answer_id, user_id, content='Test comment'):
+        """Helper method to create a test comment for an answer"""
+        from models.comment import Comment
+        try:
+            comment = Comment.create({
+                'answer_id': answer_id,
+                'user_id': user_id,
+                'content': content
+            })
+            db.session.flush()  # Ensure comment gets an ID
+            return comment
+        except Exception as e:
+            db.session.rollback()
+            raise e

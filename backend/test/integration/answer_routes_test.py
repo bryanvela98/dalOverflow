@@ -28,7 +28,23 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
                 title="Test Question for Answers",
                 body="This is a test question body that needs answers."
             )
-            
+            # Test answer
+            self.answer = self.create_test_answer(
+                user_id=self.test_user.id,
+                question_id=self.test_question.id,
+                body="This is a test answer."
+            )
+            # test comments
+            self.comment1 = self.create_test_comment(
+                answer_id=self.answer.id,
+                user_id=self.test_user.id,
+                content="First comment on answer."
+            )
+            self.comment2 = self.create_test_comment(
+                answer_id=self.answer.id,
+                user_id=self.test_user.id,
+                content="Second comment on answer."
+            )
             # Commit all test data
             db.session.commit()
             
@@ -95,6 +111,17 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         # Should return JSON
         data = response.get_json()
         self.assertIsNotNone(data)
+    def test_get_comments_for_answer(self):
+        """Test GET /answers/<id>/comments returns all comments for an answer"""
+        response = self.client.get(f'/api/answers/{self.answer.id}/comments')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('comments', data)
+        self.assertIsInstance(data['comments'], list)
+        comment_ids = [c['id'] for c in data['comments']]
+        self.assertIn(self.comment1.id, comment_ids)
+        self.assertIn(self.comment2.id, comment_ids)
+        self.assertEqual(len(data['comments']), 2)
 
 if __name__ == '__main__':
     unittest.main()
