@@ -118,6 +118,30 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         data = response.get_json()
         self.assertIn('error', data)
         self.assertIn('content', data['error'].lower())
-    
+
+    # Delete comment tests
+    def test_delete_comment_success(self):
+        """Test DELETE /api/comments/<comment_id> deletes a comment successfully"""
+        comment_id = self.comment1.id
+        
+        response = self.client.delete(f'/api/comments/{comment_id}')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('message', data)
+        self.assertIn('deleted', data['message'].lower())
+
+        # Verify comment is actually deleted
+        from models.comment import Comment
+        deleted_comment = Comment.query.get(comment_id)
+        self.assertIsNone(deleted_comment)
+
+    def test_delete_comment_not_found(self):
+        """Test DELETE /api/comments/<comment_id> fails when comment doesn't exist"""
+        response = self.client.delete('/api/comments/99999')
+        self.assertEqual(response.status_code, 404)
+        data = response.get_json()
+        self.assertIn('error', data)
+        self.assertIn('comment not found', data['error'].lower())
+        
 if __name__ == '__main__':
     unittest.main()

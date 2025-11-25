@@ -72,3 +72,30 @@ def update_comment(comment_id):
     except Exception as e:
         logging.error(f"Error updating comment: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+    
+@comment_bp.route('/<int:comment_id>', methods=['DELETE'])
+def delete_comment(comment_id):
+    """Delete a comment.
+    
+    Args:
+        comment_id: ID of the comment to delete
+        
+    Returns:
+        JSON response containing success message.
+    """
+    try:
+        # Find the comment
+        comment = Comment.query.get(comment_id)
+        if not comment:
+            return jsonify({'error': 'Comment not found'}), 404
+        
+        # Delete the comment
+        comment.delete()
+        
+        return jsonify({
+            'message': 'Comment deleted successfully'
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"Error deleting comment: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
