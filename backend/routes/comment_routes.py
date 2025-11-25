@@ -99,3 +99,21 @@ def delete_comment(comment_id):
     except Exception as e:
         logging.error(f"Error deleting comment: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+    
+# Get all comments
+@comment_bp.route('/', methods=['GET'])
+def get_all_comments():
+    """Get all comments.
+    
+    Returns:
+        JSON response containing all comments.
+    """
+    try:
+        comments = Comment.get_all()
+        return jsonify({
+            'comments': [comment.to_dict() for comment in comments]
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"Error fetching comments: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
