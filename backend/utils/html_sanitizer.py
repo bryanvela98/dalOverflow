@@ -35,7 +35,7 @@ def sanitize_html_body(content):
     allowed_attributes = {
         'a': ['href', 'title'],
         'code': ['class'],
-        'pre': ['class']
+        'pre': ['class', 'data-language']
     }
     
     # Clean the content
