@@ -29,6 +29,7 @@ def create_app():
     from routes.tag_routes import tag_bp
     from routes.vote_routes import vote_bp
     from routes.answer_routes import answers_bp
+    from routes.comment_routes import comment_bp
 
 
     
@@ -42,6 +43,7 @@ def create_app():
     app.register_blueprint(questiontag_bp, url_prefix='/api')
     app.register_blueprint(answers_bp, url_prefix='/api/answers')
     app.register_blueprint(vote_bp, url_prefix='/api/votes')
+    app.register_blueprint(comment_bp, url_prefix='/api/comments')
 
 
 
