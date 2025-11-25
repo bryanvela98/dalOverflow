@@ -22,7 +22,7 @@ const BasicQuestionDetail = () => {
   const fetchAnswers = async () => {
     try {
       const answersResponse = await fetch(
-        `http://localhost:5001/api/questions/${id}/answers`
+        `http://localhost:5001/api/answers/questions/${id}/answers`
       );
       const answersData = await answersResponse.json();
       const answers = answersData.answers || [];
@@ -60,7 +60,7 @@ const BasicQuestionDetail = () => {
           }
 
           const answersResponse = await fetch(
-            `http://localhost:5001/api/questions/${id}/answers`
+            `http://localhost:5001/api/answers/questions/${id}/answers`
           );
           const answersData = await answersResponse.json();
           const answers = answersData.answers || [];
@@ -262,7 +262,7 @@ const BasicQuestionDetail = () => {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:5001/api/questions/${id}/answers`,
+        `http://localhost:5001/api/answers/questions/${id}/answers`,
         {
           method: "POST",
           headers: {
