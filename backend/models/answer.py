@@ -29,6 +29,11 @@ class Answer(BaseModel):
         'Question',
         back_populates='answers'
     )
+    comments = db.relationship(
+        'Comment',
+        back_populates='answer',
+        lazy ='dynamic'
+    )
 
 
     

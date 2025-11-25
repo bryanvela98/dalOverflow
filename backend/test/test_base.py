@@ -145,6 +145,22 @@ class TestDataCreation:
         except Exception as e:
             db.session.rollback()
             raise e
+        
+    def create_test_answer(self, user_id, question_id, body='Test body'):
+        """Helper method to create a test answer"""
+        from models.answer import Answer
+        
+        try:
+            answer = Answer.create({
+                'question_id': question_id,
+                'user_id': user_id,
+                'body': body
+            })
+            db.session.flush()  # Ensure answer gets an ID
+            return answer
+        except Exception as e:
+            db.session.rollback()
+            raise e
     
     def create_test_tag(self, tag_name='TestTag', description='Test tag description'):
         """Helper method to create a test tag"""
@@ -172,6 +188,38 @@ class TestDataCreation:
             })
             db.session.flush()  # Ensure association gets an ID
             return question_tag
+        except Exception as e:
+            db.session.rollback()
+            raise e
+        
+    def create_test_vote(self, target_id, user_id, vote_type='upvote', target_type='question'):
+        """Helper method to create a test vote"""
+        from models.vote import Vote
+        try:
+            vote = Vote.create({
+                'target_id': target_id,
+                'user_id': user_id,
+                'vote_type': vote_type,
+                'target_type': target_type
+            })
+            db.session.flush()  # Ensure vote gets an ID
+            return vote
+        except Exception as e:
+            db.session.rollback()
+            raise e
+        
+        
+    def create_test_comment(self, answer_id, user_id, content='Test comment'):
+        """Helper method to create a test comment for an answer"""
+        from models.comment import Comment
+        try:
+            comment = Comment.create({
+                'answer_id': answer_id,
+                'user_id': user_id,
+                'content': content
+            })
+            db.session.flush()  # Ensure comment gets an ID
+            return comment
         except Exception as e:
             db.session.rollback()
             raise e

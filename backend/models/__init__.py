@@ -6,5 +6,6 @@ from .vote import Vote
 from .tag import Tag
 from .answer import Answer
 from .question import Question
+from .comment import Comment
 
-__all__ = ['BaseModel', 'Notification', 'QuestionTag', 'User', 'Tag', 'Vote', 'Question', 'Answer']
+__all__ = ['BaseModel', 'Notification', 'QuestionTag', 'User', 'Tag', 'Vote', 'Question', 'Answer', 'Comment']

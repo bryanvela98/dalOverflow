@@ -14,7 +14,7 @@ class Vote(BaseModel):
 
     Attributes:
     id =  Primary Key.
-    question_id = foreign key to the question table
+    target_id = id of the question or answer being voted on
     user_id = foreign key to the user table
     vote_type = type of vote (upvote/downvote)
     vote_date = date of vote
@@ -22,19 +22,19 @@ class Vote(BaseModel):
     """
     __tablename__ = "votes"
 
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    target_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    vote_type = db.Column(db.String(255))
-    vote_date = db.Column(db.DateTime)
+    vote_type = db.Column(db.String(255)) # 'upvote' or 'downvote'
+    target_type = db.Column(db.String(50))  # 'question' or 'answer'
 
     
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict.update({
             'id':self.id,
-            'question_id':self.question_id,
+            'target_id':self.target_id,
             'user_id':self.user_id,
             'vote_type':self.vote_type,
-            'vote_date':self.vote_date
+            'target_type':self.target_type
         })
         return base_dict
