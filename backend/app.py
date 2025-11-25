@@ -27,6 +27,8 @@ def create_app():
     from routes.login_routes import login_bp
     from routes.questiontag_routes import questiontag_bp
     from routes.tag_routes import tag_bp
+    from routes.vote_routes import vote_bp
+    from routes.answer_routes import answers_bp
 
 
     
