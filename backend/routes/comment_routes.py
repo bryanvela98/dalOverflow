@@ -35,3 +35,40 @@ def create_comment():
     except Exception as e:
         logging.error(f"Error creating comment: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+    
+@comment_bp.route('/<int:comment_id>', methods=['PATCH'])
+def update_comment(comment_id):
+    """Update a comment's content.
+    
+    Args:
+        comment_id: ID of the comment to update
+        
+    Returns:
+        JSON response containing the updated comment.
+    """
+    try:
+        data = request.get_json()
+        
+        # Find the comment
+        comment = Comment.query.get(comment_id)
+        if not comment:
+            return jsonify({'error': 'Comment not found'}), 404
+        
+        # Validate content field
+        if 'content' not in data:
+            return jsonify({'error': 'content is required'}), 400
+            
+        if not data['content'] or data['content'].strip() == '':
+            return jsonify({'error': 'Content cannot be empty'}), 400
+        
+        # Update the comment
+        comment.update({'content': data['content']})
+        
+        return jsonify({
+            'message': 'Comment updated successfully',
+            'comment': comment.to_dict()
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"Error updating comment: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
