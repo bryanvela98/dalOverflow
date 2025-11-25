@@ -12,12 +12,14 @@ from datetime import datetime
 from middleware.auth_middleware import token_required
 from database import db
 from models import User
+from models.answer import Answer
+from models.comment import Comment
 from utils.html_sanitizer import sanitize_html_body
 from services.answer_services import AnswerServices
 
 answers_bp = Blueprint('answers', __name__)
 
-@answers_bp.route('/<int:question_id>/answers', methods=['GET'])
+@answers_bp.route('/questions/<int:question_id>/answers', methods=['GET'])
 def get_answers(question_id):
     """Get all answers for a question"""
     try:
@@ -45,8 +47,8 @@ def get_answers(question_id):
 
     except Exception as e:
         return jsonify({'message': f'Error fetching answers: {str(e)}'}), 500
-    
-@answers_bp.route('/<int:question_id>/answers/count', methods=['GET'])
+
+@answers_bp.route('/questions/<int:question_id>/answers/count', methods=['GET'])
 def get_answer_count(question_id):
     """Get the count of answers for a question"""
     try:
@@ -67,7 +69,7 @@ def get_answer_count(question_id):
     except Exception as e:
         return jsonify({'message': f'Error fetching answer count: {str(e)}'}), 500
 
-@answers_bp.route('/<int:question_id>/answers', methods=['POST'])
+@answers_bp.route('/questions/<int:question_id>/answers', methods=['POST'])
 @token_required
 def create_answer(current_user, question_id):
     """Create a new answer for a question"""
@@ -123,3 +125,39 @@ def create_answer(current_user, question_id):
 
     except Exception as e:
         return jsonify({'message': f'Error creating answer: {str(e)}'}), 500
+
+
+@answers_bp.route('/<int:answer_id>/comments', methods=['GET'])
+def get_comments_for_answer(answer_id):
+    """Get all comments for a specific answer"""
+    try: 
+        # check answer exists
+        answer = Answer.query.get(answer_id)
+        if not answer:
+            return jsonify({'message': 'Answer not found'}), 404
+        
+        #  all comments for this answer
+        comments = Comment.query.filter_by(answer_id=answer_id).all()
+        
+        comments_list = []
+        for comment in comments:
+            user = User.query.get(comment.user_id)
+            comments_list.append({
+                'id': comment.id,
+                'answer_id': comment.answer_id,
+                'user_id': comment.user_id,
+                'content': comment.content,
+                'created_at': comment.created_at.isoformat() if comment.created_at else None,
+                'user': {
+                    'username': user.username if user else 'Unknown',
+                    'reputation': user.reputation if user else 0
+                }
+            })
+        
+        return jsonify({
+            'answer_id': answer_id,
+            'comments': comments_list
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'message': f'Error fetching comments: {str(e)}'}), 500
