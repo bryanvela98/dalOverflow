@@ -18,6 +18,40 @@ const BasicQuestionDetail = () => {
   const [ansSuccess, setAnsSuccess] = useState("");
   const ansForm = React.useRef(null);
   const ansList = React.useRef(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const quillRef = React.useRef(null);
+  const previousCodeBlockCount = React.useRef(0);
+  const codeBlockLanguages = React.useRef({});
+
+  // Monitor for new code blocks and store their language
+  useEffect(() => {
+    if (quillRef.current) {
+      const editor = quillRef.current.getEditor();
+      const codeBlocks = editor.root.querySelectorAll(".ql-syntax");
+
+      // If we have more code blocks than before, store language for new ones
+      if (codeBlocks.length > previousCodeBlockCount.current) {
+        codeBlocks.forEach((block, index) => {
+          // Only assign language to new blocks (those without an assigned language)
+          if (!codeBlockLanguages.current[index]) {
+            codeBlockLanguages.current[index] = selectedLanguage;
+          }
+        });
+      }
+
+      // If blocks were deleted, clean up the mapping
+      if (codeBlocks.length < previousCodeBlockCount.current) {
+        const newMapping = {};
+        codeBlocks.forEach((block, index) => {
+          newMapping[index] =
+            codeBlockLanguages.current[index] || selectedLanguage;
+        });
+        codeBlockLanguages.current = newMapping;
+      }
+
+      previousCodeBlockCount.current = codeBlocks.length;
+    }
+  }, [ansContent]);
 
   const fetchAnswers = async () => {
     try {
@@ -201,32 +235,50 @@ const BasicQuestionDetail = () => {
     setTimeout(() => setCopiedCodeId(null), 2000);
   };
 
+  const handleContentChange = (content) => {
+    setAnsContent(content);
+    if (ansErr) setAnsErr("");
+    if (ansSuccess) setAnsSuccess("");
+  };
+
   const extractCodeFromHTML = (html) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
     const preElements = doc.querySelectorAll("pre");
-    return Array.from(preElements).map((pre) => {
-      // Try to detect language from class attribute
-      const codeElement = pre.querySelector("code");
-      let language = "Code";
+    return Array.from(preElements).map((pre, index) => {
+      // Try to detect language from data attribute first
+      let language = pre.getAttribute("data-language");
 
-      if (codeElement && codeElement.className) {
-        // Check for language- prefix (e.g., language-python)
-        const match = codeElement.className.match(/language-(\w+)/);
-        if (match) {
-          language = match[1].charAt(0).toUpperCase() + match[1].slice(1);
-        }
-      } else if (pre.className) {
-        // Check pre element class
-        const match = pre.className.match(/language-(\w+)/);
-        if (match) {
-          language = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+      // If no data attribute, try class attribute
+      if (!language) {
+        const codeElement = pre.querySelector("code");
+        if (codeElement && codeElement.className) {
+          // Check for language- prefix (e.g., language-python)
+          const match = codeElement.className.match(/language-(\w+)/);
+          if (match) {
+            language = match[1];
+          }
+        } else if (pre.className) {
+          // Check pre element class
+          const match = pre.className.match(/language-(\w+)/);
+          if (match) {
+            language = match[1];
+          }
         }
       }
 
+      // Use default to 'javascript' if no language found
+      if (!language) {
+        language = "javascript";
+      }
+
+      // Capitalize first letter for display
+      const displayLanguage =
+        language.charAt(0).toUpperCase() + language.slice(1);
+
       return {
         code: pre.textContent,
-        language: language,
+        language: displayLanguage,
       };
     });
   };
@@ -247,6 +299,12 @@ const BasicQuestionDetail = () => {
     alert("Link copied to clipboard!");
   };
 
+  const handleScrollToAnswer = () => {
+    if (ansForm.current) {
+      ansForm.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const handleSubmitAnswer = async (e) => {
     e.preventDefault();
 
@@ -261,6 +319,18 @@ const BasicQuestionDetail = () => {
     try {
       const token = localStorage.getItem("token");
 
+      // Apply stored languages to each code block
+      let contentWithLanguage = ansContent;
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = ansContent;
+      const preElements = tempDiv.querySelectorAll("pre.ql-syntax");
+
+      preElements.forEach((pre, index) => {
+        // Use the stored language for this block index
+        const language = codeBlockLanguages.current[index] || selectedLanguage;
+        pre.setAttribute("data-language", language);
+      });
+      contentWithLanguage = tempDiv.innerHTML;
       const response = await fetch(
         `http://localhost:5001/api/answers/questions/${id}/answers`,
         {
@@ -269,7 +339,7 @@ const BasicQuestionDetail = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ body: ansContent }),
+          body: JSON.stringify({ body: contentWithLanguage }),
         }
       );
 
@@ -482,7 +552,10 @@ const BasicQuestionDetail = () => {
                 <div className="actions-buttons">
                   <div className="no-answers-container">
                     <div className="no-answers-content">
-                      <button className="action-button action-button--primary">
+                      <button
+                        className="action-button action-button--primary"
+                        onClick={handleScrollToAnswer}
+                      >
                         Answer Question
                       </button>
                     </div>
@@ -656,13 +729,39 @@ const BasicQuestionDetail = () => {
                 )}
 
                 <div className="ans-inp-content">
+                  <div className="code-language-selector">
+                    <label htmlFor="code-lang">Code Language: </label>
+                    <select
+                      id="code-lang"
+                      value={selectedLanguage}
+                      onChange={(e) => setSelectedLanguage(e.target.value)}
+                    >
+                      <option value="javascript">JavaScript</option>
+                      <option value="python">Python</option>
+                      <option value="java">Java</option>
+                      <option value="cpp">C++</option>
+                      <option value="csharp">C#</option>
+                      <option value="typescript">TypeScript</option>
+                      <option value="php">PHP</option>
+                      <option value="ruby">Ruby</option>
+                      <option value="go">Go</option>
+                      <option value="rust">Rust</option>
+                      <option value="swift">Swift</option>
+                      <option value="kotlin">Kotlin</option>
+                      <option value="html">HTML</option>
+                      <option value="css">CSS</option>
+                      <option value="sql">SQL</option>
+                      <option value="bash">Bash</option>
+                      <option value="r">R</option>
+                      <option value="matlab">MATLAB</option>
+                      <option value="plaintext">Plain Text</option>
+                    </select>
+                  </div>
+
                   <ReactQuill
+                    ref={quillRef}
                     value={ansContent}
-                    onChange={(content) => {
-                      setAnsContent(content);
-                      if (ansErr) setAnsErr("");
-                      if (ansSuccess) setAnsSuccess("");
-                    }}
+                    onChange={handleContentChange}
                     placeholder="Answer here pls![atleast 20 characters]"
                     modules={{
                       toolbar: [
