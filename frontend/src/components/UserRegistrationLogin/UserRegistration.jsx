@@ -109,6 +109,30 @@ export default function UserRegistration() {
 
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
+      <h2
+        style={{
+          textAlign: "center",
+          marginBottom: "24px",
+          color: "#2d3748",
+          fontSize: "28px",
+          fontWeight: "700",
+        }}
+      >
+        {showOtpField ? "Verify Email" : "Create Account"}
+      </h2>
+      <p
+        style={{
+          textAlign: "center",
+          marginBottom: "28px",
+          color: "#718096",
+          fontSize: "14px",
+        }}
+      >
+        {showOtpField
+          ? "Check your email for the verification code"
+          : "Join the Dalhousie community"}
+      </p>
+
       <input
         type="email"
         placeholder="Dalhousie Email"
@@ -147,7 +171,7 @@ export default function UserRegistration() {
         </button>
       )}
 
-      {message && <div>{message}</div>}
+      {message && <div className="message">{message}</div>}
     </form>
   );
 }

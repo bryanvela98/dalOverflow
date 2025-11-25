@@ -32,6 +32,15 @@ export default function Login() {
         setMessage("Login successful! Redirecting...");
         console.log("Login successful:", data.user);
         localStorage.setItem("token", data.user.token);
+        // Store user data including ID for creating questions/answers
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: data.user.user_id || data.user.id,
+            username: data.user.username,
+            email: data.user.email,
+          })
+        );
         console.log("Token: ", data.user.token);
         navigate("/");
       } else {
@@ -144,6 +153,36 @@ export default function Login() {
 
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
+      <h2
+        style={{
+          textAlign: "center",
+          marginBottom: "24px",
+          color: "#2d3748",
+          fontSize: "28px",
+          fontWeight: "700",
+        }}
+      >
+        {isForgotPassword
+          ? showOtpField
+            ? "Reset Password"
+            : "Forgot Password"
+          : "Welcome Back"}
+      </h2>
+      <p
+        style={{
+          textAlign: "center",
+          marginBottom: "28px",
+          color: "#718096",
+          fontSize: "14px",
+        }}
+      >
+        {isForgotPassword
+          ? showOtpField
+            ? "Enter OTP and new password"
+            : "Enter your email to receive reset OTP"
+          : "Sign in to continue to your account"}
+      </p>
+
       <input
         type="email"
         placeholder="Dalhousie Email"

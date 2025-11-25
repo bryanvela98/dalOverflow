@@ -8,6 +8,7 @@ Last Modified:
 """
 from flask import Blueprint, request, jsonify
 from models.user import User
+from models.answer import Answer
 import logging  # For logging purposes
 
 user_bp = Blueprint('users', __name__)
@@ -70,9 +71,18 @@ def get_user(user_id):
         if not user:
             return jsonify({"error": "User not found"}), 404
         
+        # Calculate answer count for this user
+        answer_count = Answer.query.filter_by(user_id=user_id).count()
+        
+        user_data = user.to_dict()
+        user_data['answer_count'] = answer_count
+        
+        logging.info(f"Returning user {user_id} with answer_count: {answer_count}")
+        
         return jsonify({
-            "user": user.to_dict()
+            "user": user_data
         })
     except Exception as e:
         logging.error(f"Error fetching user {user_id}: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+    

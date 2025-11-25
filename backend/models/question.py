@@ -88,23 +88,30 @@ class Question(BaseModel):
     @classmethod
     def create_with_tags(cls, data, tag_ids=None):
         """Create question with sanitized body and associate tags"""
-        # question creation
-        question_data = {k: v for k, v in data.items() if k != 'tag_ids'}
-        question = cls.create_with_sanitized_body(question_data)
-        
-        # associate tag
-        if tag_ids:
-            from models.tag import Tag
-            from models.questiontag import QuestionTag
+        try:
+            # question creation
+            question_data = {k: v for k, v in data.items() if k != 'tag_ids'}
+            question = cls.create_with_sanitized_body(question_data)
             
-            for tag_id in tag_ids:
-                tag = Tag.get_by_id(int(tag_id))
-                if tag:
-                    QuestionTag.create({
-                        'question_id': question.id,
-                        'tag_id': int(tag_id)
-                    })
+            # Refresh to ensure we have the ID
+            db.session.refresh(question)
             
-            db.session.commit()
-        
-        return question
+            # associate tag
+            if tag_ids:
+                from models.tag import Tag
+                from models.questiontag import QuestionTag
+                
+                for tag_id in tag_ids:
+                    tag = Tag.get_by_id(int(tag_id))
+                    if tag:
+                        QuestionTag.create({
+                            'question_id': question.id,
+                            'tag_id': int(tag_id)
+                        })
+                
+                db.session.commit()
+            
+            return question
+        except Exception as e:
+            db.session.rollback()
+            raise e

@@ -83,8 +83,10 @@ def create_question():
             'question': question.to_dict()
         }), 201
     except Exception as e:
+        import traceback
         logging.error(f"Error creating question: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
+        logging.error(traceback.format_exc())
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 @question_bp.route('/search', methods=['GET'])
 def title_fuzzy_search():
