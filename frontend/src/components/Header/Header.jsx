@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "../../styles/Header.css";
-import NotificationBell from "../NotificationBell/NotificationBell"; // ← 改这里
+import NotificationBell from "../NotificationBell/NotificationBell";
 import Login from "../LogInButton";
 
 export default function Header() {
@@ -11,7 +12,9 @@ export default function Header() {
     <div className="contain-header">
       <div className="header-bar">
         <div>
-          <p>BRAND</p>
+          <Link to="/" className="brand-link">
+            <p>DalOverflow</p>
+          </Link>
         </div>
 
         <div className="search-bar">
