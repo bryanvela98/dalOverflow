@@ -104,7 +104,11 @@ const UsersPage = () => {
                     <div className="user-tile-row">
                       <img
                         src={
-                          user.profile_picture_url ||
+                          (user.id ===
+                          JSON.parse(localStorage.getItem("user") || "{}").id
+                            ? JSON.parse(localStorage.getItem("user") || "{}")
+                                .profile_picture_url
+                            : user.profile_picture_url) ||
                           "https://ui-avatars.com/api/?name=" +
                             encodeURIComponent(user.username)
                         }

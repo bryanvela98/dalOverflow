@@ -802,7 +802,13 @@ const BasicQuestionDetail = () => {
                 <div className="author-avatar-container">
                   {questionAuthor.profile_picture_url ? (
                     <img
-                      src={questionAuthor.profile_picture_url}
+                      src={
+                        questionAuthor.id ===
+                        JSON.parse(localStorage.getItem("user") || "{}").id
+                          ? JSON.parse(localStorage.getItem("user") || "{}")
+                              .profile_picture_url
+                          : questionAuthor.profile_picture_url
+                      }
                       alt={questionAuthor.username}
                       className="author-avatar"
                     />

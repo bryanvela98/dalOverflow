@@ -5,15 +5,7 @@ import NotificationBell from "../NotificationBell/NotificationBell";
 import Login from "../LogInButton";
 
 export default function Header() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const userId = localStorage.getItem("user_id") || "1";
-    fetch(`http://localhost:5001/api/users/${userId}`)
-      .then((res) => res.json())
-      .then((data) => setUser(data.user))
-      .catch(() => setUser(null));
-  }, []);
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
   return (
     <div className="contain-header">
@@ -33,7 +25,7 @@ export default function Header() {
           <NotificationBell />
           <Link to="/profile" className="profile-link">
             <img
-              src={user?.profile_picture_url || ""}
+              src={userData.profile_picture_url || ""}
               alt="Profile"
               className="profile-icon"
               style={{
