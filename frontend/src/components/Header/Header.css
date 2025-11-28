@@ -1,3 +1,22 @@
+/* Profile icon in header */
+.profile-link {
+  display: flex;
+  align-items: center;
+  margin: 0 8px;
+}
+.profile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid #ffc107;
+  background: #fff;
+  transition: box-shadow 0.2s;
+}
+.profile-icon:hover {
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.18);
+}
 
 .contain-header {
   width: 100%;

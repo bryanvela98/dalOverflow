@@ -5,8 +5,15 @@ import NotificationBell from "../NotificationBell/NotificationBell";
 import Login from "../LogInButton";
 
 export default function Header() {
-  // 删除所有通知相关的状态和函数
-  // NotificationBell 组件会自己管理这些
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("user_id") || "1";
+    fetch(`http://localhost:5001/api/users/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
+      .catch(() => setUser(null));
+  }, []);
 
   return (
     <div className="contain-header">
@@ -23,9 +30,20 @@ export default function Header() {
         </div>
 
         <div className="header-buttons">
-          {/* 使用完整的 NotificationBell 组件 */}
-          <NotificationBell /> {/* ← 改成这个 */}
-          {/* <button>Log in</button> */}
+          <NotificationBell />
+          <Link to="/profile" className="profile-link">
+            <img
+              src={user?.profile_picture_url || ""}
+              alt="Profile"
+              className="profile-icon"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
+          </Link>
           <Login />
         </div>
       </div>
