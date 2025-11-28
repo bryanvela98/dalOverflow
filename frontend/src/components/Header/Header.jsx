@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ProfilePicture from "../ProfilePicture";
 import { Link } from "react-router-dom";
 import "../../styles/Header.css";
 import NotificationBell from "../NotificationBell/NotificationBell";
@@ -24,16 +25,10 @@ export default function Header() {
         <div className="header-buttons">
           <NotificationBell />
           <Link to="/profile" className="profile-link">
-            <img
-              src={userData.profile_picture_url || ""}
-              alt="Profile"
-              className="profile-icon"
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                objectFit: "cover",
-              }}
+            <ProfilePicture
+              user={userData}
+              size={32}
+              style={{ marginRight: 0 }}
             />
           </Link>
           <Login />

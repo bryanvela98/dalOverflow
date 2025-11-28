@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header/Header";
+import ProfilePicture from "../components/ProfilePicture";
 import "../styles/LoginRegistration.css";
 import "../styles/ProfilePage.css";
 
@@ -81,6 +82,7 @@ const ProfilePage = () => {
         if (data.user) {
           setUser(data.user);
           setEditData(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
         }
         setSaving(false);
       })
@@ -113,21 +115,10 @@ const ProfilePage = () => {
               alignItems: "center",
             }}
           >
-            <img
-              src={
-                user.profile_picture_url ||
-                "https://ui-avatars.com/api/?name=" +
-                  encodeURIComponent(user.display_name || user.username)
-              }
-              alt="Profile"
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: "50%",
-                objectFit: "cover",
-                marginBottom: 16,
-                boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
-              }}
+            <ProfilePicture
+              user={JSON.parse(localStorage.getItem("user") || "{}")}
+              size={80}
+              style={{ marginBottom: 16 }}
             />
             <div style={{ fontWeight: 600, fontSize: 18 }}>{user.username}</div>
             <div style={{ color: "#555", fontSize: 15 }}>
