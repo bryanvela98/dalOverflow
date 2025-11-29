@@ -1,0 +1,765 @@
+# Test-Driven Development (TDD) Process
+
+Dal Overflow Project - Testing Documentation
+
+## Table of Contents
+- [Overview](#overview)
+- [TDD in Our Project](#tdd-in-our-project)
+- [Test Structure](#test-structure)
+- [TDD Workflow](#tdd-workflow)
+- [Real Examples from Our Codebase](#real-examples-from-our-codebase)
+- [Running Tests](#running-tests)
+- [Best Practices](#best-practices)
+
+## Overview
+
+This document describes the Test-Driven Development approach used in the Dal Overflow project. TDD is a development methodology where tests are written before the actual implementation code.
+
+### TDD Principles
+
+The core TDD cycle follows three steps:
+
+1. RED - Write a failing test
+2. GREEN - Write minimal code to make it pass
+3. REFACTOR - Improve code while keeping tests green
+
+Then repeat for the next feature.
+
+## TDD in Our Project
+
+Our project uses two levels of testing:
+
+### 1. Unit Tests
+Tests individual functions/methods in isolation using mocks.
+
+Location: `backend/test/unit/`
+
+Files:
+- `answer_test.py` - Answer validation and creation
+- `fuzzy_search_test.py` - Search algorithm testing
+- `html_sanitization_test.py` - XSS protection
+- `user_login_test.py` - Login credential verification
+- `user_registration_test.py` - User registration logic
+- `test_config.py` - Configuration validation
+
+### 2. Integration Tests  
+Tests complete API endpoints with real database interactions.
+
+Location: `backend/test/integration/`
+
+Files:
+- `answer_routes_test.py` - Answer API endpoints
+- `comment_routes_test.py` - Comment CRUD operations
+- `question_routes_test.py` - Question management & search
+- `question_tag_routes_test.py` - Tag associations
+- `vote_routes_test.py` - Voting functionality
+
+## Test Structure
+
+### Test Infrastructure
+
+We use a base test class that provides database setup and test data creation.
+
+From `backend/test/test_base.py`:
+
+```python
+class DatabaseTestCase(unittest.TestCase):
+    """Base test class with database setup"""
+    
+    @classmethod
+    def setUpClass(cls):
+        """Set up test app with SQLite in-memory database"""
+        os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
+        cls.app = create_app()
+        cls.app.config['TESTING'] = True
+        # database initialization
+    
+    def setUp(self):
+        """Clean database before each test"""
+        db.session.rollback()
+        # Clear all tables
+    
+    def tearDown(self):
+        """Clean up after each test"""
+        db.session.rollback()
+```
+
+### Test Data Creation Helpers
+
+From `backend/test/test_base.py`:
+
+```python
+class TestDataCreation:
+    """Helper methods for creating test data"""
+    
+    def create_test_user(self, username=None, email=None):
+        """Creates a test user with unique identifiers"""
+        
+    def create_test_question(self, user_id, title, body):
+        """Creates a test question"""
+        
+    def create_test_answer(self, user_id, question_id, body):
+        """Creates a test answer"""
+```
+
+## TDD Workflow
+
+### Example 1: HTML Sanitization (Unit Test)
+
+Step 1: Write Failing Test (RED)
+
+From `backend/test/unit/html_sanitization_test.py`:
+
+```python
+def test_sanitize_dangerous_script_tags(self):
+    """Test that script tags are removed from content"""
+    input_html = '<p>Safe content</p><script>alert("XSS")</script>'
+    
+    result = sanitize_html_body(input_html)
+    
+    self.assertNotIn('<script>', result)
+    self.assertNotIn('alert', result)
+    self.assertIn('<p>Safe content</p>', result)
+```
+
+Run test: `pytest backend/test/unit/html_sanitization_test.py`
+
+Result: Test fails - ImportError
+
+Step 2: Write Minimum Code (GREEN)
+
+Create `backend/utils/html_sanitizer.py`:
+
+```python
+import bleach
+
+ALLOWED_TAGS = ['p', 'strong', 'em', 'code', 'pre', 'a', 'ul', 'ol', 'li']
+ALLOWED_ATTRIBUTES = {
+    'a': ['href', 'title'],
+    'pre': ['class'],
+    'code': ['class']
+}
+
+def sanitize_html_body(html_content):
+    """Remove dangerous HTML while preserving safe formatting"""
+    if not html_content:
+        return ''
+    
+    return bleach.clean(
+        html_content,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        strip=True
+    )
+```
+
+Run test again: Test passes
+
+Step 3: Add More Tests and Refactor
+
+```python
+def test_preserve_safe_html_formatting(self):
+    """Test that safe HTML formatting is preserved"""
+    input_html = '<p><strong>bold</strong> and <em>italic</em></p>'
+    
+    result = sanitize_html_body(input_html)
+    
+    self.assertIn('<strong>bold</strong>', result)
+    self.assertIn('<em>italic</em>', result)
+
+def test_remove_dangerous_attributes(self):
+    """Test that dangerous attributes are removed"""
+    input_html = '<p onclick="alert(\'XSS\')">Click me</p>'
+    
+    result = sanitize_html_body(input_html)
+    
+    self.assertNotIn('onclick', result)
+    self.assertIn('<p>Click me</p>', result)
+```
+
+### Example 2: Fuzzy Search (Unit Test with Mocks)
+
+Step 1: Write Test (RED)
+
+From `backend/test/unit/fuzzy_search_test.py`:
+
+```python
+from unittest.mock import patch
+
+def test_search_exact_match_returns_result(self):
+    """Test that exact title match returns high score result"""
+    
+    mock_questions = [
+        {'id': 1, 'title': 'what is the most common use of flask?'},
+        {'id': 2, 'title': 'what is the easiest Python Guide?'}
+    ]
+    
+    with patch('utils.fuzzy_search.get_all_questions') as mock_get:
+        mock_get.return_value = mock_questions
+        
+        results = search_questions('what is the most common use of flask?')
+        
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['id'], 1)
+        self.assertGreater(results[0]['score'], 0.8)
+```
+
+Step 2: Implement Function (GREEN)
+
+Create `backend/utils/fuzzy_search.py`:
+
+```python
+from fuzzywuzzy import fuzz
+
+def search_questions(query):
+    """Search questions using fuzzy matching"""
+    if not query or not query.strip():
+        return []
+    
+    questions = get_all_questions()
+    results = []
+    
+    for question in questions:
+        score = fuzz.token_set_ratio(
+            query.lower(),
+            question['title'].lower()
+        ) / 100.0
+        
+        if score > 0.6:
+            results.append({
+                **question,
+                'score': score
+            })
+    
+    return sorted(results, key=lambda x: x['score'], reverse=True)
+```
+
+### Example 3: Answer Routes (Integration Test)
+
+Step 1: Write Integration Test (RED)
+
+From `backend/test/integration/answer_routes_test.py`:
+
+```python
+class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
+    
+    def setUp(self):
+        super().setUp()
+        self.test_user = self.create_test_user()
+        self.test_question = self.create_test_question(
+            user_id=self.test_user.id,
+            title="Test Question",
+            body="Test body"
+        )
+    
+    def test_get_answers_endpoint_exists(self):
+        """Test that GET answers endpoint exists"""
+        response = self.client.get(
+            f'/api/answers/questions/{self.test_question.id}/answers'
+        )
+        
+        self.assertNotEqual(response.status_code, 404)
+        data = response.get_json()
+        self.assertIsNotNone(data)
+```
+
+Step 2: Create Route (GREEN)
+
+Create `backend/routes/answer_routes.py`:
+
+```python
+from flask import Blueprint, jsonify
+
+answer_bp = Blueprint('answers', __name__)
+
+@answer_bp.route('/questions/<int:question_id>/answers', methods=['GET'])
+def get_answers(question_id):
+    """Get all answers for a question"""
+    answers = Answer.query.filter_by(question_id=question_id).all()
+    
+    return jsonify({
+        'answers': [answer.to_dict() for answer in answers]
+    }), 200
+```
+
+Step 3: Add More Test Cases
+
+```python
+def test_create_answer_endpoint_exists(self):
+    """Test that POST answer endpoint exists"""
+    response = self.client.post(
+        f'/api/answers/questions/{self.test_question.id}/answers',
+        json={'body': 'This is a test answer.'}
+    )
+    
+    self.assertNotEqual(response.status_code, 404)
+    
+def test_get_answer_count_response_structure(self):
+    """Test answer count endpoint returns correct structure"""
+    response = self.client.get(
+        f'/api/answers/questions/{self.test_question.id}/answers/count'
+    )
+    
+    self.assertEqual(response.status_code, 200)
+    data = response.get_json()
+    self.assertIn('question_id', data)
+    self.assertIn('answer_count', data)
+```
+
+### Example 4: User Registration (Unit Test with Mocks)
+
+From `backend/test/unit/user_registration_test.py`:
+
+```python
+from unittest.mock import MagicMock
+
+class TestUserRegistration(unittest.TestCase):
+    
+    def test_user_exists(self):
+        """Test checking if user exists in database"""
+        mock_user = MagicMock()
+        
+        # Mock database query
+        User.query = MagicMock()
+        User.query.filter_by = MagicMock()
+        User.query.filter_by.return_value.first = MagicMock(
+            return_value=mock_user
+        )
+        
+        result = UserRegistrationService().user_exists("test@dal.ca")
+        
+        assert result is True
+    
+    def test_create_user_exists(self):
+        """Test that user creation fails if user already exists"""
+        registration = UserRegistrationService()
+        registration.user_exists = MagicMock(return_value=True)
+        
+        result = registration.create_user("test@dal.ca", "testpass")
+        
+        assert result is False
+```
+
+## How Our Team Applied TDD
+
+Based on our test files, we can see TDD principles were applied in the following ways:
+
+### Test Structure Shows TDD Approach
+
+Our test files demonstrate a test-first methodology:
+
+Integration Tests (from test file headers):
+- `comment_routes_test.py` - Created: 2025-11-24 by Bryan Vela
+- `question_routes_test.py` - Created: 2025-11-09 by Bryan Vela  
+- `vote_routes_test.py` - Created: 2025-11-17 by Bryan Vela
+- `answer_routes_test.py` - Created: 2025-11-23 by Saayonee Dhepe
+
+Unit Tests:
+- `html_sanitization_test.py` - Created: 2025-11-01, Last Modified: 2025-11-09 by Bryan Vela
+- `fuzzy_search_test.py` - Created: 2025-11-07 by Bryan Vela
+
+### Progressive Feature Testing
+
+Example from question_routes_test.py showing incremental test development:
+
+```python
+# First: Test endpoint exists
+def test_fuzzy_search_endpoint_exists(self):
+    """Test that the fuzzy search endpoint exists and returns proper structure"""
+    response = self.client.get('/api/questions/search?query=test')
+    
+    self.assertEqual(response.status_code, 200)
+    
+    data = response.get_json()
+    self.assertIn('results', data)
+    self.assertIsInstance(data['results'], list)
+
+# Then: Test exact match behavior
+def test_fuzzy_search_exact_match(self):
+    """Test fuzzy search with exact title match"""
+    response = self.client.get('/api/questions/search?query=what is python best practices?')
+    
+    first_result = data['results'][0]
+    self.assertEqual(first_result['title'], "what is python best practices?")
+    self.assertEqual(first_result['score'], 1.0)
+
+# Finally: Test edge cases
+def test_fuzzy_search_no_query_parameter(self):
+    """Test fuzzy search without query parameter"""
+    response = self.client.get('/api/questions/search')
+    
+    self.assertEqual(data['results'], [])
+    self.assertEqual(data['message'], 'No query provided')
+```
+
+### Test-Driven Refactoring
+
+Evidence from html_sanitization_test.py:
+
+File history shows:
+- Created: 2025-11-01
+- Refactored: 2025-11-09 - "Refactored to unit tests for sanitization function only"
+
+This demonstrates the refactor phase of Red-Green-Refactor cycle.
+
+## Challenges and Solutions
+
+### Challenge 1: Database State Between Tests
+
+Problem: Tests were interfering with each other due to shared database state
+
+Solution: Created `DatabaseTestCase` base class with automatic cleanup
+
+From `test_base.py`:
+```python
+def setUp(self):
+    """Set up test database and client for each test"""
+    self.client = self.app.test_client()
+    
+    try:
+        db.session.rollback()
+        
+        # Delete all data from tables
+        meta = db.metadata
+        for table in reversed(meta.sorted_tables):
+            db.session.execute(table.delete())
+        
+        db.session.commit()
+    except Exception as e:
+        try:
+            db.session.rollback()
+            db.drop_all()
+            db.create_all()
+            db.session.commit()
+        except Exception:
+            db.create_all()
+            db.session.commit()
+```
+
+### Challenge 2: Unique Constraint Violations
+
+Problem: Tests creating users with duplicate usernames/emails
+
+Solution: Added timestamp-based unique identifiers
+
+From `test_base.py`:
+```python
+def create_test_user(self, username=None, email=None):
+    """Helper method to create a test user with unique identifiers"""
+    from models.user import User
+    from datetime import datetime
+    
+    # Generate unique identifiers if not provided
+    if username is None or email is None:
+        unique_suffix = str(int(time.time() * 1000000))  # Microsecond timestamp
+        username = username or f'testuser_{unique_suffix}'
+        email = email or f'test_{unique_suffix}@dal.ca'
+```
+
+### Challenge 3: Testing Database Isolation
+
+Problem: Need isolated test environment separate from production database
+
+Solution: Use SQLite in-memory database for tests
+
+From `test_base.py`:
+```python
+class TestConfig:
+    """Test configuration that forces SQLite usage"""
+    TESTING = True
+    WTF_CSRF_ENABLED = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Use temporary file for SQLite database
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    # Override any environment variables
+    DATABASE_URL = 'sqlite:///:memory:'
+```
+
+### Challenge 4: Consistent Test Data Creation
+
+Problem: Repetitive test data setup across multiple test files
+
+Solution: Created reusable `TestDataCreation` helper class
+
+From `test_base.py`:
+```python
+class TestDataCreation:
+    """Helper methods for creating test data"""
+    
+    def create_test_user(self, username=None, email=None):
+        """Helper method to create a test user with unique identifiers"""
+        
+    def create_test_question(self, user_id, title='Test Question', body='Test body'):
+        """Helper method to create a test question"""
+        
+    def create_test_answer(self, user_id, question_id, body='Test body'):
+        """Helper method to create a test answer"""
+        
+    def create_test_tag(self, tag_name='TestTag', description='Test tag description'):
+        """Helper method to create a test tag"""
+        
+    def create_test_vote(self, target_id, user_id, vote_type='upvote', target_type='question'):
+        """Helper method to create a test vote"""
+        
+    def create_test_comment(self, answer_id, user_id, content='Test comment'):
+        """Helper method to create a test comment for an answer"""
+```
+
+All test classes inherit from both `DatabaseTestCase` and `TestDataCreation`, providing clean database state and easy test data creation.
+
+## Real Examples from Our Codebase
+
+### Comment Routes Integration Test
+
+From `backend/test/integration/comment_routes_test.py`:
+
+```python
+def test_post_comment_success(self):
+    """Test POST /api/comments creates a comment successfully"""
+    payload = {
+        'answer_id': self.answer.id,
+        'user_id': self.test_user.id,
+        'content': 'This is a new test comment'
+    }
+    
+    response = self.client.post('/api/comments', json=payload)
+    
+    self.assertEqual(response.status_code, 201)
+    data = response.get_json()
+    self.assertIn('comment', data)
+    self.assertEqual(data['comment']['content'], 'This is a new test comment')
+
+def test_post_comment_missing_content(self):
+    """Test POST /api/comments fails when content is missing"""
+    payload = {
+        'answer_id': self.answer.id,
+        'user_id': self.test_user.id
+    }
+    
+    response = self.client.post('/api/comments', json=payload)
+    
+    self.assertEqual(response.status_code, 400)
+    data = response.get_json()
+    self.assertIn('error', data)
+```
+
+### Question Search Integration Test
+
+From `backend/test/integration/question_routes_test.py`:
+
+```python
+def test_fuzzy_search_exact_match(self):
+    """Test fuzzy search with exact title match"""
+    response = self.client.get(
+        '/api/questions/search?query=what is python best practices?'
+    )
+    
+    self.assertEqual(response.status_code, 200)
+    data = response.get_json()
+    
+    self.assertTrue(len(data['results']) >= 1)
+    
+    first_result = data['results'][0]
+    self.assertEqual(first_result['title'], "what is python best practices?")
+    self.assertEqual(first_result['score'], 1.0)
+
+def test_question_get_increments_view_count(self):
+    """Test that getting a question increments its view count"""
+    question_id = self.question1.id
+    
+    # First view
+    response = self.client.get(f'/api/questions/{question_id}')
+    data = response.get_json()
+    self.assertEqual(data['question']['view_count'], 1)
+    
+    # Second view
+    response = self.client.get(f'/api/questions/{question_id}')
+    data = response.get_json()
+    self.assertEqual(data['question']['view_count'], 2)
+```
+
+### Vote Routes Integration Test
+
+From `backend/test/integration/vote_routes_test.py`:
+
+```python
+def test_post_vote_question(self):
+    """Test POST /api/votes creates a vote for a question"""
+    payload = {
+        'target_id': self.question.id,
+        'user_id': self.user.id,
+        'vote_type': 'upvote',
+        'target_type': 'question'
+    }
+    
+    response = self.client.post('/api/votes', json=payload)
+    
+    self.assertEqual(response.status_code, 201)
+    data = response.get_json()
+    self.assertEqual(data['vote']['vote_type'], 'upvote')
+
+def test_patch_vote_switch_type(self):
+    """Test PATCH /api/votes/<vote_id> switches vote_type"""
+    vote = self.create_test_vote(
+        target_id=self.question.id,
+        user_id=self.user.id,
+        vote_type='upvote',
+        target_type='question'
+    )
+    
+    patch_payload = {'vote_type': 'downvote'}
+    response = self.client.patch(f'/api/votes/{vote.id}', json=patch_payload)
+    
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(data['vote']['vote_type'], 'downvote')
+```
+
+## Running Tests
+
+### Run All Tests
+```bash
+cd backend
+pytest
+```
+
+### Run Specific Test File
+```bash
+# Unit test
+pytest test/unit/fuzzy_search_test.py
+
+# Integration test
+pytest test/integration/question_routes_test.py
+```
+
+### Run with Verbose Output
+```bash
+pytest -v
+```
+
+### Run with Coverage Report
+```bash
+pytest --cov=. --cov-report=html
+```
+
+### Run Specific Test Method
+```bash
+pytest test/unit/html_sanitization_test.py::TestHtmlSanitization::test_sanitize_dangerous_script_tags
+```
+
+## Best Practices
+
+### Test Naming Convention
+
+Use descriptive test names that explain what is being tested:
+
+```python
+def test_sanitize_dangerous_script_tags(self):
+def test_user_login_with_valid_credentials(self):
+def test_create_answer_with_invalid_body(self):
+```
+
+### Arrange-Act-Assert Pattern
+
+```python
+def test_post_comment_success(self):
+    # ARRANGE - Set up test data
+    payload = {
+        'answer_id': self.answer.id,
+        'content': 'Test comment'
+    }
+    
+    # ACT - Execute the function
+    response = self.client.post('/api/comments', json=payload)
+    
+    # ASSERT - Verify results
+    self.assertEqual(response.status_code, 201)
+    self.assertIn('comment', response.get_json())
+```
+
+### Test Independence
+
+Each test is independent and doesn't rely on other tests:
+
+```python
+def setUp(self):
+    """Create fresh test data for each test"""
+    super().setUp()
+    self.test_user = self.create_test_user()
+    self.test_question = self.create_test_question(
+        user_id=self.test_user.id
+    )
+```
+
+### Use Mocks for Unit Tests
+
+Unit tests use mocks to isolate functionality:
+
+```python
+def test_user_exists(self):
+    """Test user existence check"""
+    User.query = MagicMock()
+    User.query.filter_by = MagicMock()
+    User.query.filter_by.return_value.first = MagicMock(
+        return_value=mock_user
+    )
+    
+    result = UserRegistrationService().user_exists("test@dal.ca")
+    assert result is True
+```
+
+### Real Database for Integration Tests
+
+Integration tests use SQLite in-memory database:
+
+```python
+class TestConfig:
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+```
+
+### Test Edge Cases
+
+Test both happy path and edge cases:
+
+```python
+# Happy path
+def test_post_comment_success(self):
+    """Test successful comment creation"""
+    
+# Edge cases
+def test_post_comment_missing_content(self):
+    """Test comment creation fails without content"""
+    
+def test_post_comment_empty_content(self):
+    """Test comment creation fails with empty content"""
+```
+
+## Test Coverage Goals
+
+Our project aims for:
+- Unit Tests: 80%+ coverage
+- Integration Tests: All major API endpoints covered
+- Critical Paths: 100% coverage (authentication, validation, security)
+
+## Testing Tools
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| unittest | Built-in | Test framework |
+| pytest | 8.4.2 | Test runner |
+| pytest-cov | 7.0.0 | Coverage reporting |
+| unittest.mock | Built-in | Mocking objects |
+| bleach | 6.2.0 | HTML sanitization testing |
+
+## Team Contributions
+
+Tests created by:
+- Bryan Vela - Question routes, comment routes, vote routes, fuzzy search, HTML sanitization
+- Saayonee Dhepe - Answer routes, answer unit tests
+
+---
+
+Document Version: 1.0  
+Last Updated: November 29, 2024  
+Course: CSCI-5308 - Software Engineering  
+Team: Group 02
