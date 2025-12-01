@@ -1,6 +1,7 @@
 import os
 import logging
 from google import genai
+from google.genai.types import FinishReason
 
 class GeminiServices:
     def __init__(self):
@@ -12,109 +13,89 @@ class GeminiServices:
         self.model_name = "gemini-2.5-flash"
     
     def generate_answer(self, title, body):
-        """Generate answer with chunking for long responses"""
+        """
+        Generate an answer for a programming question
+        
+        Args:
+            title (str): Question title
+            body (str): Question details/body
+            
+        Returns:
+            tuple[str, bool]: A tuple containing the generated answer text 
+                              and a boolean indicating if it was truncated.
+        """
         if not title or title.strip() == "":
             raise ValueError("Question title cannot be empty")
         
         try:
-            # First, ask for an outline
-            outline = self._generate_outline(title, body)
+
+            # Define context for programming questions
+            context = """You're an expert teacher providing that first identifies the difficulty of the content and provides clear and concise answers. Follow this guidelines:
+            1. If the question is simple, provide a direct answer without unnecessary elaboration.
+            2. Provide examples if the content requires it.
+            3. Use proper HTML formatting for code snippets.
+            4. Ensure to use bold for important terms."""
+
+            # creating the prompt
+            prompt = f"""{context}
+
+                    Question: {title}
+
+                    Details: {body}
+
+                    Please provide a comprehensive answer with proper HTML formatting for any code examples:"""
             
-            # Then generate detailed sections
-            if len(outline.split()) > 100:  # Complex topic, use chunking
-                return self._generate_chunked_answer(title, body, outline)
-            else:
-                return self._generate_standard_answer(title, body)
-                
-        except Exception as e:
-            logging.error(f"Gemini API error: {str(e)}")
-            raise Exception(f"Failed to generate answer: {str(e)}")
+            # Call Gemini API
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config={
+                    "max_output_tokens": 4000,
+                    "temperature": 0.7,
+                }
+            )
 
-    def _generate_outline(self, title, body):
-        """Generate an outline to understand complexity"""
-        outline_prompt = f"""Analyze this question and provide a brief outline of topics to cover:
+            truncated = self.is_response_truncated(response)
 
-    Question: {title}
-    Details: {body}
+            if truncated:
+                logging.info("Answer was truncated. Requesting a concise version.")
+                concise_prompt = f"""The previous answer was too long. Provide a more concise answer for the same question, focusing on the key points.
 
-    Provide a simple numbered outline (3-5 main points maximum):"""
-        
-        response = self.client.models.generate_content(
-            model=self.model_name,
-            contents=outline_prompt,
-            config={"max_output_tokens": 500, "temperature": 0.3}
-        )
-        
-        return response.text
+                        Question: {title}
 
-    def _generate_chunked_answer(self, title, body, outline):
-        """Generate answer in chunks for complex topics"""
-        sections = []
-        
-        # Extract main points from outline
-        main_points = self._extract_main_points(outline)
-        
-        for i, point in enumerate(main_points[:3], 1):  # Limit to 3 main sections
-            section_prompt = f"""You are an expert teacher. Focus ONLY on this specific aspect:
+                        Details: {body}
 
-    Question: {title}
-    Context: {body}
-    Focus on: {point}
+                        Please provide a concise answer with proper HTML formatting for any code examples:"""
 
-    Provide a complete section about this topic with HTML formatting. Be thorough but focused:"""
-            
-            try:
                 response = self.client.models.generate_content(
                     model=self.model_name,
-                    contents=section_prompt,
-                    config={"max_output_tokens": 1500, "temperature": 0.6}
+                    contents=concise_prompt,
+                    config={
+                        "max_output_tokens": 4000,
+                        "temperature": 0.5,
+                    }
                 )
-                sections.append(f"<h3>Section {i}</h3>{response.text}")
-            except Exception as e:
-                logging.warning(f"Error generating section {i}: {str(e)}")
-                continue
+                # The new response is concise, so we assume it's not truncated.
+                return response.text, False
+            
+            return response.text, truncated
+            
+        except Exception as e:
+            logging.error(f"Gemini API error: {str(e)}")
         
-        # Combine all sections
-        complete_answer = "<div>" + "".join(sections) + "</div>"
-        return complete_answer
+    def is_response_truncated(self, response) -> bool:
+        """
+        Check if the Gemini API response was truncated due to token limits.
 
-    def _extract_main_points(self, outline):
-        """Extract main points from outline"""
-        lines = outline.split('\n')
-        main_points = []
-        
-        for line in lines:
-            line = line.strip()
-            if line and (line[0].isdigit() or line.startswith('•') or line.startswith('-')):
-                # Clean the point
-                point = line.split('.', 1)[-1].strip() if '.' in line else line.strip()
-                main_points.append(point)
-        
-        return main_points[:5]  # Limit to 5 points max
+        Args:
+            response: The GenerateContentResponse object from the Gemini API.
 
-    def _generate_standard_answer(self, title, body):
-        """Generate standard answer for simpler topics"""
-        context = """You are an expert teacher. 
-        - Provide clear, accurate, complete answers
-        - Use HTML formatting for code: <pre><code>code</code></pre>
-        - Use <strong> for emphasis and <em> for important concepts
-        - Include practical examples
-        - Ensure your response is complete and doesn't cut off mid-sentence"""
-        
-        prompt = f"""{context}
-
-    Question: {title}
-    Details: {body}
-
-    Please provide a complete, well-formatted answer:"""
-        
-        response = self.client.models.generate_content(
-            model=self.model_name,
-            contents=prompt,
-            config={
-                "max_output_tokens": 3000,
-                "temperature": 0.7,
-            }
-        )
-        
-        return response.text
+        Returns:
+            bool: True if the answer was truncated, False otherwise.
+        """
+        if response and response.candidates:
+            # The finish_reason will be MAX_TOKENS if the response was cut off.
+            if response.candidates[0].finish_reason == FinishReason.MAX_TOKENS:
+                logging.warning("Gemini response was truncated due to max_output_tokens limit.")
+                return True
+        return False
