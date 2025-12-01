@@ -95,12 +95,11 @@ class GeminiServices:
                               indicating if it was truncated.
         """
         try:
-            context = """You are an tech teacher tasked with summarizing multiple answers for question. Your goal is to create a single, definitive summary that synthesizes the best information from all provided answers and their comments. Follow these guidelines:
-                    1.  Analyze the main answer and all its comments.
-                    2.  Identify clarifications, corrections, and additional useful information from the comments.
-                    3.  Synthesize this information into a single, cohesive, and improved answer.
-                    4.  Structure the summary clearly, using proper HTML formatting for code snippets (`<pre><code>...</code></pre>`) and bold tags (`<b>...</b>`) for important terms.
-                    5.  The final output should be a standalone, complete answer, not just a summary of the discussion.
+            context = """You are an tech teacher tasked with summarizing an answer and its comments. First identify the complexity of the body answer and comments content, based on that provide a concise or not response. Follow these guidelines:
+                    1.  Identify clarifications, corrections, and additional useful information from the comments.
+                    2.  Synthesize this information into a single, cohesive, and improved answer.
+                    3.  Structure the summary clearly, using proper HTML formatting for code snippets (`<pre><code>...</code></pre>`) and bold tags (`<b>...</b>`) for important terms.
+                    4.  The final output should just a summary of the discussion.
                 """
             
             # Format the answer and its comments for the prompt
