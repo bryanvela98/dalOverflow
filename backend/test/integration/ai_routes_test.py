@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
     
-    @patch('services.gemini_service.GeminiService.generate_answer')
+    @patch('services.gemini_services.GeminiServices.generate_answer')
     def test_post_ai_answer_success(self, mock_generate):
         """Test POST /api/ai/answer generates AI response with HTML"""
         mock_generate.return_value = "<p>You can create lists in Python like this:</p><pre><code>my_list = [1, 2, 3]</code></pre>"

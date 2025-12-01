@@ -2,7 +2,7 @@ import os
 import logging
 from google import genai
 
-class GeminiService:
+class GeminiServices:
     def __init__(self):
         self.api_key = os.getenv('GEMINI_API_KEY')
         if not self.api_key:
