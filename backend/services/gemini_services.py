@@ -1,3 +1,10 @@
+"""
+Description: Service class for interacting with the Gemini AI API.
+Last Modified By: Bryan Vela
+Created: 2025-12-01
+Last Modified: 
+    2025-12-01 - File created with AI response generation and summarization.
+"""
 import os
 import logging
 from google import genai
