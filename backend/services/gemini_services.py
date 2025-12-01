@@ -82,6 +82,59 @@ class GeminiServices:
             
         except Exception as e:
             logging.error(f"Gemini API error: {str(e)}")
+
+    def summarize_answers(self, answer):
+        """
+        Summarizes a list of answers and their comments.
+
+        Args:
+            answer (dict): A dictionary containing the answer 'body' and a list of 'comments'.
+
+        Returns:
+            tuple[str, bool]: A tuple containing the summary text and a boolean
+                              indicating if it was truncated.
+        """
+        try:
+            context = """You are an tech teacher tasked with summarizing multiple answers for question. Your goal is to create a single, definitive summary that synthesizes the best information from all provided answers and their comments. Follow these guidelines:
+                    1.  Analyze the main answer and all its comments.
+                    2.  Identify clarifications, corrections, and additional useful information from the comments.
+                    3.  Synthesize this information into a single, cohesive, and improved answer.
+                    4.  Structure the summary clearly, using proper HTML formatting for code snippets (`<pre><code>...</code></pre>`) and bold tags (`<b>...</b>`) for important terms.
+                    5.  The final output should be a standalone, complete answer, not just a summary of the discussion.
+                """
+            
+            # Format the answer and its comments for the prompt
+            content_text = f"Original Answer Body: {answer.get('body', '')}\n\n"
+            if answer.get('comments'):
+                content_text += "Comments on the Answer:\n"
+                for comment in answer['comments']:
+                    content_text += f"- {comment.get('body', '')}\n"
+
+            prompt = f"{context}\nHere is the answer and its comments to synthesize:\n\n{content_text}\nPlease provide a single, comprehensive, and improved answer:\n"
+
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config={"max_output_tokens": 4000, "temperature": 0.7}
+            )
+
+            truncated = self.is_response_truncated(response)
+
+            if truncated:
+                logging.info("Summary was truncated. Requesting a concise version.")
+                concise_prompt = f"The previous summary was too long. Provide a more concise summary of the same answer and comments, focusing on the key points.\n\n{content_text}"
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=concise_prompt,
+                    config={"max_output_tokens": 4000, "temperature": 0.5}
+                )
+                return response.text, False
+
+            return response.text, truncated
+
+        except Exception as e:
+            logging.error(f"Gemini API summary error: {str(e)}")
+            raise Exception(f"Failed to generate summary: {str(e)}")
         
     def is_response_truncated(self, response) -> bool:
         """
@@ -99,3 +152,4 @@ class GeminiServices:
                 logging.warning("Gemini response was truncated due to max_output_tokens limit.")
                 return True
         return False
+    

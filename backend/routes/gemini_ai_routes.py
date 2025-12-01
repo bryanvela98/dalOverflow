@@ -49,3 +49,27 @@ def generate_ai_answer():
     except Exception as e:
         logging.error(f"AI generation error: {str(e)}")
         return jsonify({'error': 'Failed to generate AI response'}), 500
+    
+
+@ai_bp.route('/summarize', methods=['POST'])
+def summarize_top_answers():
+    """
+    Generate an AI summary of an answer and its comments.
+    """
+    try:
+        data = request.get_json()
+        if not data or 'answer' not in data:
+            return jsonify({'error': 'Request must include an answer'}), 400
+        
+        answer = data.get('answer')
+        if not isinstance(answer, dict):
+            return jsonify({'error': '"answer" must be a dictionary'}), 400
+
+        gemini_service = GeminiServices()
+        summary, _ = gemini_service.summarize_answers(answer)
+        
+        return jsonify({'summary': summary}), 200
+
+    except Exception as e:
+        logging.error(f"AI summary generation error: {str(e)}")
+        return jsonify({'error': 'Failed to generate AI summary'}), 500
