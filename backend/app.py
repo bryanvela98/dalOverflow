@@ -45,7 +45,7 @@ def create_app():
     app.register_blueprint(questiontag_bp, url_prefix='/api')
     app.register_blueprint(answers_bp, url_prefix='/api/answers')
     app.register_blueprint(vote_bp, url_prefix='/api/votes')
-    app.register_blueprint(comment_bp)
+    app.register_blueprint(comment_bp, url_prefix='/api/comments')
     app.register_blueprint(upload_bp, url_prefix='/api/upload')
     app.register_blueprint(ai_bp, url_prefix='/api/ai')
 
