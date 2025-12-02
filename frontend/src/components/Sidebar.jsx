@@ -39,10 +39,7 @@ export default function Sidebar() {
         </div>
       </Link>
       <hr />
-      <Link
-        to="/questions/create"
-        style={{ textDecoration: "none", color: "inherit" }}
-      >
+      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
         <div className="create-forum">
           <img src="/CForum.png" alt="" srcSet="" className="logo" />
           <p>Create Forum</p>
