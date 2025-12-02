@@ -334,11 +334,6 @@ const BasicQuestionDetail = () => {
     // Add your vote logic here
   };
 
-  const handleBookmark = () => {
-    console.log("Bookmark question", question.id);
-    // Add bookmark logic here
-  };
-
   const handleShare = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
@@ -606,9 +601,6 @@ const BasicQuestionDetail = () => {
                       </button>
                     </div>
                   </div>
-                  <button className="action-button" onClick={handleBookmark}>
-                    {question.isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
-                  </button>
                   <button className="action-button" onClick={handleShare}>
                     Share
                   </button>
