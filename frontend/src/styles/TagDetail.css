@@ -1,3 +1,5 @@
+@import url("./variables.css");
+
 .tag-detail-container {
   width: 100%;
   max-width: 750px;
@@ -11,7 +13,11 @@
   align-items: flex-start;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #fffacd 0%, #ffd700 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 100%
+  );
   border-radius: 8px;
 }
 
@@ -48,7 +54,7 @@
 .stat-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0066cc;
+  color: var(--color-primary);
 }
 
 .stat-label {
@@ -85,8 +91,8 @@
 }
 
 .question-item:hover {
-  border-color: #0066cc;
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
   transform: translateX(4px);
 }
 

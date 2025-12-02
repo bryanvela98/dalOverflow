@@ -16,13 +16,13 @@ export default function Sidebar() {
           <p>Explore</p>
         </div>
       </Link>
-      <a href="#answers" style={{ textDecoration: "none", color: "inherit" }}>
+      <a href="/users" style={{ textDecoration: "none", color: "inherit" }}>
         <div className="answers">
           <img src="/Answers.png" alt="" srcSet="" className="logo" />
-          <p>Answers</p>
+          <p>Users</p>
         </div>
       </a>
-      <Link to="/profile" style={{ textDecoration: "none", color: "inherit" }}>
+      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
         <div className="ai">
           <img src="/AI.png" alt="" srcSet="" className="logo" />
           <p>AI</p>

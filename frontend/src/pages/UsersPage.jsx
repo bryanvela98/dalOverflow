@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header/Header";
+import Sidebar from "../components/Sidebar";
 import RightBar from "../components/RightBar";
 import "../styles/UsersPage.css";
 
@@ -69,8 +70,9 @@ const UsersPage = () => {
     <div className="background-page">
       <Header />
       <div className="major-body">
+        <Sidebar />
         <div className="main-body">
-          <div className="users-content-area">
+          <div className="centre-body">
             <h2 className="users-page-title">Users</h2>
             <input
               type="text"

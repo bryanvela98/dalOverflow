@@ -1,15 +1,12 @@
-/* Users Content Area fills available space with proper margins */
-.users-content-area {
+/* Centre Body - Same as CategoriesPage */
+.centre-body {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  margin: var(--spacing-xl) var(--spacing-xl) var(--spacing-xl) 0;
-  min-width: 0;
-  width: 100%;
-  max-width: 1200px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--spacing-lg);
+  height: 100%;
   box-sizing: border-box;
+  margin-right: var(--right-bar-width);
 }
 
 /* Users Page Container */
@@ -27,53 +24,75 @@
 }
 
 .users-page-title {
-  color: var(--color-primary-dark);
-  font-size: var(--font-size-3xl);
-  font-weight: 700;
-  margin-bottom: var(--spacing-xl);
-  margin-top: var(--spacing-lg);
-  margin-left: var(--spacing-lg);
+  color: var(--color-text-primary);
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
   letter-spacing: 0.5px;
 }
 
-.users-controls {
+.user-search-bar:focus {
+  outline: none;
+  border-color: #ffc107;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+}
+
+.user-sort-bar {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--spacing-xl);
-  margin-bottom: var(--spacing-xl);
-  margin-left: var(--spacing-lg);
-  width: 100%;
-  max-width: 900px;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.user-sort-option {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  background-color: white;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.user-sort-option:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  outline: 2px solid var(--color-primary);
+}
+
+.user-sort-option.active {
+  /* background-color: var(--color-primary-light); */
+  border-color: var(--color-primary);
+  color: #1a1a1a;
+  outline: 2px solid var(--color-primary);
+  transition: all 0.3s ease;
+  outline-offset: 2px;
 }
 
 .users-list {
-  margin-top: var(--spacing-xl);
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-xl);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
   width: 100%;
-  max-width: 900px;
-  margin-left: var(--spacing-lg);
 }
 
 .user-tile {
-  background: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  padding: var(--spacing-lg) var(--spacing-xl);
-  min-width: 0;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.2s, transform 0.2s;
-  gap: var(--spacing-md);
-  border: 1px solid var(--color-border-light);
-  margin-bottom: var(--spacing-xl);
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
 }
+
 .user-tile:hover {
-  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.18);
-  transform: translateY(-2px) scale(1.02);
   border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+  transform: translateY(-2px);
 }
 
 .user-tile-row {
@@ -101,30 +120,6 @@
   gap: var(--spacing-md);
 }
 
-.user-sort-bar {
-  display: flex;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-  margin-left: 0;
-}
-
-.user-sort-option {
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  font-size: var(--font-size-base);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  color: var(--color-text-secondary);
-  margin-right: var(--spacing-md);
-}
-.user-sort-option.active {
-  background: var(--color-primary);
-  color: var(--color-bg-primary);
-  border-color: var(--color-primary);
-}
-
 .user-name {
   font-weight: 600;
   font-size: var(--font-size-lg);
@@ -146,5 +141,5 @@
   max-width: 400px;
   font-size: var(--font-size-base);
   box-sizing: border-box;
-  margin-left: var(--spacing-lg);
+  /* margin-left: var(--spacing-lg); */
 }

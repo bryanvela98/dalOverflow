@@ -1,3 +1,5 @@
+@import url("./variables.css");
+
 /* Right Bar */
 .holder-tiles {
   display: flex;
@@ -24,7 +26,11 @@
 }
 
 #holder-tile2 {
-  background: linear-gradient(135deg, #fffacd 0%, #ffd700 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 100%
+  );
   height: auto;
 }
 
