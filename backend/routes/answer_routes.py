@@ -14,6 +14,7 @@ from database import db
 from models import User
 from models.answer import Answer
 from models.comment import Comment
+from models.notification import Notification
 from utils.html_sanitizer import sanitize_html_body
 from services.answer_services import AnswerServices
 
@@ -102,6 +103,15 @@ def create_answer(current_user, question_id):
 
         db.session.add(new_answer)
         db.session.commit()
+
+         #Create Notification
+        notification_data = {
+            "user_id": current_user.id,
+            "header": "Answer Submitted",
+            "body": f"Your answer to question ID {question_id} has been posted."
+        }
+        Notification.create(notification_data)
+
 
         # Fetch user data for response
         user = User.query.get(current_user.id)

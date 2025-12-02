@@ -53,6 +53,7 @@ export default function Login() {
       setMessage("Network error. Please try again.");
       console.error("Login error:", error);
     }
+    localStorage.setItem("currentUser", JSON.stringify(data.user)); 
   };
 
   const handleForgotPassword = async (e) => {

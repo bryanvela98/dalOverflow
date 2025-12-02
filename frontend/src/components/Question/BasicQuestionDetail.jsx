@@ -8,6 +8,7 @@ import "./BasicQuestionDetail.css";
 
 const BasicQuestionDetail = () => {
   const { id } = useParams();
+  const draftKey = `draftAnswer_${id}`;
   const [question, setQuestion] = useState(null);
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
@@ -118,7 +119,15 @@ const BasicQuestionDetail = () => {
   };
 
   useEffect(() => {
+    // let isMounted = true;
+
     let isMounted = true;
+
+    const savedDraft = localStorage.getItem(draftKey);
+    if (savedDraft && isMounted) {
+      setAnsContent(savedDraft);
+    }
+
 
     const fetchQuestion = async () => {
       try {
@@ -241,7 +250,9 @@ const BasicQuestionDetail = () => {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  // }, [id]);
+    }, [id, draftKey]);
+
 
   const getAnsInpLen = (html) => {
     if (!html) return 0;
@@ -356,6 +367,9 @@ const BasicQuestionDetail = () => {
 
     setIsSubmitAns(true);
     setAnsErr("");
+
+    localStorage.removeItem(draftKey); // Clear draft after posting
+      setAnsContent("");
 
     try {
       const token = localStorage.getItem("token");
@@ -799,7 +813,13 @@ const BasicQuestionDetail = () => {
                   <ReactQuill
                     ref={quillRef}
                     value={ansContent}
-                    onChange={handleContentChange}
+                    // onChange={handleContentChange}
+                    onChange={(content) => {
+                        setAnsContent(content);
+                        localStorage.setItem(draftKey, content);
+                        if (ansErr) setAnsErr("");
+                        if (ansSuccess) setAnsSuccess("");
+                      }}
                     placeholder="Answer here pls![atleast 20 characters]"
                     modules={{
                       toolbar: [
@@ -809,7 +829,7 @@ const BasicQuestionDetail = () => {
                         ["link", "code-block"],
                         ["clean"],
                       ],
-                    }}
+                    }}  
                     className="ans-edit"
                   />
                 </div>

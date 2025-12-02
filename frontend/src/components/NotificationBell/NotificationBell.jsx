@@ -1,20 +1,58 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useParams } from "react-router-dom";
 
 const NotificationBell = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const buttonRef = useRef(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { id } = useParams();
 
   // 计算下拉框位置
   useEffect(() => {
-    if (showDropdown && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + 8,
-        right: window.innerWidth - rect.right,
-      });
-    }
+    // if (showDropdown && buttonRef.current) {
+    //   const rect = buttonRef.current.getBoundingClientRect();
+    //   setDropdownPosition({
+    //     top: rect.bottom + 8,
+    //     right: window.innerWidth - rect.right,
+    //   });
+    // }
+    if (showDropdown) {
+    const fetchNotifications = async () => {
+      setLoading(true);
+      setError("");
+      try {
+
+        const stored = localStorage.getItem("user");   
+        if (!stored) {
+          setError("Not logged in: no user in storage");
+          setLoading(false);
+          return;
+        }
+        const currentUser = JSON.parse(stored);
+        const currentUserId = currentUser.id;
+
+        const response = await fetch(
+          `http://localhost:5001/api/notifications/${currentUserId}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch notifications");
+        }
+        const data = await response.json();
+        // Change according to your backend response format
+        setNotifications(data.notifications || []);
+      } catch (err) {
+        setError("Could not load notifications");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }
   }, [showDropdown]);
 
   // 点击外部关闭下拉框
@@ -171,7 +209,7 @@ const NotificationBell = () => {
           {/* Notifications List */}
           <div>
             {/* Unread Notification 1 */}
-            <div style={{ 
+            {/* <div style={{ 
               padding: '16px', 
               background: 'linear-gradient(to right, #dbeafe, #eff6ff)',
               borderRadius: '10px',
@@ -182,8 +220,8 @@ const NotificationBell = () => {
             }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(4px)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
-            >
-              <div style={{ 
+            > */}
+              {/* <div style={{ 
                 fontWeight: '700', 
                 color: '#1f2937', 
                 marginBottom: '8px',
@@ -211,7 +249,7 @@ const NotificationBell = () => {
             </div>
 
             {/* Unread Notification 2 */}
-            <div style={{ 
+            {/* <div style={{ 
               padding: '16px', 
               background: 'linear-gradient(to right, #dbeafe, #eff6ff)',
               borderRadius: '10px',
@@ -248,7 +286,7 @@ const NotificationBell = () => {
                 <span>by Jane Smith</span>
                 <span>30 min ago</span>
               </div>
-            </div>
+            </div> */} 
 
             {/* Read Notification */}
             <div style={{ 
@@ -291,7 +329,63 @@ const NotificationBell = () => {
               }}>
                 2 hours ago
               </div>
-            </div>
+              </div>
+            
+            <div>
+              {loading && <div>Loading...</div>}
+              {error && <div style={{ color: "red", marginBottom: "12px" }}>{error}</div>}
+
+              {notifications.length === 0 && !loading ? (
+                <div style={{ color: "#6b7280", padding: "16px" }}>
+                  No notifications
+                </div>
+              ) : (
+                notifications.map((notification, idx) => (
+                  <div
+                    key={notification.id || idx}
+                    style={{
+                      padding: "16px",
+                      background: notification.unread
+                        ? "linear-gradient(to right, #dbeafe, #eff6ff)"
+                        : "#f9fafb",
+                      borderRadius: "10px",
+                      marginBottom: "12px",
+                      cursor: "pointer",
+                      borderLeft: `5px solid ${
+                        notification.unread ? "#3b82f6" : "#d1d5db"
+                      }`,
+                      opacity: notification.unread ? 1 : 0.7,
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}
+                  >
+                    <div style={{
+                      fontWeight: '700',
+                      color: '#1f2937',
+                      marginBottom: '8px',
+                      fontSize: '15px',
+                    }}>
+                      {notification.header}
+                    </div>
+                    <div style={{
+                      fontSize: '14px',
+                      color: '#4b5563',
+                      marginBottom: '8px',
+                      lineHeight: '1.5',
+                    }}>
+                      {notification.body}
+                    </div>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#6b7280',
+                    }}>
+                      {notification.created_at}
+                    </div>
+                  </div>
+                ))
+              )}
+              </div>  
           </div>
 
           {/* Footer */}
