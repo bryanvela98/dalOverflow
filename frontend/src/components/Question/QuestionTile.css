@@ -183,7 +183,7 @@
   gap: var(--spacing-sm);
   border: 1px solid #dadadc;
   border-radius: 15px;
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
 }
 
 .tile-right div {

@@ -11,6 +11,7 @@ const BasicQuestionDetail = () => {
   const [question, setQuestion] = useState(null);
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
+  const [relatedQuestions, setRelatedQuestions] = useState([]);
   const [copiedCodeId, setCopiedCodeId] = useState(null);
   const [ansContent, setAnsContent] = useState("");
   const [isSubmitAns, setIsSubmitAns] = useState(false);
@@ -76,6 +77,30 @@ const BasicQuestionDetail = () => {
     }
   };
 
+  const fetchRelatedQuestions = async (currentQuestionId, tags) => {
+    try {
+      const response = await fetch("http://localhost:5001/api/questions");
+      const data = await response.json();
+      const questions = data.questions || [];
+
+      // Get tag IDs from current question
+      const currentTagIds = tags.map((tag) => tag.id || tag);
+
+      // Filter questions that have at least one matching tag
+      const related = questions
+        .filter((q) => q.id !== currentQuestionId)
+        .filter((q) => {
+          const qTagIds = (q.tags || []).map((tag) => tag.id || tag);
+          return currentTagIds.some((tagId) => qTagIds.includes(tagId));
+        })
+        .slice(0, 3);
+
+      setRelatedQuestions(related);
+    } catch (error) {
+      console.error("Error fetching related questions:", error);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -109,6 +134,11 @@ const BasicQuestionDetail = () => {
 
           setQuestion(enhancedQuestion);
           await fetchUserData(data.question, answers);
+
+          // Fetch related questions based on tags
+          if (data.question.tags && data.question.tags.length > 0) {
+            fetchRelatedQuestions(data.question.id, data.question.tags);
+          }
         }
       } catch (error) {
         console.error("Error fetching question:", error);
@@ -883,30 +913,25 @@ const BasicQuestionDetail = () => {
             </div>
             <div className="card-content">
               <div className="related-questions-container">
-                <div className="related-question">
-                  <a href="/questions/2" className="related-question-link">
-                    How to handle nested routes in React Router?
-                  </a>
-                  <div className="related-question-meta">
-                    <span>12 answers</span>
+                {relatedQuestions.length > 0 ? (
+                  relatedQuestions.map((relatedQ) => (
+                    <div key={relatedQ.id} className="related-question">
+                      <a
+                        href={`/questions/${relatedQ.id}`}
+                        className="related-question-link"
+                      >
+                        {relatedQ.title}
+                      </a>
+                      <div className="related-question-meta">
+                        <span>{relatedQ.answerCount || 0} answers</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="related-question">
+                    <p className="no-related">No related questions found</p>
                   </div>
-                </div>
-                <div className="related-question">
-                  <a href="/questions/3" className="related-question-link">
-                    React Router v6 migration guide
-                  </a>
-                  <div className="related-question-meta">
-                    <span>8 answers</span>
-                  </div>
-                </div>
-                <div className="related-question">
-                  <a href="/questions/4" className="related-question-link">
-                    Protected routes with authentication in React
-                  </a>
-                  <div className="related-question-meta">
-                    <span>15 answers</span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

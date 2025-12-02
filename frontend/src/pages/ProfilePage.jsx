@@ -1,11 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header/Header";
+import { useAuth } from "../hooks/useAuth";
+
 import ProfilePicture from "../components/ProfilePicture";
 import "../styles/LoginRegistration.css";
 import "../styles/ProfilePage.css";
 
 const ProfilePage = () => {
+  const isLoggedIn = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
+
+  if (!isLoggedIn) {
+    return null;
+  }
+
   const [user, setUser] = useState(null);
   const [editData, setEditData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -27,7 +40,6 @@ const ProfilePage = () => {
     return userId || "1";
   };
   const [userId, setUserId] = useState(getCurrentUserId());
-  const navigate = useNavigate();
 
   useEffect(() => {
     let lastUserId = getCurrentUserId();
@@ -101,7 +113,6 @@ const ProfilePage = () => {
 
   return (
     <>
-      <Header />
       <div className="auth-container">
         <div className="form-container" style={{ maxWidth: 420 }}>
           <h2 style={{ marginBottom: "1.5rem", textAlign: "center" }}>

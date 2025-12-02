@@ -31,7 +31,14 @@ function App() {
         <Route path="/categories" element={<CategoriesPage />} />
         <Route path="/login" element={<LoginRegistration />} />
         <Route path="/users" element={<UsersPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

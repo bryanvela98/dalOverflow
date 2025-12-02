@@ -10,18 +10,24 @@ export default function Sidebar() {
           <p>Home</p>
         </div>
       </Link>
-      <div className="explore">
-        <img src="/Explore.png" alt="" srcSet="" className="logo" />
-        <p>Explore</p>
-      </div>
-      <div className="answers">
-        <img src="/Answers.png" alt="" srcSet="" className="logo" />
-        <p>Answers</p>
-      </div>
-      <div className="ai">
-        <img src="/AI.png" alt="" srcSet="" className="logo" />
-        <p>AI</p>
-      </div>
+      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+        <div className="explore">
+          <img src="/Explore.png" alt="" srcSet="" className="logo" />
+          <p>Explore</p>
+        </div>
+      </Link>
+      <a href="#answers" style={{ textDecoration: "none", color: "inherit" }}>
+        <div className="answers">
+          <img src="/Answers.png" alt="" srcSet="" className="logo" />
+          <p>Answers</p>
+        </div>
+      </a>
+      <Link to="/profile" style={{ textDecoration: "none", color: "inherit" }}>
+        <div className="ai">
+          <img src="/AI.png" alt="" srcSet="" className="logo" />
+          <p>AI</p>
+        </div>
+      </Link>
       <hr />
       <Link
         to="/categories"
@@ -33,14 +39,21 @@ export default function Sidebar() {
         </div>
       </Link>
       <hr />
-      <div className="create-forum">
-        <img src="/CForum.png" alt="" srcSet="" className="logo" />
-        <p>Create Forum</p>
-      </div>
-      <div className="manage-forums">
-        <img src="/MForum.png" alt="" srcSet="" className="logo" />
-        <p>Manage Forums</p>
-      </div>
+      <Link
+        to="/questions/create"
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+        <div className="create-forum">
+          <img src="/CForum.png" alt="" srcSet="" className="logo" />
+          <p>Create Forum</p>
+        </div>
+      </Link>
+      <Link to="/profile" style={{ textDecoration: "none", color: "inherit" }}>
+        <div className="manage-forums">
+          <img src="/MForum.png" alt="" srcSet="" className="logo" />
+          <p>Manage Profile</p>
+        </div>
+      </Link>
     </div>
   );
 }

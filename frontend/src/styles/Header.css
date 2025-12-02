@@ -21,7 +21,7 @@
 
 .search-bar {
   position: relative;
-  width: 50%;
+  width: 100%;
 }
 
 /* All values are hardcoded rn to maintain integrity of the page display, will work on dynamic value next time */
@@ -60,7 +60,7 @@
 .header-buttons button {
   border-radius: 15px;
   height: 40px;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-family);
   font-weight: 400;
   font-size: 12px;
 }
