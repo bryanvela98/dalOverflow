@@ -32,7 +32,7 @@ export default function QuestionTile() {
   // Sort questions based on selected filter
   useEffect(() => {
     let sorted = [...questions];
-    
+
     switch (sortBy) {
       case "newest":
         sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -53,7 +53,7 @@ export default function QuestionTile() {
         });
         break;
     }
-    
+
     setSortedQuestions(sorted);
   }, [questions, sortBy]);
 
