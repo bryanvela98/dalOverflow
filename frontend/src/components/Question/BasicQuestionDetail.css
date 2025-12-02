@@ -1077,3 +1077,51 @@
 .action-button--secondary svg {
   stroke: currentColor;
 }
+
+
+/* Answer edit form styles */
+.answer-edit-form {
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+}
+
+.answer-edit-form h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.answer-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* Edit indicator styles */
+.edit-indicator {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.edit-indicator:hover {
+  color: var(--color-primary, #0066cc);
+  text-decoration: underline;
+}
+
+/* Make edit button more visible */
+.answer-actions .action-button {
+  transition: all 0.2s ease;
+}
+
+.answer-actions .action-button:hover {
+  background-color: #f3f4f6;
+  color: var(--color-primary, #0066cc);
+}
