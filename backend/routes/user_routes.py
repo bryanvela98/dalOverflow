@@ -85,4 +85,16 @@ def get_user(user_id):
     except Exception as e:
         logging.error(f"Error fetching user {user_id}: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
-    
+
+@user_bp.route('/<int:user_id>', methods=['PUT', 'OPTIONS'])
+def update_user(user_id):
+    if request.method == 'OPTIONS':
+        return '', 204
+    try:
+        user = User.update_fields(user_id, request.get_json())
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify({"message": "User updated successfully", "user": user.to_dict()}), 200
+    except Exception as e:
+        logging.error(f"Error updating user {user_id}: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500

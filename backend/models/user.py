@@ -48,7 +48,32 @@ class User(BaseModel):
         })
         return base_dict
     
-@classmethod
-def get_by_id(cls, user_id):
-    """Get a user by ID."""
-    return cls.query.get(user_id)
+    @classmethod
+    def get_by_id(cls, user_id):
+        """Get a user by ID."""
+        return cls.query.get(user_id)
+
+    @classmethod
+    def update_fields(cls, user_id, data):
+        """Update user fields."""
+        print(f"Incoming update data for user {user_id}: {data}")
+        user = cls.get_by_id(user_id)
+        if not user:
+            print(f"User {user_id} not found.")
+            return None
+        updatable_fields = [
+            'display_name', 'email', 'profile_picture_url', 'university'
+        ]
+        for field in updatable_fields:
+            if field in data:
+                print(f"Updating {field} to {data[field]}")
+                setattr(user, field, data[field])
+        from database import db
+        db.session.add(user)
+        try:
+            db.session.commit()
+            print(f"User {user_id} updated and committed.")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error committing update for user {user_id}: {e}")
+        return user
