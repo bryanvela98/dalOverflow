@@ -5,9 +5,13 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "react-quill/dist/quill.snow.css";
 import "./BasicQuestionDetail.css";
+<<<<<<< HEAD
 import AiAnsSec from "./aiAns";
 import AiSummariseSec from "./aiSummarise";
 import API_BASE_URL from "../../constants/apiConfig";
+=======
+import { useNavigate } from "react-router-dom";
+>>>>>>> d66223b (feat: added edit question functinonality)
 
 const BasicQuestionDetail = () => {
   const { id } = useParams();
@@ -15,7 +19,12 @@ const BasicQuestionDetail = () => {
   const [question, setQuestion] = useState(null);
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
+<<<<<<< HEAD
   const [relatedQuestions, setRelatedQuestions] = useState([]);
+=======
+  const navigate = useNavigate();
+  const [canEdit, setCanEdit] = useState(false);
+>>>>>>> d66223b (feat: added edit question functinonality)
   const [copiedCodeId, setCopiedCodeId] = useState(null);
   const [ansContent, setAnsContent] = useState("");
   const [isSubmitAns, setIsSubmitAns] = useState(false);
@@ -339,6 +348,17 @@ const BasicQuestionDetail = () => {
     fetchUserVotes();
   }, [id]);
 
+  // Add this NEW useEffect here:
+  useEffect(() => {
+    if (question && question.user_id) {
+      const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const isModerator = currentUser.is_moderator || false;
+      const isAuthor = currentUser.id === question.user_id;
+      
+      setCanEdit(isAuthor || isModerator);
+    }
+  }, [question]);
+
   // get vote counts and calculate reputation
   useEffect(() => {
     if (!question) return;
@@ -387,6 +407,9 @@ const BasicQuestionDetail = () => {
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
     return (tempDiv.textContent || "").trim().length;
+  };
+  const handleEditClick = () => {
+  navigate(`/questions/${id}/edit`);
   };
 
   //validate if 20 chars are inputted
@@ -785,9 +808,71 @@ const BasicQuestionDetail = () => {
                 </button>
               </div>
 
-              <div className="question-header-content">
+              {/* <div className="question-header-content">
                 <div className="question-title-container">
                   <h1 className="question-title">{question.title}</h1>
+                </div> */}
+
+                <div className="question-header-content">
+                {/* Question Header with Edit Button */}
+                <div className="question-header-actions" style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <h1 className="question-title">{question.title}</h1>
+                    
+                    {/* Edit Indicator (AC 8) */}
+                    {question.edit_count > 0 && (
+                      <div 
+                        className="edit-indicator"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          fontSize: '14px',
+                          color: '#6b7280',
+                          marginTop: '8px',
+                          cursor: 'pointer'
+                        }}
+                        title={`Last edited ${question.last_edited_at ? new Date(question.last_edited_at).toLocaleString() : 'recently'}`}
+                        onClick={() => navigate(`/questions/${id}/history`)}
+                      >
+                        <span style={{ marginRight: '4px' }}>✏️</span>
+                        <span>(edited)</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Edit Button (AC 1) - Only visible to author/moderator */}
+                  {canEdit && (
+                    <button
+                      onClick={handleEditClick}
+                      className="action-button action-button--secondary"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px 16px',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      <svg 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2"
+                      >
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                      Edit Question
+                    </button>
+                  )}
                 </div>
 
                 <div className="question-meta-container">

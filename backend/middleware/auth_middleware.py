@@ -1,20 +1,38 @@
-"""
-Description: User routes for handling user-related API endpoints.
-Created By: Devang
-Created: 2025-11-01
-Last Modified: Saayonee @ 12.28 AM Nov 9
+# """
+# Description: User routes for handling user-related API endpoints.
+# Created By: Devang
+# Created: 2025-11-01
+# Last Modified: Saayonee @ 12.28 AM Nov 9
     
-"""
-from functools import wraps
-from flask import request, redirect, url_for, session, jsonify, current_app
-from models.user import User
-import jwt
+# """
+# from functools import wraps
+# from flask import request, redirect, url_for, session, jsonify, current_app
+# from models.user import User
+# import jwt
 
-#!!! when session is ready, uncomment the following code
+# #!!! when session is ready, uncomment the following code
+# # def login_required(view_func):
+# #     @wraps(view_func)
+# #     def wrapped_view(*args,**kwargs):
+# #         if 'user_id' not in session:
+# #             next_url = request.path
+
+# #             return redirect(url_for('login.login', next=next_url))
+# #         return view_func(*args,**kwargs)
+# #     return wrapped_view
+
+
+
+# #temporary mock session for testing redirection.
+# #If user tries to access questions endpoint without dummy_user=1 then redirectin takes place
 # def login_required(view_func):
 #     @wraps(view_func)
 #     def wrapped_view(*args,**kwargs):
-#         if 'user_id' not in session:
+
+#         if request.args.get("dummy_user") == "1":
+#             session['user_id'] = 999
+
+#         if 'user_id' not in session and 'user' not in session:
 #             next_url = request.path
 
 #             return redirect(url_for('login.login', next=next_url))
@@ -22,43 +40,247 @@ import jwt
 #     return wrapped_view
 
 
+# def token_required(f):
+#     def wrapper(*args, **kwargs):
+#         token = request.headers.get('Authorization')
+#         # print(f"Token: {token}")  
 
-#temporary mock session for testing redirection.
-#If user tries to access questions endpoint without dummy_user=1 then redirectin takes place
+#         if not token: return jsonify({'error': 'No token'}), 401
+        
+#         try:
+#             token = token.replace('Bearer ', '')
+#             # print(f"Cleaned token: {token}")  
+
+#             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+#             # print(f"Decoded data: {data}")
+            
+#             user = User.query.filter_by(username=data['username']).first()
+#             # print(f"User found: {user}")
+#         except Exception as e:
+#             print(f"Error: {e}")
+#             return jsonify({'error':'Invalid token'}), 401
+        
+#         return f(user, *args, **kwargs)
+#     return wrapper
+
+"""
+Description: Authentication middleware for handling user authentication
+Created By: Devang
+Created: 2025-11-01
+Last Modified: 
+    Saayonee @ 12.28 AM Nov 9
+    Claude @ Dec 2, 2025 - Added proper JWT handling for API endpoints
+"""
+from functools import wraps
+from flask import request, redirect, url_for, session, jsonify, current_app
+from models.user import User
+import jwt
+
+
 def login_required(view_func):
+    """
+    Decorator for endpoints that require authentication.
+    Handles both session-based (web) and token-based (API) authentication.
+    
+    For API endpoints (JSON requests), validates JWT token and sets request.user_id
+    For web endpoints (HTML requests), checks session and redirects to login if needed
+    """
     @wraps(view_func)
-    def wrapped_view(*args,**kwargs):
-
-        if request.args.get("dummy_user") == "1":
-            session['user_id'] = 999
-
-        if 'user_id' not in session and 'user' not in session:
-            next_url = request.path
-
-            return redirect(url_for('login.login', next=next_url))
-        return view_func(*args,**kwargs)
+    def wrapped_view(*args, **kwargs):
+        print(f"🔍 DEBUG: Path={request.path}")
+        print(f"🔍 DEBUG: Headers={dict(request.headers)}")
+    
+        # Check if this is an API request
+        is_api_request = (
+            'Authorization' in request.headers or 
+            request.path.startswith('/api/') or
+            request.content_type == 'application/json'
+        )
+        
+        print(f"🔍 DEBUG: is_api_request={is_api_request}")
+        
+        if is_api_request:
+            token = request.headers.get('Authorization')
+            print(f"🔍 DEBUG: Token={token[:50] if token else None}...")
+            
+            if not token:
+                print("❌ DEBUG: No token found!")
+                return jsonify({'error': 'Authentication required. No token provided.'}), 401
+            
+            try:
+                token = token.replace('Bearer ', '').strip()
+                data = jwt.decode(
+                    token, 
+                    current_app.config['SECRET_KEY'], 
+                    algorithms=['HS256']
+                )
+                
+                print(f"✅ DEBUG: Token decoded, username={data.get('username')}")
+                
+                user = User.query.filter_by(username=data.get('username')).first()
+                
+                if not user:
+                    print("❌ DEBUG: User not found in database!")
+                    return jsonify({'error': 'User not found'}), 401
+                
+                # Set user information
+                request.user_id = user.id
+                request.username = user.username
+                request.user = user
+                request.is_moderator = getattr(user, 'is_moderator', False)
+                request.is_admin = getattr(user, 'is_admin', False)
+                
+                print(f"✅ DEBUG: Set request.user_id={request.user_id}")
+                
+            except jwt.ExpiredSignatureError:
+                print("❌ DEBUG: Token expired!")
+                return jsonify({'error': 'Token has expired. Please log in again.'}), 401
+            except jwt.InvalidTokenError as e:
+                print(f"❌ DEBUG: Invalid token: {e}")
+                return jsonify({'error': f'Invalid token: {str(e)}'}), 401
+            except Exception as e:
+                print(f"❌ DEBUG: Unexpected error: {e}")
+                import traceback
+                traceback.print_exc()
+                return jsonify({'error': 'Authentication failed'}), 401
+        
+        print("✅ DEBUG: About to call view function")
+        return view_func(*args, **kwargs)
     return wrapped_view
 
 
 def token_required(f):
+    """
+    Alternative decorator specifically for API endpoints that require JWT tokens.
+    Passes the authenticated user as the first argument to the view function.
+    
+    Usage:
+        @token_required
+        def my_endpoint(user, *args, **kwargs):
+            # user is the authenticated User object
+            pass
+    """
+    @wraps(f)
     def wrapper(*args, **kwargs):
         token = request.headers.get('Authorization')
-        # print(f"Token: {token}")  
 
-        if not token: return jsonify({'error': 'No token'}), 401
+        if not token:
+            return jsonify({'error': 'No token provided'}), 401
         
         try:
-            token = token.replace('Bearer ', '')
-            # print(f"Cleaned token: {token}")  
+            # Remove 'Bearer ' prefix if present
+            token = token.replace('Bearer ', '').strip()
 
-            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-            # print(f"Decoded data: {data}")
+            # Decode the token
+            data = jwt.decode(
+                token, 
+                current_app.config['SECRET_KEY'], 
+                algorithms=['HS256']
+            )
             
-            user = User.query.filter_by(username=data['username']).first()
-            # print(f"User found: {user}")
+            # Get user from database
+            user = User.query.filter_by(username=data.get('username')).first()
+            
+            if not user:
+                return jsonify({'error': 'User not found'}), 401
+            
+            # Set request attributes for convenience
+            request.user_id = user.id
+            request.username = user.username
+            request.is_moderator = getattr(user, 'is_moderator', False)
+            request.is_admin = getattr(user, 'is_admin', False)
+            
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token has expired. Please log in again.'}), 401
+        except jwt.InvalidTokenError as e:
+            return jsonify({'error': f'Invalid token: {str(e)}'}), 401
         except Exception as e:
-            print(f"Error: {e}")
-            return jsonify({'error':'Invalid token'}), 401
+            current_app.logger.error(f"Token validation error: {str(e)}")
+            return jsonify({'error': 'Authentication failed'}), 401
         
+        # Pass user as first argument to the view function
         return f(user, *args, **kwargs)
+    
     return wrapper
+
+
+def optional_auth(view_func):
+    """
+    Decorator for endpoints where authentication is optional.
+    Sets request.user_id if authenticated, otherwise sets it to None.
+    View function can check if request.user_id is set to provide different behavior.
+    
+    Usage:
+        @optional_auth
+        def my_endpoint():
+            if hasattr(request, 'user_id') and request.user_id:
+                # User is authenticated
+                pass
+            else:
+                # User is not authenticated
+                pass
+    """
+    @wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        # Try to authenticate but don't fail if token is invalid/missing
+        token = request.headers.get('Authorization')
+        
+        if token:
+            try:
+                token = token.replace('Bearer ', '').strip()
+                data = jwt.decode(
+                    token,
+                    current_app.config['SECRET_KEY'],
+                    algorithms=['HS256']
+                )
+                
+                user = User.query.filter_by(username=data.get('username')).first()
+                
+                if user:
+                    request.user_id = user.id
+                    request.username = user.username
+                    request.user = user
+                    request.is_moderator = getattr(user, 'is_moderator', False)
+                    request.is_admin = getattr(user, 'is_admin', False)
+            except:
+                # Token invalid, but that's okay for optional auth
+                pass
+        
+        return view_func(*args, **kwargs)
+    
+    return wrapped_view
+
+
+def admin_required(view_func):
+    """
+    Decorator for endpoints that require admin privileges.
+    Checks authentication first, then verifies admin status.
+    """
+    @wraps(view_func)
+    @login_required
+    def wrapped_view(*args, **kwargs):
+        if not getattr(request, 'is_admin', False):
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        return view_func(*args, **kwargs)
+    
+    return wrapped_view
+
+
+def moderator_required(view_func):
+    """
+    Decorator for endpoints that require moderator or admin privileges.
+    Checks authentication first, then verifies moderator/admin status.
+    """
+    @wraps(view_func)
+    @login_required
+    def wrapped_view(*args, **kwargs):
+        is_mod = getattr(request, 'is_moderator', False)
+        is_admin = getattr(request, 'is_admin', False)
+        
+        if not (is_mod or is_admin):
+            return jsonify({'error': 'Moderator privileges required'}), 403
+        
+        return view_func(*args, **kwargs)
+    
+    return wrapped_view

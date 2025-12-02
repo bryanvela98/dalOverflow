@@ -7,8 +7,9 @@ Last Modified:
 """
 import os
 import logging
-from google import genai
-from google.genai.types import FinishReason
+# from google import genai
+import google.generativeai as genai
+# from google.generativeai.types.generation_types  import FinishReason
 
 class GeminiServices:
     def __init__(self):

@@ -1046,3 +1046,34 @@
     width: 100%;
   }
 }
+
+/* Edit Button Styles */
+.question-header-actions {
+  margin-bottom: 24px;
+}
+
+.edit-indicator {
+  transition: color 0.2s ease;
+}
+
+.edit-indicator:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.action-button--secondary {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border-medium);
+  transition: all 0.2s ease;
+}
+
+.action-button--secondary:hover {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-text-secondary);
+  transform: translateY(-1px);
+}
+
+.action-button--secondary svg {
+  stroke: currentColor;
+}
