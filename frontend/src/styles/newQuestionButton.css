@@ -1,3 +1,5 @@
+@import url("./variables.css");
+
 .login-buttons-container {
   display: flex;
   gap: 10px;
@@ -6,6 +8,19 @@
 .new-question button {
   height: 40px;
   border-radius: 15px;
-  background-color: #ffc107;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 100%
+  );
   color: #1a1a1a;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.new-question button:hover {
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+  transform: translateY(-2px);
 }
