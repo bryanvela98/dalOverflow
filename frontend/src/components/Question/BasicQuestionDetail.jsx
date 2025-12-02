@@ -83,18 +83,34 @@ const BasicQuestionDetail = () => {
       const data = await response.json();
       const questions = data.questions || [];
 
-      // Get tag IDs from current question
-      const currentTagIds = tags.map((tag) => tag.id || tag);
+      console.log("Current question tags:", tags);
+      console.log("Sample question tags:", questions[0]?.tags);
 
-      // Filter questions that have at least one matching tag
+      // Filter questions that share tags with current question, exclude current question
       const related = questions
         .filter((q) => q.id !== currentQuestionId)
         .filter((q) => {
-          const qTagIds = (q.tags || []).map((tag) => tag.id || tag);
-          return currentTagIds.some((tagId) => qTagIds.includes(tagId));
+          const qTags = q.tags || [];
+          const hasCommonTag = tags.some((tag) => {
+            const tagIdMatch = qTags.some((qTag) => {
+              if (typeof tag === "object" && typeof qTag === "object") {
+                return qTag.id === tag.id || qTag.name === tag.name;
+              } else if (typeof tag === "string") {
+                return qTag.name === tag || qTag.id === tag;
+              }
+              return false;
+            });
+            return tagIdMatch;
+          });
+          console.log(
+            `Question ${q.id} has common tag: ${hasCommonTag}`,
+            qTags
+          );
+          return hasCommonTag;
         })
-        .slice(0, 3);
+        .slice(0, 3); // Get top 3 related questions
 
+      console.log("Related questions found:", related);
       setRelatedQuestions(related);
     } catch (error) {
       console.error("Error fetching related questions:", error);
@@ -851,7 +867,7 @@ const BasicQuestionDetail = () => {
                 <div className="author-details-container">
                   <div className="author-name-container">
                     <a
-                      href={`/users/${question.user_id}`}
+                      href={`/questions/${question.id}`}
                       className="author-name"
                     >
                       {questionAuthor.username}
