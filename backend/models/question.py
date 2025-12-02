@@ -56,12 +56,12 @@ class Question(BaseModel):
             'user_id':self.user_id,
             'title':self.title,
             'body':self.body,
-            'tags': [tag.to_dict() for tag in self.tags.all()],  # Convert relationship to list of tag dicts
-            'answers': [answer.to_dict() for answer in answers_list],  # Convert relationship to list of answer dicts
-            'answerCount': len(answers_list),  # Add answer count
+            'tags': [tag.to_dict() for tag in self.tags.all()],
+            'answers': [answer.to_dict() for answer in answers_list],
+            'answerCount': len(answers_list),
+            'voteCount': 0,
             'status':self.status,
             'view_count': self.view_count or 0
-            #'accepted_answers_id':self.accepted_answers_id
         })
         return base_dict
     

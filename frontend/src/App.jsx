@@ -9,12 +9,14 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import BasicQuestionDetail from "./components/Question/BasicQuestionDetail";
 import UsersPage from "./pages/UsersPage";
 import ProfilePage from "./pages/ProfilePage";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/search" element={<SearchResults />} />
         <Route
           path="/ask"
           element={
