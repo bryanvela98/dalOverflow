@@ -51,14 +51,17 @@ class Question(BaseModel):
     
     def to_dict(self):
         base_dict = super().to_dict()
+        answers_list = self.answers.all()
         base_dict.update({
             'id':self.id,
             'type':self.type,
             'user_id':self.user_id,
             'title':self.title,
             'body':self.body,
-            'tags': [tag.to_dict() for tag in self.tags.all()],  # Convert relationship to list of tag dicts
-            'answers': [answer.to_dict() for answer in self.answers.all()],  # Convert relationship to list of answer dicts
+            'tags': [tag.to_dict() for tag in self.tags.all()],
+            'answers': [answer.to_dict() for answer in answers_list],
+            'answerCount': len(answers_list),
+            'voteCount': 0,
             'status':self.status,
             'view_count': self.view_count or 0,
             'ai_generated_ans': self.ai_generated_ans,

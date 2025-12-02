@@ -54,6 +54,32 @@ def get_tag_by_id(tag_id):
         return jsonify({"error": "Internal server error"}), 500
 
 
+@tag_bp.route('/<int:tag_id>/questions', methods=['GET'])
+def get_questions_by_tag(tag_id):
+    """Get all questions for a specific tag.
+
+    Args:
+        tag_id: The ID of the tag to filter by.
+
+    Returns:
+        JSON response containing questions with the specified tag.
+    """
+    try:
+        tag = Tag.get_by_id(tag_id)
+        if not tag:
+            return jsonify({"message": "Tag not found"}), 404
+        
+        questions = tag.questions.all()
+        return jsonify({
+            "tag": tag.to_dict(),
+            "questions": [question.to_dict() for question in questions],
+            "count": len(questions)
+        })
+    except Exception as e:
+        logging.error(f"Error fetching questions by tag: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
 @tag_bp.route('/', methods=['POST'])
 def create_tag():
     """Create a new tag.

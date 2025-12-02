@@ -11,14 +11,15 @@ export function useAuth() {
       return;
     }
 
+    // If token exists, assume logged in while validating
+    setIsLoggedIn(true);
+
     //check if token is valid
     fetch("http://127.0.0.1:5001/api/auth/validate", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => {
-        if (response.ok) {
-          setIsLoggedIn(true);
-        } else {
+        if (!response.ok) {
           localStorage.removeItem("token");
           setIsLoggedIn(false);
         }

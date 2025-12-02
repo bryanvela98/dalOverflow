@@ -76,6 +76,13 @@ def search_questions(query):
             result = {
                 'id': question['id'],
                 'title': question['title'],
+                'body': question.get('body'),
+                'tags': question.get('tags', []),
+                'answerCount': question.get('answerCount', 0),
+                'voteCount': question.get('voteCount', 0),
+                'view_count': question.get('view_count', 0),
+                'created_at': question.get('created_at'),
+                'user_id': question.get('user_id'),
                 'score': score
             }
             results.append(result)

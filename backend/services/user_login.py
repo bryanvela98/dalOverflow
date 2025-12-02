@@ -39,6 +39,7 @@ class UserLoginServices:
                 'display_name': self.current_user.display_name,
                 'reputation': self.current_user.reputation,
                 'university': self.current_user.university,
+                'profile_picture_url': self.current_user.profile_picture_url,
                 'token': token
             }
         return None
