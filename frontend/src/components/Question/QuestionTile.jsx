@@ -1,8 +1,45 @@
-import { jsxDEV } from "react/jsx-dev-runtime";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "./QuestionTile.css";
 import NewQuestionButton from "../NewQuestionButton.jsx";
 
 export default function QuestionTile() {
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/api/questions");
+        const data = await response.json();
+        if (data.questions) {
+          setQuestions(data.questions);
+        }
+      } catch (err) {
+        setError("Failed to load questions");
+        console.error("Error fetching questions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="centre-body">
+        <p>Loading questions...</p>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="centre-body">
+        <p>{error}</p>
+      </div>
+    );
+
   return (
     <div className="centre-body">
       <div className="filter-question-div">
@@ -21,177 +58,50 @@ export default function QuestionTile() {
         </div>
       </div>
       <div className="tiles">
-        <div className="tile">
-          <div className="tile-centre">
-            <div className="question">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quam,
-              voluptates impedit harum minima recusandae, esse voluptas
-            </div>
-            <hr />
-            <div className="answer">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vero
-              consequuntur incidunt asperiores placeat. Enim ducimus, ipsam
-              dolorem amet sapiente aperiam quidem fugiat sed, suscipit id
-              minima explicabo consequuntur! Quis, dicta. Quis, assumenda sed
-              sequi quia possimus, autem maiores provident nostrum magnam
-              quisquam voluptatum, cum maxime alias deserunt blanditiis
-              dignissimos ullam impedit veritatis asperiores necessitatibus
-              officiis dolorem! Quasi ad rerum quia? Doloremque amet est
-              exercitationem sint earum ducimus inventore ex! Dignissimos
-              facilis et, veritatis molestias fuga repellendus dicta assumenda
-              corporis quas. Nihil, qui. Deserunt cumque omnis minima facilis,
-              libero quibusdam inventore.
-            </div>
-          </div>
-          <div className="tile-right">
-            <div className="votes">
-              <button className="upvote">
-                <img src="Upvote1.jpeg" alt="" className="logo" />
-              </button>
-              <p className="counter">0</p>
-              <button className="downvote">
-                <img src="/Downvote1.jpeg" alt="" className="logo" />
-              </button>
-            </div>
-            <div className="comments">
-              <img src="/MessageSquare.png" alt="" className="logo" />
-              <p className="comment-counter">0</p>
-            </div>
-            <div className="views">
-              <p>Views</p>
-              <p className="views-counter">0</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="tile">
-          <div className="tile-centre">
-            <div className="question">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quam,
-              voluptates impedit harum minima recusandae, esse voluptas
-            </div>
-            <hr />
-            <div className="answer">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vero
-              consequuntur incidunt asperiores placeat. Enim ducimus, ipsam
-              dolorem amet sapiente aperiam quidem fugiat sed, suscipit id
-              minima explicabo consequuntur! Quis, dicta. Quis, assumenda sed
-              sequi quia possimus, autem maiores provident nostrum magnam
-              quisquam voluptatum, cum maxime alias deserunt blanditiis
-              dignissimos ullam impedit veritatis asperiores necessitatibus
-              officiis dolorem! Quasi ad rerum quia? Doloremque amet est
-              exercitationem sint earum ducimus inventore ex! Dignissimos
-              facilis et, veritatis molestias fuga repellendus dicta assumenda
-              corporis quas. Nihil, qui. Deserunt cumque omnis minima facilis,
-              libero quibusdam inventore.
-            </div>
-          </div>
-          <div className="tile-right">
-            <div className="votes">
-              <button className="upvote">
-                <img src="Upvote1.jpeg" alt="" className="logo" />
-              </button>
-              <p className="counter">0</p>
-              <button className="downvote">
-                <img src="/Downvote1.jpeg" alt="" className="logo" />
-              </button>
-            </div>
-            <div className="comments">
-              <img src="/MessageSquare.png" alt="" className="logo" />
-              <p className="comment-counter">0</p>
-            </div>
-            <div className="views">
-              <p>Views</p>
-              <p className="views-counter">0</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="tile">
-          <div className="tile-centre">
-            <div className="question">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quam,
-              voluptates impedit harum minima recusandae, esse voluptas
-            </div>
-            <hr />
-            <div className="answer">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vero
-              consequuntur incidunt asperiores placeat. Enim ducimus, ipsam
-              dolorem amet sapiente aperiam quidem fugiat sed, suscipit id
-              minima explicabo consequuntur! Quis, dicta. Quis, assumenda sed
-              sequi quia possimus, autem maiores provident nostrum magnam
-              quisquam voluptatum, cum maxime alias deserunt blanditiis
-              dignissimos ullam impedit veritatis asperiores necessitatibus
-              officiis dolorem! Quasi ad rerum quia? Doloremque amet est
-              exercitationem sint earum ducimus inventore ex! Dignissimos
-              facilis et, veritatis molestias fuga repellendus dicta assumenda
-              corporis quas. Nihil, qui. Deserunt cumque omnis minima facilis,
-              libero quibusdam inventore.
-            </div>
-          </div>
-          <div className="tile-right">
-            <div className="votes">
-              <button className="upvote">
-                <img src="Upvote1.jpeg" alt="" className="logo" />
-              </button>
-              <p className="counter">0</p>
-              <button className="downvote">
-                <img src="/Downvote1.jpeg" alt="" className="logo" />
-              </button>
-            </div>
-            <div className="comments">
-              <img src="/MessageSquare.png" alt="" className="logo" />
-              <p className="comment-counter">0</p>
-            </div>
-            <div className="views">
-              <p>Views</p>
-              <p className="views-counter">0</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="tile">
-          <div className="tile-centre">
-            <div className="question">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quam,
-              voluptates impedit harum minima recusandae, esse voluptas
-            </div>
-            <hr />
-            <div className="answer">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vero
-              consequuntur incidunt asperiores placeat. Enim ducimus, ipsam
-              dolorem amet sapiente aperiam quidem fugiat sed, suscipit id
-              minima explicabo consequuntur! Quis, dicta. Quis, assumenda sed
-              sequi quia possimus, autem maiores provident nostrum magnam
-              quisquam voluptatum, cum maxime alias deserunt blanditiis
-              dignissimos ullam impedit veritatis asperiores necessitatibus
-              officiis dolorem! Quasi ad rerum quia? Doloremque amet est
-              exercitationem sint earum ducimus inventore ex! Dignissimos
-              facilis et, veritatis molestias fuga repellendus dicta assumenda
-              corporis quas. Nihil, qui. Deserunt cumque omnis minima facilis,
-              libero quibusdam inventore.
-            </div>
-          </div>
-          <div className="tile-right">
-            <div className="votes">
-              <button className="upvote">
-                <img src="Upvote1.jpeg" alt="" className="logo" />
-              </button>
-              <p className="counter">0</p>
-              <button className="downvote">
-                <img src="/Downvote1.jpeg" alt="" className="logo" />
-              </button>
-            </div>
-            <div className="comments">
-              <img src="/MessageSquare.png" alt="" className="logo" />
-              <p className="comment-counter">0</p>
-            </div>
-            <div className="views">
-              <p>Views</p>
-              <p className="views-counter">0</p>
-            </div>
-          </div>
-        </div>
+        {questions.length > 0 ? (
+          questions.map((question) => (
+            <Link
+              key={question.id}
+              to={`/questions/${question.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <div className="tile">
+                <div className="tile-centre">
+                  <div className="question">{question.title}</div>
+                  <hr />
+                  <div className="answer">
+                    {question.body?.substring(0, 200) ||
+                      "No description available"}
+                    ...
+                  </div>
+                </div>
+                <div className="tile-right">
+                  <div className="votes">
+                    <button className="upvote">
+                      <img src="Upvote1.jpeg" alt="" className="logo" />
+                    </button>
+                    <p className="counter">{question.voteCount || 0}</p>
+                    <button className="downvote">
+                      <img src="/Downvote1.jpeg" alt="" className="logo" />
+                    </button>
+                  </div>
+                  <div className="comments">
+                    <img src="/MessageSquare.png" alt="" className="logo" />
+                    <p className="comment-counter">
+                      {question.answerCount || 0}
+                    </p>
+                  </div>
+                  <div className="views">
+                    <p>Views</p>
+                    <p className="views-counter">{question.view_count || 0}</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <p>No questions available</p>
+        )}
       </div>
     </div>
   );
