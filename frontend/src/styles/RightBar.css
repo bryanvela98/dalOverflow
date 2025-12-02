@@ -24,7 +24,7 @@
 }
 
 #holder-tile2 {
-  background-color: #fecd09;
+  background: linear-gradient(135deg, #fffacd 0%, #ffd700 100%);
   height: auto;
 }
 

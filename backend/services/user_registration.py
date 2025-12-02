@@ -69,13 +69,57 @@ class UserRegistrationService:
         #generate an OTP to send
         self.instance_otp = self.generate_otp()
 
-        msg = MIMEMultipart()
+        msg = MIMEMultipart("alternative")
         msg["From"] = sender
         msg["To"] = receiver
         msg["Subject"] = "Email verification for DalOverflow Registration"
 
-        body = f"Your OTP is {str(self.instance_otp)}"
-        msg.attach(MIMEText(body, "plain"))
+        html_body = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #fffacd 0%, #ffd700 100%); padding: 30px 20px; text-align: center;">
+                        <h1 style="color: #333; margin: 0; font-size: 28px;">DalOverflow</h1>
+                        <p style="color: #666; margin: 5px 0 0 0; font-size: 14px;">Welcome to our community!</p>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 40px 30px;">
+                        <h2 style="color: #333; margin: 0 0 20px 0; font-size: 20px;">Verify Your Email</h2>
+                        <p style="color: #666; margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+                            Thank you for registering with DalOverflow! To complete your account setup, please use the verification code below:
+                        </p>
+                        
+                        <!-- OTP Box -->
+                        <div style="background-color: #f9f9f9; border: 2px solid #ffd700; border-radius: 8px; padding: 25px; text-align: center; margin: 30px 0;">
+                            <p style="color: #999; margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Your Verification Code</p>
+                            <p style="color: #ffd700; margin: 0; font-size: 36px; font-weight: bold; letter-spacing: 3px; font-family: 'Courier New', monospace;">{str(self.instance_otp)}</p>
+                        </div>
+                        
+                        <p style="color: #666; margin: 20px 0; font-size: 14px;">
+                            This code will expire in 10 minutes. If you didn't request this verification, please ignore this email.
+                        </p>
+                        
+                        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                        
+                        <p style="color: #999; margin: 0; font-size: 12px;">
+                            If you have any questions, please contact our support team.
+                        </p>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background-color: #f9f9f9; padding: 20px 30px; text-align: center; border-top: 1px solid #eee;">
+                        <p style="color: #999; margin: 0; font-size: 12px;">
+                            &copy; 2024 DalOverflow. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        
+        msg.attach(MIMEText(html_body, "html"))
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(sender, app_password)
@@ -88,13 +132,57 @@ class UserRegistrationService:
         #generate an OTP to send
         self.instance_otp = self.generate_otp()
 
-        msg = MIMEMultipart()
+        msg = MIMEMultipart("alternative")
         msg["From"] = sender
         msg["To"] = receiver
-        msg["Subject"] = "Password Reset"
+        msg["Subject"] = "Password Reset - DalOverflow"
 
-        body = f"Your OTP for resetting the password is {str(self.instance_otp)}"
-        msg.attach(MIMEText(body, "plain"))
+        html_body = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #fffacd 0%, #ffd700 100%); padding: 30px 20px; text-align: center;">
+                        <h1 style="color: #333; margin: 0; font-size: 28px;">DalOverflow</h1>
+                        <p style="color: #666; margin: 5px 0 0 0; font-size: 14px;">Password Reset Request</p>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 40px 30px;">
+                        <h2 style="color: #333; margin: 0 0 20px 0; font-size: 20px;">Reset Your Password</h2>
+                        <p style="color: #666; margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+                            We received a request to reset your password. Use the code below to proceed:
+                        </p>
+                        
+                        <!-- OTP Box -->
+                        <div style="background-color: #f9f9f9; border: 2px solid #ffd700; border-radius: 8px; padding: 25px; text-align: center; margin: 30px 0;">
+                            <p style="color: #999; margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Your Reset Code</p>
+                            <p style="color: #ffd700; margin: 0; font-size: 36px; font-weight: bold; letter-spacing: 3px; font-family: 'Courier New', monospace;">{str(self.instance_otp)}</p>
+                        </div>
+                        
+                        <p style="color: #666; margin: 20px 0; font-size: 14px;">
+                            This code will expire in 10 minutes. If you didn't request a password reset, please ignore this email and your account will remain secure.
+                        </p>
+                        
+                        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                        
+                        <p style="color: #999; margin: 0; font-size: 12px;">
+                            For security reasons, never share this code with anyone.
+                        </p>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background-color: #f9f9f9; padding: 20px 30px; text-align: center; border-top: 1px solid #eee;">
+                        <p style="color: #999; margin: 0; font-size: 12px;">
+                            &copy; 2024 DalOverflow. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        
+        msg.attach(MIMEText(html_body, "html"))
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(sender, app_password)
