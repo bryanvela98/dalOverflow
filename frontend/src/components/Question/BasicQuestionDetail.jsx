@@ -5,6 +5,8 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "react-quill/dist/quill.snow.css";
 import "./BasicQuestionDetail.css";
+import AiAnsSec from "./aiAns";
+import AiSummariseSec from "./aiSummarise";
 
 const BasicQuestionDetail = () => {
   const { id } = useParams();
@@ -617,6 +619,19 @@ const BasicQuestionDetail = () => {
                 </div>
               </div>
             </div>
+            
+            {/*answer given by ai*/}
+            <AiAnsSec 
+              questionId={question.id}
+              questionTitle={question.title}
+              questionBody={question.body}
+            />
+            
+            {/*summary provided by ai*/}
+            {question?.answers?.length >= 2 && (
+              <AiSummariseSec questionId={question.id} />
+            )}
+            
             {/* Answers Section */}
 
             <div className="answers-section">
