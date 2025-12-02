@@ -11,6 +11,7 @@ export default function SearchResults() {
   const query = searchParams.get("q") || "";
 
   const [results, setResults] = useState([]);
+  const [filteredResults, setFilteredResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,6 +25,65 @@ export default function SearchResults() {
   const resultsPerPage = 10;
   const totalPages = Math.ceil(totalResults / resultsPerPage);
 
+  // Helper function to calculate search score (same as backend fuzzy search)
+  const calculateScore = (query, title, body = "") => {
+    if (!query || !title) return 0.0;
+
+    const cleanQuery = query
+      .replace(/[^\w\s]/g, "")
+      .toLowerCase()
+      .trim();
+    const cleanTitle = title
+      .replace(/[^\w\s]/g, "")
+      .toLowerCase()
+      .trim();
+
+    // Exact title match gets highest score
+    if (cleanQuery === cleanTitle) return 1.0;
+
+    const queryWords = new Set(cleanQuery.split(" "));
+    let titleWords = new Set(cleanTitle.split(" "));
+
+    // Remove stop words
+    const stopWords = new Set([
+      "the",
+      "is",
+      "a",
+      "an",
+      "and",
+      "or",
+      "but",
+      "in",
+      "on",
+      "at",
+      "to",
+      "for",
+      "of",
+      "with",
+      "by",
+      "what",
+      "how",
+      "when",
+      "where",
+      "why",
+    ]);
+    const cleanedQueryWords = new Set(
+      [...queryWords].filter((w) => !stopWords.has(w))
+    );
+    titleWords = new Set([...titleWords].filter((w) => !stopWords.has(w)));
+
+    // Calculate word overlap
+    const overlap = [...cleanedQueryWords].filter((w) =>
+      titleWords.has(w)
+    ).length;
+    const totalQueryWords = cleanedQueryWords.size;
+
+    if (totalQueryWords === 0) return 0.0;
+
+    const score = (overlap / totalQueryWords) * 0.9;
+    return Math.min(score, 1.0);
+  };
+
   useEffect(() => {
     if (!query.trim()) {
       setError("Please enter a keyword to search.");
@@ -35,21 +95,27 @@ export default function SearchResults() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          `http://localhost:5001/api/questions/search?query=${encodeURIComponent(
-            query
-          )}`
-        );
+        // Fetch all questions (same as QuestionTile - no view count increment)
+        const response = await fetch("http://localhost:5001/api/questions");
 
         if (!response.ok) {
-          throw new Error("Failed to fetch search results");
+          throw new Error("Failed to fetch questions");
         }
 
         const data = await response.json();
-        console.log("Full response:", data);
-        setResults(data.results || []);
-        setTotalResults(data.results?.length || 0);
-        console.log("Search results:", data.results);
+        const allQuestions = data.questions || [];
+
+        // Filter by search query client-side
+        const searchResults = allQuestions
+          .map((question) => ({
+            ...question,
+            score: calculateScore(query, question.title, question.body),
+          }))
+          .filter((q) => q.score > 0.5)
+          .sort((a, b) => b.score - a.score);
+
+        setResults(searchResults);
+        setTotalResults(searchResults.length);
       } catch (err) {
         console.error("Search error:", err);
         setError(
@@ -64,39 +130,62 @@ export default function SearchResults() {
     fetchResults();
   }, [query]);
 
-  // Fetch full question details for each result
+  // Apply filters and sorting
   useEffect(() => {
-    if (results.length === 0) return;
+    let filtered = [...results];
 
-    const fetchFullDetails = async () => {
-      try {
-        const enrichedResults = await Promise.all(
-          results.map(async (question) => {
-            try {
-              const response = await fetch(
-                `http://localhost:5001/api/questions/${question.id}`
-              );
-              if (response.ok) {
-                const data = await response.json();
-                return { ...question, ...data.question };
-              }
-            } catch (err) {
-              console.error(
-                `Error fetching details for question ${question.id}:`,
-                err
-              );
-            }
-            return question;
-          })
+    // Filter by status (answered/unanswered)
+    if (statusFilter === "answered") {
+      filtered = filtered.filter((q) => (q.answerCount || 0) > 0);
+    } else if (statusFilter === "unanswered") {
+      filtered = filtered.filter((q) => (q.answerCount || 0) === 0);
+    }
+
+    // Filter by date range
+    const now = new Date();
+    if (dateRange !== "all") {
+      filtered = filtered.filter((q) => {
+        const createdDate = new Date(q.created_at);
+        const diffTime = now - createdDate;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+        switch (dateRange) {
+          case "today":
+            return diffDays <= 1;
+          case "week":
+            return diffDays <= 7;
+          case "month":
+            return diffDays <= 30;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Sort results
+    switch (sortBy) {
+      case "newest":
+        filtered.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
-        setResults(enrichedResults);
-      } catch (err) {
-        console.error("Error enriching results:", err);
-      }
-    };
+        break;
+      case "mostAnswered":
+        filtered.sort((a, b) => (b.answerCount || 0) - (a.answerCount || 0));
+        break;
+      case "mostVoted":
+        filtered.sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
+        break;
+      case "relevance":
+      default:
+        filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
+        break;
+    }
 
-    fetchFullDetails();
-  }, [results.length > 0 ? results[0]?.id : null]);
+    // setEnrichedResults(filtered);
+    setFilteredResults(filtered);
+    setTotalResults(filtered.length);
+    setCurrentPage(1);
+  }, [results, statusFilter, dateRange, sortBy]);
 
   const handleResetFilters = () => {
     setStatusFilter("all");
@@ -170,7 +259,8 @@ export default function SearchResults() {
                   >
                     <option value="relevance">Relevance</option>
                     <option value="newest">Newest</option>
-                    <option value="mostUpvoted">Most Upvoted</option>
+                    <option value="mostVoted">Most Voted</option>
+                    <option value="mostAnswered">Most Answered</option>
                   </select>
                 </div>
 
@@ -223,7 +313,7 @@ export default function SearchResults() {
             <div className="search-results">
               {loading && <div className="loading">Loading results...</div>}
 
-              {!loading && results.length === 0 && !error && (
+              {!loading && filteredResults.length === 0 && !error && (
                 <div className="no-results">
                   No results found for "{query}". Try a different keyword or
                   browse tags.
@@ -231,8 +321,8 @@ export default function SearchResults() {
               )}
 
               {!loading &&
-                results.length > 0 &&
-                results.map((question) => (
+                filteredResults.length > 0 &&
+                filteredResults.map((question) => (
                   <div
                     key={question.id}
                     className="result-item"
@@ -245,13 +335,13 @@ export default function SearchResults() {
                           "No description available"}
                         ...
                       </p>
-                      <div className="result-tags">
+                      {/* <div className="result-tags">
                         {question.tags?.map((tag) => (
                           <span key={tag.id} className="tag">
                             {tag.name}
                           </span>
                         ))}
-                      </div>
+                      </div> */}
                     </div>
                     <div className="result-stats">
                       <div className="stat">
@@ -265,11 +355,11 @@ export default function SearchResults() {
                         <span className="stat-value">
                           {question.answerCount || 0}
                         </span>
-                        <span className="answer-count-detail">
+                        {/* <span className="answer-count-detail">
                           {question.answerCount === 1
                             ? "1 answer"
                             : `${question.answerCount || 0} answers`}
-                        </span>
+                        </span> */}
                       </div>
                       <div className="stat">
                         <span className="stat-label">Views</span>

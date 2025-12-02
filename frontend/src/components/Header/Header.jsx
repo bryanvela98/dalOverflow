@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import ProfilePicture from "../ProfilePicture";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../../styles/Header.css";
-import NotificationBell from "../NotificationBell/NotificationBell";
+import NotificationBellContainer from "../NotificationBellContainer";
+import ProfileLink from "../ProfileLink";
 import Login from "../LogInButton";
 
 export default function Header() {
-  const userData = JSON.parse(localStorage.getItem("user") || "{}");
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,11 +56,11 @@ export default function Header() {
     setShowSuggestions(false);
   };
 
-  const handleSuggestionClick = (questionTitle) => {
+  const handleSuggestionClick = (questionId) => {
     setSearchQuery("");
     setSuggestions([]);
     setShowSuggestions(false);
-    navigate(`/search?q=${encodeURIComponent(questionTitle)}`);
+    navigate(`/questions/${questionId}`);
   };
   return (
     <div className="contain-header">
@@ -93,7 +93,7 @@ export default function Header() {
                 <div
                   key={suggestion.id}
                   className="suggestion-item"
-                  onClick={() => handleSuggestionClick(suggestion.title)}
+                  onClick={() => handleSuggestionClick(suggestion.id)}
                 >
                   <img
                     src="/Search.png"
@@ -122,14 +122,8 @@ export default function Header() {
         </form>
 
         <div className="header-buttons">
-          <NotificationBell />
-          <Link to="/profile" className="profile-link">
-            <ProfilePicture
-              user={userData}
-              size={32}
-              style={{ marginRight: 0 }}
-            />
-          </Link>
+          <NotificationBellContainer />
+          <ProfileLink />
           <Login />
         </div>
       </div>
