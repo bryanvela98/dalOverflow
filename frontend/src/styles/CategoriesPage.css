@@ -41,8 +41,8 @@
 
 .categories-search-input:focus {
   outline: none;
-  border-color: #0066cc;
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
 }
 
 .categories-grid {
@@ -63,8 +63,8 @@
 }
 
 .category-card:hover {
-  border-color: #0066cc;
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
   transform: translateY(-2px);
 }
 
@@ -92,7 +92,7 @@
 
 .category-count {
   font-size: 0.9rem;
-  color: #0066cc;
+  color: var(--color-primary);
   font-weight: 500;
 }
 
@@ -133,7 +133,7 @@
 
 .category-count {
   font-size: 0.9rem;
-  color: #0066cc;
+  color: var(--color-primary);
   font-weight: 500;
 }
 

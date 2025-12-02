@@ -105,7 +105,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
-  color: #0066cc;
+  color: var(--color-primary);
 }
 
 .question-preview {
@@ -124,8 +124,8 @@
 .tag-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background-color: #e8f3ff;
-  color: #0066cc;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: 500;
