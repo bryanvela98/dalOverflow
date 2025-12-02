@@ -1,12 +1,15 @@
+import { Link } from "react-router-dom";
 import "../styles/Sidebar.css";
 
 export default function Sidebar() {
   return (
     <div className="nav-bar">
-      <div className="home">
-        <img src="/Home.png" alt="" srcSet="" className="logo" />
-        <p>Home</p>
-      </div>
+      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+        <div className="home">
+          <img src="/Home.png" alt="" srcSet="" className="logo" />
+          <p>Home</p>
+        </div>
+      </Link>
       <div className="explore">
         <img src="/Explore.png" alt="" srcSet="" className="logo" />
         <p>Explore</p>
@@ -20,10 +23,15 @@ export default function Sidebar() {
         <p>AI</p>
       </div>
       <hr />
-      <div className="categories">
-        <img src="/Categories.png" alt="" srcSet="" className="logo" />
-        <p>Categories</p>
-      </div>
+      <Link
+        to="/categories"
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+        <div className="categories">
+          <img src="/Categories.png" alt="" srcSet="" className="logo" />
+          <p>Categories</p>
+        </div>
+      </Link>
       <hr />
       <div className="create-forum">
         <img src="/CForum.png" alt="" srcSet="" className="logo" />

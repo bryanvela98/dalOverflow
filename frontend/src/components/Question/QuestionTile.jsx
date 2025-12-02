@@ -5,8 +5,10 @@ import NewQuestionButton from "../NewQuestionButton.jsx";
 
 export default function QuestionTile() {
   const [questions, setQuestions] = useState([]);
+  const [sortedQuestions, setSortedQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortBy, setSortBy] = useState("best");
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -27,6 +29,34 @@ export default function QuestionTile() {
     fetchQuestions();
   }, []);
 
+  // Sort questions based on selected filter
+  useEffect(() => {
+    let sorted = [...questions];
+    
+    switch (sortBy) {
+      case "newest":
+        sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        break;
+      case "most-votes":
+        sorted.sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
+        break;
+      case "most-answered":
+        sorted.sort((a, b) => (b.answerCount || 0) - (a.answerCount || 0));
+        break;
+      case "best":
+      default:
+        // Best = combination of votes and answers
+        sorted.sort((a, b) => {
+          const scoreA = (a.voteCount || 0) + (a.answerCount || 0) * 2;
+          const scoreB = (b.voteCount || 0) + (b.answerCount || 0) * 2;
+          return scoreB - scoreA;
+        });
+        break;
+    }
+    
+    setSortedQuestions(sorted);
+  }, [questions, sortBy]);
+
   if (loading)
     return (
       <div className="centre-body">
@@ -44,10 +74,14 @@ export default function QuestionTile() {
     <div className="centre-body">
       <div className="filter-question-div">
         <div className="filter">
-          <button>
-            <p>Best</p>
-            <img src="/Dropdown.png" alt="" className="logo" />
-          </button>
+          <div className="sort-dropdown">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="best">Best</option>
+              <option value="newest">Newest</option>
+              <option value="most-votes">Most Votes</option>
+              <option value="most-answered">Most Answered</option>
+            </select>
+          </div>
           <button>
             <p>Filter</p>
             <img src="/Filter.png" alt="" className="logo" />
@@ -58,8 +92,8 @@ export default function QuestionTile() {
         </div>
       </div>
       <div className="tiles">
-        {questions.length > 0 ? (
-          questions.map((question) => (
+        {sortedQuestions.length > 0 ? (
+          sortedQuestions.map((question) => (
             <Link
               key={question.id}
               to={`/questions/${question.id}`}

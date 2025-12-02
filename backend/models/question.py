@@ -49,6 +49,7 @@ class Question(BaseModel):
     
     def to_dict(self):
         base_dict = super().to_dict()
+        answers_list = self.answers.all()
         base_dict.update({
             'id':self.id,
             'type':self.type,
@@ -56,7 +57,8 @@ class Question(BaseModel):
             'title':self.title,
             'body':self.body,
             'tags': [tag.to_dict() for tag in self.tags.all()],  # Convert relationship to list of tag dicts
-            'answers': [answer.to_dict() for answer in self.answers.all()],  # Convert relationship to list of answer dicts
+            'answers': [answer.to_dict() for answer in answers_list],  # Convert relationship to list of answer dicts
+            'answerCount': len(answers_list),  # Add answer count
             'status':self.status,
             'view_count': self.view_count or 0
             #'accepted_answers_id':self.accepted_answers_id

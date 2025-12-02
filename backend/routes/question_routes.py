@@ -55,7 +55,6 @@ def get_question_by_id(question_id):
         logging.error(f"Error fetching question by ID: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
-
 @question_bp.route('/', methods=['POST'])
 def create_question():
     """Create a question.
