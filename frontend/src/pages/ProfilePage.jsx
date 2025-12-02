@@ -10,12 +10,13 @@ const ProfilePage = () => {
   const isLoggedIn = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (isLoggedIn === false) {
       navigate("/login");
     }
   }, [isLoggedIn, navigate]);
 
-  if (!isLoggedIn) {
+  // Only return null if explicitly logged out (false), not while checking (null)
+  if (isLoggedIn === false) {
     return null;
   }
 

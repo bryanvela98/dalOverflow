@@ -5,8 +5,10 @@ import ProfilePicture from "./ProfilePicture";
 export default function ProfileLink() {
   const userData = JSON.parse(localStorage.getItem("user") || "{}");
   const isLoggedIn = useAuth();
+  const token = localStorage.getItem("token");
 
-  if (!isLoggedIn) {
+  // Show profile link if logged in or have a token (allow null while checking)
+  if (isLoggedIn === false && !token) {
     return null;
   }
 

@@ -9,6 +9,9 @@ export default function QuestionTile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("best");
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -17,6 +20,16 @@ export default function QuestionTile() {
         const data = await response.json();
         if (data.questions) {
           setQuestions(data.questions);
+          // Extract unique tags from all questions
+          const tags = new Set();
+          data.questions.forEach((q) => {
+            if (q.tags && Array.isArray(q.tags)) {
+              q.tags.forEach((tag) =>
+                tags.add(JSON.stringify({ id: tag.id, name: tag.tag_name }))
+              );
+            }
+          });
+          setAvailableTags(Array.from(tags).map((t) => JSON.parse(t)));
         }
       } catch (err) {
         setError("Failed to load questions");
@@ -29,24 +42,37 @@ export default function QuestionTile() {
     fetchQuestions();
   }, []);
 
-  // Sort questions based on selected filter
+  // Sort and filter questions based on selected filter and tags
   useEffect(() => {
-    let sorted = [...questions];
+    let filtered = [...questions];
 
+    // Filter by selected tags
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter((question) => {
+        if (!question.tags) return false;
+        return selectedTags.some((selectedTag) =>
+          question.tags.some((qTag) => qTag.id === selectedTag.id)
+        );
+      });
+    }
+
+    // Sort questions based on selected filter
     switch (sortBy) {
       case "newest":
-        sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        filtered.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
         break;
       case "most-votes":
-        sorted.sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
+        filtered.sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
         break;
       case "most-answered":
-        sorted.sort((a, b) => (b.answerCount || 0) - (a.answerCount || 0));
+        filtered.sort((a, b) => (b.answerCount || 0) - (a.answerCount || 0));
         break;
       case "best":
       default:
         // Best = combination of votes and answers
-        sorted.sort((a, b) => {
+        filtered.sort((a, b) => {
           const scoreA = (a.voteCount || 0) + (a.answerCount || 0) * 2;
           const scoreB = (b.voteCount || 0) + (b.answerCount || 0) * 2;
           return scoreB - scoreA;
@@ -54,8 +80,8 @@ export default function QuestionTile() {
         break;
     }
 
-    setSortedQuestions(sorted);
-  }, [questions, sortBy]);
+    setSortedQuestions(filtered);
+  }, [questions, sortBy, selectedTags]);
 
   if (loading)
     return (
@@ -82,10 +108,94 @@ export default function QuestionTile() {
               <option value="most-answered">Most Answered</option>
             </select>
           </div>
-          <button>
-            <p>Filter</p>
-            <img src="/Filter.png" alt="" className="logo" />
-          </button>
+          <div style={{ position: "relative" }}>
+            <button onClick={() => setShowFilterMenu(!showFilterMenu)}>
+              <p>Filter</p>
+              <img src="/Filter.png" alt="" className="logo" />
+            </button>
+            {showFilterMenu && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  background: "white",
+                  border: "1px solid #ddd",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  zIndex: 10,
+                  minWidth: "300px",
+                  padding: "15px",
+                  marginTop: "5px",
+                }}
+              >
+                <h4
+                  style={{
+                    margin: "0 0 10px 0",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                  }}
+                >
+                  Filter by Tags
+                </h4>
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  {availableTags.length > 0 ? (
+                    availableTags.map((tag) => (
+                      <label
+                        key={tag.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "8px 0",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedTags.some((t) => t.id === tag.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedTags([...selectedTags, tag]);
+                            } else {
+                              setSelectedTags(
+                                selectedTags.filter((t) => t.id !== tag.id)
+                              );
+                            }
+                          }}
+                          style={{ marginRight: "8px", cursor: "pointer" }}
+                        />
+                        <span style={{ fontSize: "13px", color: "#333" }}>
+                          {tag.name}
+                        </span>
+                      </label>
+                    ))
+                  ) : (
+                    <p style={{ fontSize: "12px", color: "#999" }}>
+                      No tags available
+                    </p>
+                  )}
+                </div>
+                {selectedTags.length > 0 && (
+                  <button
+                    onClick={() => setSelectedTags([])}
+                    style={{
+                      width: "100%",
+                      marginTop: "10px",
+                      padding: "8px",
+                      background: "#f0f0f0",
+                      border: "1px solid #ddd",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         <div className="new-question">
           <NewQuestionButton />

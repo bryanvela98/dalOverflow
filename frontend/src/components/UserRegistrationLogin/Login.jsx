@@ -39,6 +39,8 @@ export default function Login() {
             id: data.user.user_id || data.user.id,
             username: data.user.username,
             email: data.user.email,
+            display_name: data.user.display_name || data.user.username,
+            profile_picture_url: data.user.profile_picture_url,
           })
         );
         console.log("Token: ", data.user.token);

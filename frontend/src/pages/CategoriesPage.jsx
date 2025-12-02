@@ -40,7 +40,7 @@ export default function CategoriesPage() {
       <div className="major-body">
         <Sidebar />
         <div className="main-body">
-          <div className="categories-container">
+          <div className="centre-body">
             <div className="categories-header">
               <h1>Categories</h1>
               <p>
