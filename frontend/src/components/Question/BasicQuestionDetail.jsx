@@ -800,9 +800,15 @@ const BasicQuestionDetail = () => {
             <div className="card-content">
               <div className="author-profile">
                 <div className="author-avatar-container">
-                  {questionAuthor.avatar ? (
+                  {questionAuthor.profile_picture_url ? (
                     <img
-                      src={questionAuthor.avatar}
+                      src={
+                        questionAuthor.id ===
+                        JSON.parse(localStorage.getItem("user") || "{}").id
+                          ? JSON.parse(localStorage.getItem("user") || "{}")
+                              .profile_picture_url
+                          : questionAuthor.profile_picture_url
+                      }
                       alt={questionAuthor.username}
                       className="author-avatar"
                     />

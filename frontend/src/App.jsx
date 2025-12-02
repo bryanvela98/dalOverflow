@@ -4,7 +4,9 @@ import CreateQuestion from "./components/Question/CreateQuestion";
 import Tags from "./components/Tags/Tags";
 import LoginRegistration from "./pages/LoginRegistration";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import BasicQuestionDetail from "./components/Question/BasicQuestionDetail"; // Add this import
+import BasicQuestionDetail from "./components/Question/BasicQuestionDetail";
+import UsersPage from "./pages/UsersPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
         <Route path="/questions/:id" element={<BasicQuestionDetail />} />
         <Route path="/tags" element={<Tags />} />
         <Route path="/login" element={<LoginRegistration />} />
+        <Route path="/users" element={<UsersPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>
   );

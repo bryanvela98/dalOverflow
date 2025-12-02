@@ -1,17 +1,20 @@
 import { useState, useEffect } from "react";
+import ProfilePicture from "../ProfilePicture";
+import { Link } from "react-router-dom";
 import "../../styles/Header.css";
-import NotificationBell from "../NotificationBell/NotificationBell"; // ← 改这里
+import NotificationBell from "../NotificationBell/NotificationBell";
 import Login from "../LogInButton";
 
 export default function Header() {
-  // 删除所有通知相关的状态和函数
-  // NotificationBell 组件会自己管理这些
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
   return (
     <div className="contain-header">
       <div className="header-bar">
         <div>
-          <p>BRAND</p>
+          <Link to="/" className="brand-link">
+            <p>DalOverflow</p>
+          </Link>
         </div>
 
         <div className="search-bar">
@@ -20,9 +23,14 @@ export default function Header() {
         </div>
 
         <div className="header-buttons">
-          {/* 使用完整的 NotificationBell 组件 */}
-          <NotificationBell /> {/* ← 改成这个 */}
-          {/* <button>Log in</button> */}
+          <NotificationBell />
+          <Link to="/profile" className="profile-link">
+            <ProfilePicture
+              user={userData}
+              size={32}
+              style={{ marginRight: 0 }}
+            />
+          </Link>
           <Login />
         </div>
       </div>
