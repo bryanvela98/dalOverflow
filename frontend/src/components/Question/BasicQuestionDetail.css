@@ -476,6 +476,25 @@
   color: var(--color-downvote);
 }
 
+.vote-button.active {
+  background: var(--color-bg-tertiary);
+}
+
+.vote-button--up.active {
+  color: var(--color-upvote);
+  border-color: var(--color-upvote);
+}
+
+.vote-button--down.active {
+  color: var(--color-downvote);
+  border-color: var(--color-downvote);
+}
+
+.vote-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .vote-count {
   font-size: var(--font-size-2xl);
   font-weight: 700;

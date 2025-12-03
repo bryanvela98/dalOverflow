@@ -22,6 +22,9 @@ const BasicQuestionDetail = () => {
   const quillRef = React.useRef(null);
   const previousCodeBlockCount = React.useRef(0);
   const codeBlockLanguages = React.useRef({});
+  const [quesVote, setquesVote] = useState(null);
+  const [ansVotes, setAnsVotes] = useState({});
+  const [voteInProgress, setVoteInProgress] = useState(false);
 
   // Monitor for new code blocks and store their language
   useEffect(() => {
@@ -197,6 +200,67 @@ const BasicQuestionDetail = () => {
     };
   }, [id]);
 
+  // grab users previous votes if any
+  useEffect(() => {
+    const fetchUserVotes = async () => {
+      const uStr = localStorage.getItem("user");
+      if (!uStr) return;
+      const usr = JSON.parse(uStr);
+      if (!usr.id) return;
+
+      try {
+        const resp = await fetch(`http://localhost:5001/api/votes/user?user_id=${usr.id}`);
+        if (!resp.ok) return;
+        const json = await resp.json();
+        const allVotes = json.votes || [];
+
+        // find question vote
+        const qv = allVotes.find(v => v.target_type === "question" && v.target_id === parseInt(id));
+        if (qv) setquesVote({ type: qv.vote_type, id: qv.id });
+
+        // map answer votes
+        let aMap = {};
+        allVotes.forEach(v => {
+          if (v.target_type === "answer") aMap[v.target_id] = { type: v.vote_type, id: v.id };
+        });
+        setAnsVotes(aMap);
+      } catch (e) {
+        console.error("couldnt load votes:", e);
+      }
+    };
+    fetchUserVotes();
+  }, [id]);
+
+  // get vote counts
+  useEffect(() => {
+    if (!question) return;
+    const getCounts = async () => {
+      try {
+        // question votes
+        const qResp = await fetch(`http://localhost:5001/api/votes/question/${question.id}`);
+        if (qResp.ok) {
+          const json = await qResp.json();
+          setQuestion(prev => ({ ...prev, voteCount: json.vote_count || 0 }));
+        }
+        // answer votes
+        if (question.answers?.length) {
+          const withCounts = await Promise.all(question.answers.map(async a => {
+            const aResp = await fetch(`http://localhost:5001/api/votes/answer/${a.id}`);
+            if (aResp.ok) {
+              const json = await aResp.json();
+              return { ...a, upvotes: json.vote_count || 0 };
+            }
+            return a;
+          }));
+          setQuestion(prev => ({ ...prev, answers: withCounts }));
+        }
+      } catch (e) {
+        console.error("vote count fetch failed", e);
+      }
+    };
+    getCounts();
+  }, [question?.id, question?.answers?.length]);
+
   const getAnsInpLen = (html) => {
     if (!html) return 0;
     const tempDiv = document.createElement("div");
@@ -283,9 +347,80 @@ const BasicQuestionDetail = () => {
     });
   };
 
-  const handleVote = async (type, targetId, direction) => {
-    console.log(`Vote ${direction} on ${type} ${targetId}`);
+  // const handleVote = async (type, targetId, direction) => {
+  //   console.log(`Vote ${direction} on ${type} ${targetId}`);
     // Add your vote logic here
+  //creating vote, user votes for the first time. database entry
+  const firstVote = async (type, targetId, vType, usrId) => {
+    const resp = await fetch("http://localhost:5001/api/votes/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+      body: JSON.stringify({ user_id: usrId, target_id: targetId, target_type: type, vote_type: vType })
+    });
+    if (!resp.ok) throw new Error("cant create vote");
+    const json = await resp.json();
+    return { type: vType, id: json.vote.id };
+  };
+
+  //upvote <-> downvote switch
+  const switchVote = async (voteId, newType) => {
+    const resp = await fetch(`http://localhost:5001/api/votes/${voteId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+      body: JSON.stringify({ vote_type: newType })
+    });
+    if (!resp.ok) throw new Error("vote switch failed");
+    const json = await resp.json();
+    return { type: newType, id: json.vote.id };
+  };
+
+  const handleVote = async (type, targetId, dir) => {
+    if (voteInProgress) return;
+
+    const uStr = localStorage.getItem("user");
+    if (!uStr) { alert("Please log in to vote"); return; }
+    const usr = JSON.parse(uStr);
+    if (!usr.id) { alert("Please log in to vote"); return; }
+
+    const existing = type === "question" ? quesVote : ansVotes[targetId];
+    const currentType = existing?.type || null;
+    const newType = dir === "up" ? "upvote" : "downvote";
+
+    //on click again do nothing; any vote button
+    if (currentType === newType) return;
+
+    setVoteInProgress(true);
+    try {
+      let vote;
+      if (!existing) {
+        vote = await firstVote(type, targetId, newType, usr.id);
+      } else {
+        vote = await switchVote(existing.id, newType);
+      }
+
+      //vote count and their changes
+      let diff = 0;
+      if (!currentType && newType === "upvote") diff = 1;
+      else if (!currentType && newType === "downvote") diff = -1;
+      else if (currentType === "upvote" && newType === "downvote") diff = -2;
+      else if (currentType === "downvote" && newType === "upvote") diff = 2;
+      
+      if (type === "question") {
+        setquesVote(vote);
+        setQuestion(prev => ({ ...prev, voteCount: (prev.voteCount || 0) + diff }));
+      } else {
+        setAnsVotes(prev => ({ ...prev, [targetId]: vote }));
+        setQuestion(prev => ({
+          ...prev,
+          answers: prev.answers.map(a => a.id === targetId ? { ...a, upvotes: (a.upvotes || 0) + diff } : a)
+        }));
+      }
+    } catch (e) {
+      console.error("vote failed:", e);
+      alert("Vote failed");
+    } finally {
+      setVoteInProgress(false);
+    }
   };
 
   const handleBookmark = () => {
@@ -434,15 +569,17 @@ const BasicQuestionDetail = () => {
             <div className="question-header-section">
               <div className="question-vote-container">
                 <button
-                  className="vote-button vote-button--up"
+                  className={`vote-button vote-button--up ${quesVote?.type === "upvote" ? "active" : ""}`}
                   onClick={() => handleVote("question", question.id, "up")}
+                  disabled={voteInProgress}
                 >
                   ▲
                 </button>
                 <span className="vote-count">{question.voteCount || 0}</span>
                 <button
-                  className="vote-button vote-button--down"
+                  className={`vote-button vote-button--down ${quesVote?.type === "downvote" ? "active" : ""}`}
                   onClick={() => handleVote("question", question.id, "down")}
+                  disabled={voteInProgress}
                 >
                   ▼
                 </button>
@@ -613,10 +750,9 @@ const BasicQuestionDetail = () => {
                         <div className="answer-content-container">
                           <div className="answer-vote-container">
                             <button
-                              className="vote-button vote-button--up"
-                              onClick={() =>
-                                handleVote("answer", answer.id, "up")
-                              }
+                              className={`vote-button vote-button--up ${ansVotes[answer.id]?.type === "upvote" ? "active" : ""}`}
+                              onClick={() => handleVote("answer", answer.id, "up")}
+                              disabled={voteInProgress}
                             >
                               ▲
                             </button>
@@ -624,10 +760,9 @@ const BasicQuestionDetail = () => {
                               {answer.upvotes || 0}
                             </span>
                             <button
-                              className="vote-button vote-button--down"
-                              onClick={() =>
-                                handleVote("answer", answer.id, "down")
-                              }
+                              className={`vote-button vote-button--down ${ansVotes[answer.id]?.type === "downvote" ? "active" : ""}`}
+                              onClick={() => handleVote("answer", answer.id, "down")}
+                              disabled={voteInProgress}
                             >
                               ▼
                             </button>

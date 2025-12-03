@@ -16,7 +16,7 @@ def create_app():
     CORS(app, 
             resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:5000", "http://localhost:5173"]}},
             allow_headers=["Content-Type", "Authorization"],
-            methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         supports_credentials=True)
 
     # Register blueprints for routes
