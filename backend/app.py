@@ -7,6 +7,11 @@ def create_app():
     app = Flask(__name__) # Create Flask app instance
     app.config.from_object(Config) # Load configuration from Config class
     
+    # Override database URL if environment variable is set (for testing)
+    import os
+    if os.environ.get('DATABASE_URL'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+    
     db.init_app(app) # Initialize SQLAlchemy with the app
     
     # Disable strict slashes to prevent redirects
