@@ -50,6 +50,7 @@ def get_questions_for_tag(tag_id):
             .all()
         
         return jsonify({
+            'tag': tag.to_dict(),
             'questions': [question.to_dict() for question in questions],
             'count': len(questions)
         }), 200

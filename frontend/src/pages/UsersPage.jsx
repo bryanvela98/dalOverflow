@@ -118,7 +118,7 @@ const UsersPage = () => {
                         className="user-profile-pic"
                       />
                       <div className="user-tile-info">
-                        <div>{user.display_name || "N/A"}</div>
+                        <div>{user.display_name || user.username}</div>
                         <div>{user.reputation}</div>
                       </div>
                     </div>

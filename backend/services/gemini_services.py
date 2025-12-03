@@ -78,7 +78,7 @@ class GeminiServices:
                     model=self.model_name,
                     contents=concise_prompt,
                     config={
-                        "max_output_tokens": 4000,
+                        "max_output_tokens": 10000,
                         "temperature": 0.5,
                     }
                 )
