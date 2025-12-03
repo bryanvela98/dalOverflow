@@ -40,16 +40,46 @@
 }
 
 .ai-ans-badge {
-  background-color: var(--color-primary);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  background-color: #e8f4fd;
+  color: #1a73e8;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 300;
+  border: 1px solid #c8e1fc;
 }
 
 .ai-ans-content {
   line-height: 1.6;
   color: #374151;
   font-size: 14px;
+}
+
+/*formatting the ai stuff*/
+.md-content strong {
+  font-weight: 600;
+}
+
+.md-content em {
+  font-style: italic;
+}
+
+.md-content code {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.md-content h2, 
+.md-content h3, 
+.md-content h4 {
+  margin: 12px 0 8px 0;
+  font-weight: 600;
+}
+
+.md-content li {
+  margin-left: 20px;
+  list-style: disc;
 }
