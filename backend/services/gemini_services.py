@@ -90,33 +90,47 @@ class GeminiServices:
         except Exception as e:
             logging.error(f"Gemini API error: {str(e)}")
 
-    def summarize_answers(self, answer):
+    def summarize_answers(self, answers):
         """
-        Summarizes a list of answers and their comments.
+        Summarizes a collection of answers. The summarization should focus on
+        the answers' bodies and synthesize a single, improved answer.
 
         Args:
-            answer (dict): A dictionary containing the answer 'body' and a list of 'comments'.
+            answers (list|dict): Either a list of answer dictionaries or a single
+                                 answer dict. Each answer dict is expected to
+                                 contain a 'body' field (string).
 
         Returns:
             tuple[str, bool]: A tuple containing the summary text and a boolean
                               indicating if it was truncated.
         """
         try:
-            context = """You are an tech teacher tasked with summarizing an answer and its comments. First identify the complexity of the body answer and comments content, based on that provide a concise or not response. Follow these guidelines:
-                    1.  Identify clarifications, corrections, and additional useful information from the comments.
-                    2.  Synthesize this information into a single, cohesive, and improved answer.
-                    3.  Structure the summary clearly, using proper HTML formatting for code snippets (`<pre><code>...</code></pre>`) and bold tags (`<b>...</b>`) for important terms.
-                    4.  The final output should just a summary of the discussion.
+            context = """You are a technical teacher tasked with summarizing multiple answers.
+                    Focus the summarization on the answers' bodies: compare the
+                    proposed solutions, identify the most accurate and up-to-date
+                    recommendations, and synthesize a single, improved summary.
+                    Follow these guidelines:
+                    1. Prioritize conciseness.
+                    2. If answers disagree, explain the tradeoffs and recommend the best option.
+                    3. Use proper HTML formatting for code snippets (`<pre><code>...</code></pre>`) and bold tags (`<b>...</b>`) for important terms.
+                    4. The final output should be a single cohesive summary derived from the provided answers' bodies.
                 """
-            
-            # Format the answer and its comments for the prompt
-            content_text = f"Original Answer Body: {answer.get('body', '')}\n\n"
-            if answer.get('comments'):
-                content_text += "Comments on the Answer:\n"
-                for comment in answer['comments']:
-                    content_text += f"- {comment.get('body', '')}\n"
 
-            prompt = f"{context}\nHere is the answer and its comments to synthesize:\n\n{content_text}\nPlease provide a single, comprehensive, and improved answer:\n"
+            # Normalize input: accept a dict (single answer) or a list of answers
+            if isinstance(answers, dict):
+                answers_list = [answers]
+            elif isinstance(answers, list):
+                answers_list = answers
+            else:
+                raise ValueError("`answers` must be a list of answer dicts or a single answer dict")
+
+            # Build the content text focusing on bodies
+            content_text = "Collected Answer Bodies:\n\n"
+            for idx, ans in enumerate(answers_list, start=1):
+                body = ans.get('body', '') if isinstance(ans, dict) else str(ans)
+                content_text += f"Answer #{idx}: {body}\n\n"
+
+            prompt = f"{context}\nHere are the collected answers to synthesize:\n\n{content_text}\nPlease provide a single, comprehensive summary based on the answers above:\n"
 
             response = self.client.models.generate_content(
                 model=self.model_name,
@@ -128,7 +142,7 @@ class GeminiServices:
 
             if truncated:
                 logging.info("Summary was truncated. Requesting a concise version.")
-                concise_prompt = f"The previous summary was too long. Provide a more concise summary of the same answer and comments, focusing on the key points.\n\n{content_text}"
+                concise_prompt = f"The previous summary was too long. Provide a more concise summary of the same answers, focusing on the key points.\n\n{content_text}"
                 response = self.client.models.generate_content(
                     model=self.model_name,
                     contents=concise_prompt,

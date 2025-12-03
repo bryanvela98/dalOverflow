@@ -58,15 +58,19 @@ def summarize_top_answers():
     """
     try:
         data = request.get_json()
-        if not data or 'answer' not in data:
-            return jsonify({'error': 'Request must include an answer'}), 400
-        
-        answer = data.get('answer')
-        if not isinstance(answer, dict):
-            return jsonify({'error': '"answer" must be a dictionary'}), 400
+        # Accept either a single answer dict under 'answer' (backwards compat)
+        # or a list of answers under 'answers'. The summarization will focus on answer bodies.
+        if not data or ('answers' not in data and 'answer' not in data):
+            return jsonify({'error': 'Request must include "answers" or "answer"'}), 400
+
+        answers = data.get('answers') if 'answers' in data else data.get('answer')
+
+        # answers can be a list of dicts or a single dict
+        if not isinstance(answers, (list, dict)):
+            return jsonify({'error': '"answers" must be a list or single answer dictionary'}), 400
 
         gemini_service = GeminiServices()
-        summary, _ = gemini_service.summarize_answers(answer)
+        summary, _ = gemini_service.summarize_answers(answers)
         
         return jsonify({'summary': summary}), 200
 

@@ -40,9 +40,8 @@ class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
     def test_post_ai_summary_success(self, mock_summarize):
         """Test POST /api/ai/summarize generates a summary from answer and its comments"""
         mock_summarize.return_value = ("<p>This is a summary of the best answer.</p>", False)
-
         payload = {
-            "answer": 
+            "answers": [
                 {
                     "body": "The oldest and most upvoted answer. Use Array.prototype.slice.call(arguments).",
                     "comments": [
@@ -50,6 +49,7 @@ class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
                         {"body": "Works, but there are better ways."}
                     ]
                 },
+            ]
         }
         
         response = self.client.post('/api/ai/summarize', json=payload)
@@ -58,7 +58,7 @@ class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
         data = response.get_json()
         self.assertIn('summary', data)
         self.assertEqual(data['summary'], "<p>This is a summary of the best answer.</p>")
-        mock_summarize.assert_called_once_with(payload['answer'])
+        mock_summarize.assert_called_once_with(payload['answers'])
         
 if __name__ == '__main__':
     unittest.main()
