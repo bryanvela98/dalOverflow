@@ -9,6 +9,7 @@ Last Modified:
 from flask import Blueprint, request, jsonify
 from middleware.auth_middleware import login_required
 from models.question import Question
+from models.notification import Notification
 from utils.fuzzy_search import search_questions
 import logging  # For logging purposes
 
@@ -77,6 +78,15 @@ def create_question():
 
         # Create question with tags
         question = Question.create_with_tags(data, tag_ids)
+
+        #Create Notification
+        notification_data = {
+            "user_id": data['user_id'],
+            "header": "Question Created",
+            "body": f"Your question '{data['title']}' has been posted successfully."
+        }
+        Notification.create(notification_data)
+        
         return jsonify({
             'message': 'Question created successfully',
             'question': question.to_dict()
