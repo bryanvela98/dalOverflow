@@ -619,19 +619,19 @@ const BasicQuestionDetail = () => {
                 </div>
               </div>
             </div>
-            
+
             {/*answer given by ai*/}
-            <AiAnsSec 
+            <AiAnsSec
               questionId={question.id}
               questionTitle={question.title}
               questionBody={question.body}
             />
-            
+
             {/*summary provided by ai*/}
             {question?.answers?.length >= 2 && (
               <AiSummariseSec questionId={question.id} />
             )}
-            
+
             {/* Answers Section */}
 
             <div className="answers-section">

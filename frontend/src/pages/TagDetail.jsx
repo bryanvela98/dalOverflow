@@ -16,7 +16,7 @@ export default function TagDetail() {
     const fetchTagAndQuestions = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5001/api/tags/${tagId}/questions`
+          `http://localhost:5001/api/questiontags/tags/${tagId}/questions`
         );
         const data = await response.json();
         if (data.tag) {
