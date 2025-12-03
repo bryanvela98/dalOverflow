@@ -110,6 +110,25 @@ def update_vote(vote_id):
     except Exception as e:
         logging.error(f"Error updating vote: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+
+
+@vote_bp.route('/<int:vote_id>', methods=['DELETE'])
+def delete_vote(vote_id):
+    """
+    Delete an existing vote.
+    """
+    try:
+        vote = Vote.query.get(vote_id)
+        if not vote:
+            return jsonify({'error': 'Vote not found'}), 404
+
+        vote.delete()
+        return jsonify({
+            'message': 'Vote deleted successfully'
+        }), 200
+    except Exception as e:
+        logging.error(f"Error deleting vote: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
     
     
 @vote_bp.route('/user', methods=['GET'])

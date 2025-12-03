@@ -133,7 +133,6 @@ const BasicQuestionDetail = () => {
       setAnsContent(savedDraft);
     }
 
-
     const fetchQuestion = async () => {
       try {
         const response = await fetch(
@@ -183,6 +182,47 @@ const BasicQuestionDetail = () => {
       if (!isMounted) return;
 
       const usersMap = {};
+      const reputationMap = {};
+
+      // Fetch vote data for question author's reputation
+      if (questionData.user_id) {
+        try {
+          const voteResp = await fetch(
+            `http://localhost:5001/api/votes/question/${questionData.id}`
+          );
+          if (voteResp.ok) {
+            const voteJson = await voteResp.json();
+            const upvotes = voteJson.upvotes || 0;
+            const downvotes = voteJson.downvotes || 0;
+            reputationMap[questionData.user_id] = upvotes * 10 - downvotes * 10;
+          }
+        } catch (e) {
+          console.error("Error fetching votes for question reputation:", e);
+        }
+      }
+
+      // Fetch vote data for each answer author's reputation
+      for (const answer of answers) {
+        if (answer.user_id && answer.id) {
+          try {
+            const voteResp = await fetch(
+              `http://localhost:5001/api/votes/answer/${answer.id}`
+            );
+            if (voteResp.ok) {
+              const voteJson = await voteResp.json();
+              const upvotes = voteJson.upvotes || 0;
+              const downvotes = voteJson.downvotes || 0;
+              const answerRep = upvotes * 10 - downvotes * 10;
+
+              // Add to existing reputation if user has multiple answers/questions
+              reputationMap[answer.user_id] =
+                (reputationMap[answer.user_id] || 0) + answerRep;
+            }
+          } catch (e) {
+            console.error(`Error fetching votes for answer ${answer.id}:`, e);
+          }
+        }
+      }
 
       // Collect all unique user IDs from question and answers
       const userIds = new Set();
@@ -203,9 +243,17 @@ const BasicQuestionDetail = () => {
           );
           if (response.ok) {
             const userData = await response.json();
-            usersMap[userId] = userData?.user || {
-              username: `User ${userId}`,
-              reputation: 0,
+
+            // Use calculated reputation if available, otherwise use from database
+            const reputation =
+              reputationMap[userId] !== undefined
+                ? reputationMap[userId]
+                : userData?.user?.reputation || 0;
+
+            usersMap[userId] = {
+              ...userData?.user,
+              username: userData?.user?.username || `User ${userId}`,
+              reputation: reputation,
             };
 
             // Log answer count for logged in user
@@ -255,9 +303,8 @@ const BasicQuestionDetail = () => {
     return () => {
       isMounted = false;
     };
-  // }, [id]);
-    }, [id, draftKey]);
-
+    // }, [id]);
+  }, [id, draftKey]);
 
   // grab users previous votes if any
   useEffect(() => {
@@ -268,19 +315,24 @@ const BasicQuestionDetail = () => {
       if (!usr.id) return;
 
       try {
-        const resp = await fetch(`http://localhost:5001/api/votes/user?user_id=${usr.id}`);
+        const resp = await fetch(
+          `http://localhost:5001/api/votes/user?user_id=${usr.id}`
+        );
         if (!resp.ok) return;
         const json = await resp.json();
         const allVotes = json.votes || [];
 
         // find question vote
-        const qv = allVotes.find(v => v.target_type === "question" && v.target_id === parseInt(id));
+        const qv = allVotes.find(
+          (v) => v.target_type === "question" && v.target_id === parseInt(id)
+        );
         if (qv) setquesVote({ type: qv.vote_type, id: qv.id });
 
         // map answer votes
         let aMap = {};
-        allVotes.forEach(v => {
-          if (v.target_type === "answer") aMap[v.target_id] = { type: v.vote_type, id: v.id };
+        allVotes.forEach((v) => {
+          if (v.target_type === "answer")
+            aMap[v.target_id] = { type: v.vote_type, id: v.id };
         });
         setAnsVotes(aMap);
       } catch (e) {
@@ -290,28 +342,43 @@ const BasicQuestionDetail = () => {
     fetchUserVotes();
   }, [id]);
 
-  // get vote counts
+  // get vote counts and calculate reputation
   useEffect(() => {
     if (!question) return;
     const getCounts = async () => {
       try {
         // question votes
-        const qResp = await fetch(`http://localhost:5001/api/votes/question/${question.id}`);
+        const qResp = await fetch(
+          `http://localhost:5001/api/votes/question/${question.id}`
+        );
         if (qResp.ok) {
           const json = await qResp.json();
-          setQuestion(prev => ({ ...prev, voteCount: json.vote_count || 0 }));
+          const upvotes = json.upvotes || 0;
+          const downvotes = json.downvotes || 0;
+          const voteCount = json.vote_count || 0;
+
+          setQuestion((prev) => ({
+            ...prev,
+            voteCount: voteCount,
+            upvotes: upvotes,
+            downvotes: downvotes,
+          }));
         }
         // answer votes
         if (question.answers?.length) {
-          const withCounts = await Promise.all(question.answers.map(async a => {
-            const aResp = await fetch(`http://localhost:5001/api/votes/answer/${a.id}`);
-            if (aResp.ok) {
-              const json = await aResp.json();
-              return { ...a, upvotes: json.vote_count || 0 };
-            }
-            return a;
-          }));
-          setQuestion(prev => ({ ...prev, answers: withCounts }));
+          const withCounts = await Promise.all(
+            question.answers.map(async (a) => {
+              const aResp = await fetch(
+                `http://localhost:5001/api/votes/answer/${a.id}`
+              );
+              if (aResp.ok) {
+                const json = await aResp.json();
+                return { ...a, upvotes: json.vote_count || 0 };
+              }
+              return a;
+            })
+          );
+          setQuestion((prev) => ({ ...prev, answers: withCounts }));
         }
       } catch (e) {
         console.error("vote count fetch failed", e);
@@ -408,13 +475,21 @@ const BasicQuestionDetail = () => {
 
   // const handleVote = async (type, targetId, direction) => {
   //   console.log(`Vote ${direction} on ${type} ${targetId}`);
-    // Add your vote logic here
+  // Add your vote logic here
   //creating vote, user votes for the first time. database entry
   const firstVote = async (type, targetId, vType, usrId) => {
     const resp = await fetch("http://localhost:5001/api/votes/", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
-      body: JSON.stringify({ user_id: usrId, target_id: targetId, target_type: type, vote_type: vType })
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        user_id: usrId,
+        target_id: targetId,
+        target_type: type,
+        vote_type: vType,
+      }),
     });
     if (!resp.ok) throw new Error("cant create vote");
     const json = await resp.json();
@@ -425,53 +500,124 @@ const BasicQuestionDetail = () => {
   const switchVote = async (voteId, newType) => {
     const resp = await fetch(`http://localhost:5001/api/votes/${voteId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
-      body: JSON.stringify({ vote_type: newType })
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ vote_type: newType }),
     });
     if (!resp.ok) throw new Error("vote switch failed");
     const json = await resp.json();
     return { type: newType, id: json.vote.id };
   };
 
+  // Delete a vote
+  const deleteVote = async (voteId) => {
+    const resp = await fetch(`http://localhost:5001/api/votes/${voteId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    if (!resp.ok) throw new Error("vote delete failed");
+  };
+
   const handleVote = async (type, targetId, dir) => {
     if (voteInProgress) return;
 
     const uStr = localStorage.getItem("user");
-    if (!uStr) { alert("Please log in to vote"); return; }
+    if (!uStr) {
+      alert("Please log in to vote");
+      return;
+    }
     const usr = JSON.parse(uStr);
-    if (!usr.id) { alert("Please log in to vote"); return; }
+    if (!usr.id) {
+      alert("Please log in to vote");
+      return;
+    }
 
     const existing = type === "question" ? quesVote : ansVotes[targetId];
     const currentType = existing?.type || null;
     const newType = dir === "up" ? "upvote" : "downvote";
 
-    //on click again do nothing; any vote button
-    if (currentType === newType) return;
-
     setVoteInProgress(true);
     try {
-      let vote;
-      if (!existing) {
-        vote = await firstVote(type, targetId, newType, usr.id);
+      let diff = 0;
+      let repDiff = 0;
+
+      // If clicking the same button again, remove the vote
+      if (currentType === newType) {
+        await deleteVote(existing.id);
+        diff = currentType === "upvote" ? -1 : 1;
+        repDiff = currentType === "upvote" ? -10 : 10;
+
+        if (type === "question") {
+          setquesVote(null);
+        } else {
+          setAnsVotes((prev) => {
+            const updated = { ...prev };
+            delete updated[targetId];
+            return updated;
+          });
+        }
       } else {
-        vote = await switchVote(existing.id, newType);
+        // Create, switch, or update vote
+        let vote;
+        if (!existing) {
+          vote = await firstVote(type, targetId, newType, usr.id);
+          if (newType === "upvote") {
+            diff = 1;
+            repDiff = 10;
+          } else {
+            diff = -1;
+            repDiff = -10;
+          }
+        } else {
+          vote = await switchVote(existing.id, newType);
+          if (currentType === "upvote" && newType === "downvote") {
+            diff = -2;
+            repDiff = -20;
+          } else if (currentType === "downvote" && newType === "upvote") {
+            diff = 2;
+            repDiff = 20;
+          }
+        }
+
+        if (type === "question") {
+          setquesVote(vote);
+        } else {
+          setAnsVotes((prev) => ({ ...prev, [targetId]: vote }));
+        }
       }
 
-      //vote count and their changes
-      let diff = 0;
-      if (!currentType && newType === "upvote") diff = 1;
-      else if (!currentType && newType === "downvote") diff = -1;
-      else if (currentType === "upvote" && newType === "downvote") diff = -2;
-      else if (currentType === "downvote" && newType === "upvote") diff = 2;
-      
-      if (type === "question") {
-        setquesVote(vote);
-        setQuestion(prev => ({ ...prev, voteCount: (prev.voteCount || 0) + diff }));
-      } else {
-        setAnsVotes(prev => ({ ...prev, [targetId]: vote }));
-        setQuestion(prev => ({
+      // Update question/answer vote count
+      setQuestion((prev) => ({
+        ...prev,
+        ...(type === "question"
+          ? { voteCount: (prev.voteCount || 0) + diff }
+          : {
+              answers: prev.answers.map((a) =>
+                a.id === targetId
+                  ? { ...a, upvotes: (a.upvotes || 0) + diff }
+                  : a
+              ),
+            }),
+      }));
+
+      // Update author's reputation
+      const userId =
+        type === "question"
+          ? question.user_id
+          : question.answers.find((a) => a.id === targetId)?.user_id;
+
+      if (userId) {
+        setUsers((prev) => ({
           ...prev,
-          answers: prev.answers.map(a => a.id === targetId ? { ...a, upvotes: (a.upvotes || 0) + diff } : a)
+          [userId]: {
+            ...prev[userId],
+            reputation: (prev[userId]?.reputation || 0) + repDiff,
+          },
         }));
       }
     } catch (e) {
@@ -506,7 +652,7 @@ const BasicQuestionDetail = () => {
     setAnsErr("");
 
     localStorage.removeItem(draftKey); // Clear draft after posting
-      setAnsContent("");
+    setAnsContent("");
 
     try {
       const token = localStorage.getItem("token");
@@ -626,7 +772,9 @@ const BasicQuestionDetail = () => {
             <div className="question-header-section">
               <div className="question-vote-container">
                 <button
-                  className={`vote-button vote-button--up ${quesVote?.type === "upvote" ? "active" : ""}`}
+                  className={`vote-button vote-button--up ${
+                    quesVote?.type === "upvote" ? "active" : ""
+                  }`}
                   onClick={() => handleVote("question", question.id, "up")}
                   disabled={voteInProgress}
                 >
@@ -634,7 +782,9 @@ const BasicQuestionDetail = () => {
                 </button>
                 <span className="vote-count">{question.voteCount || 0}</span>
                 <button
-                  className={`vote-button vote-button--down ${quesVote?.type === "downvote" ? "active" : ""}`}
+                  className={`vote-button vote-button--down ${
+                    quesVote?.type === "downvote" ? "active" : ""
+                  }`}
                   onClick={() => handleVote("question", question.id, "down")}
                   disabled={voteInProgress}
                 >
@@ -817,8 +967,14 @@ const BasicQuestionDetail = () => {
                         <div className="answer-content-container">
                           <div className="answer-vote-container">
                             <button
-                              className={`vote-button vote-button--up ${ansVotes[answer.id]?.type === "upvote" ? "active" : ""}`}
-                              onClick={() => handleVote("answer", answer.id, "up")}
+                              className={`vote-button vote-button--up ${
+                                ansVotes[answer.id]?.type === "upvote"
+                                  ? "active"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                handleVote("answer", answer.id, "up")
+                              }
                               disabled={voteInProgress}
                             >
                               ▲
@@ -827,8 +983,14 @@ const BasicQuestionDetail = () => {
                               {answer.upvotes || 0}
                             </span>
                             <button
-                              className={`vote-button vote-button--down ${ansVotes[answer.id]?.type === "downvote" ? "active" : ""}`}
-                              onClick={() => handleVote("answer", answer.id, "down")}
+                              className={`vote-button vote-button--down ${
+                                ansVotes[answer.id]?.type === "downvote"
+                                  ? "active"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                handleVote("answer", answer.id, "down")
+                              }
                               disabled={voteInProgress}
                             >
                               ▼
@@ -965,11 +1127,11 @@ const BasicQuestionDetail = () => {
                     value={ansContent}
                     // onChange={handleContentChange}
                     onChange={(content) => {
-                        setAnsContent(content);
-                        localStorage.setItem(draftKey, content);
-                        if (ansErr) setAnsErr("");
-                        if (ansSuccess) setAnsSuccess("");
-                      }}
+                      setAnsContent(content);
+                      localStorage.setItem(draftKey, content);
+                      if (ansErr) setAnsErr("");
+                      if (ansSuccess) setAnsSuccess("");
+                    }}
                     placeholder="Answer here pls![atleast 20 characters]"
                     modules={{
                       toolbar: [
@@ -979,7 +1141,7 @@ const BasicQuestionDetail = () => {
                         ["link", "code-block"],
                         ["clean"],
                       ],
-                    }}  
+                    }}
                     className="ans-edit"
                   />
                 </div>
