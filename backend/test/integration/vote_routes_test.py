@@ -112,6 +112,37 @@ class VoteRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('vote', data)
         self.assertEqual(data['vote']['vote_type'], 'downvote')
         self.assertEqual(data['vote']['id'], vote.id)
+
+    def test_delete_vote(self):
+        """Test DELETE /api/votes/<vote_id> deletes a vote"""
+        # Create an upvote for a question
+        vote = self.create_test_vote(
+            target_id=self.question.id,
+            user_id=self.user.id,
+            vote_type='upvote',
+            target_type='question'
+        )
+        db.session.commit()
+
+        # Delete the vote
+        response = self.client.delete(f'/api/votes/{vote.id}')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('message', data)
+        self.assertEqual(data['message'], 'Vote deleted successfully')
+
+        # Verify vote is deleted
+        from models.vote import Vote
+        deleted_vote = Vote.query.get(vote.id)
+        self.assertIsNone(deleted_vote)
+
+    def test_delete_vote_not_found(self):
+        """Test DELETE /api/votes/<vote_id> returns 404 when vote doesn't exist"""
+        response = self.client.delete('/api/votes/9999')
+        self.assertEqual(response.status_code, 404)
+        data = response.get_json()
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Vote not found')
         
     def test_get_user_votes(self):
         """Test GET /api/votes/user returns all votes for a user"""
