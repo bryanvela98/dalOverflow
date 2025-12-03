@@ -164,7 +164,6 @@ const CreateQuestionPage = ({
   return (
     <div className="create-question-page">
       <div className="create-question-container">
-
         <header className="create-question-header">
           <BackButton />
           <h1>Ask a Question</h1>
@@ -179,8 +178,9 @@ const CreateQuestionPage = ({
             <input
               id="title"
               type="text"
-              className={`form-input ${errors.title ? "form-input--error" : ""
-                }`}
+              className={`form-input ${
+                errors.title ? "form-input--error" : ""
+              }`}
               placeholder="e.g., How do I implement user authentication in Node.js with Express?"
               value={title}
               onChange={(e) => {
@@ -238,16 +238,18 @@ const CreateQuestionPage = ({
               <div className="editor-tabs">
                 <button
                   type="button"
-                  className={`tab-button ${!showPreview ? "tab-button--active" : ""
-                    }`}
+                  className={`tab-button ${
+                    !showPreview ? "tab-button--active" : ""
+                  }`}
                   onClick={() => setShowPreview(false)}
                 >
                   Edit
                 </button>
                 <button
                   type="button"
-                  className={`tab-button ${showPreview ? "tab-button--active" : ""
-                    }`}
+                  className={`tab-button ${
+                    showPreview ? "tab-button--active" : ""
+                  }`}
                   onClick={() => setShowPreview(true)}
                 >
                   Preview
@@ -306,8 +308,9 @@ const CreateQuestionPage = ({
               <input
                 id="tags"
                 type="text"
-                className={`form-input ${errors.tags ? "form-input--error" : ""
-                  }`}
+                className={`form-input ${
+                  errors.tags ? "form-input--error" : ""
+                }`}
                 placeholder="Search for tags"
                 value={tagSearchTerm}
                 onChange={(e) => setTagSearchTerm(e.target.value)}
@@ -324,8 +327,9 @@ const CreateQuestionPage = ({
                         <button
                           key={tag.id}
                           type="button"
-                          className={`tag-option ${isTagSelected(tag.id) ? "tag-option--selected" : ""
-                            }`}
+                          className={`tag-option ${
+                            isTagSelected(tag.id) ? "tag-option--selected" : ""
+                          }`}
                           onClick={() => handleAddTag(tag)}
                           disabled={isTagSelected(tag.id)}
                         >
@@ -358,7 +362,7 @@ const CreateQuestionPage = ({
             {errors.tags && <span className="form-error">{errors.tags}</span>}
           </div>
 
-          <div className="form-section">
+          {/* <div className="form-section">
             <label className="checkbox-label">
               <input
                 type="checkbox"
@@ -367,7 +371,7 @@ const CreateQuestionPage = ({
               />
               <span>Post anonymously as "Anonymous Dalhousie Student"</span>
             </label>
-          </div>
+          </div> */}
 
           {errors.submit && (
             <div className="form-error-box">{errors.submit}</div>

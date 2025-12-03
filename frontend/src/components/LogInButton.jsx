@@ -16,7 +16,7 @@ export default function NewQuestionButton() {
   };
 
   return (
-    <div>
+    <div className="login-buttons-container">
       {!isLoggedIn && <button onClick={login}>Log in</button>}
       {!isLoggedIn && <button onClick={login}>Sign Up</button>}
       {isLoggedIn && <button onClick={logout}>Log out</button>}

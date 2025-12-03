@@ -23,6 +23,7 @@ class Question(BaseModel):
         tags = Question tags
         status = Question status(accepted or rejected)
         accepted_answer_id = Accepted Answer
+        ai_generated_ans = AI Generated Answer
     """
     __tablename__ = 'questions'
 
@@ -44,21 +45,26 @@ class Question(BaseModel):
     )
     status = db.Column(db.String(255))
     view_count = db.Column(db.Integer, default=0)
+    ai_generated_ans = db.Column(db.Text)
     #accepted_answers_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=False)
 
     
     def to_dict(self):
         base_dict = super().to_dict()
+        answers_list = self.answers.all()
         base_dict.update({
             'id':self.id,
             'type':self.type,
             'user_id':self.user_id,
             'title':self.title,
             'body':self.body,
-            'tags': [tag.to_dict() for tag in self.tags.all()],  # Convert relationship to list of tag dicts
-            'answers': [answer.to_dict() for answer in self.answers.all()],  # Convert relationship to list of answer dicts
+            'tags': [tag.to_dict() for tag in self.tags.all()],
+            'answers': [answer.to_dict() for answer in answers_list],
+            'answerCount': len(answers_list),
+            'voteCount': 0,
             'status':self.status,
-            'view_count': self.view_count or 0
+            'view_count': self.view_count or 0,
+            'ai_generated_ans': self.ai_generated_ans,
             #'accepted_answers_id':self.accepted_answers_id
         })
         return base_dict

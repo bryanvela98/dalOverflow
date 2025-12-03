@@ -5,12 +5,16 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "react-quill/dist/quill.snow.css";
 import "./BasicQuestionDetail.css";
+import AiAnsSec from "./aiAns";
+import AiSummariseSec from "./aiSummarise";
 
 const BasicQuestionDetail = () => {
   const { id } = useParams();
+  const draftKey = `draftAnswer_${id}`;
   const [question, setQuestion] = useState(null);
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
+  const [relatedQuestions, setRelatedQuestions] = useState([]);
   const [copiedCodeId, setCopiedCodeId] = useState(null);
   const [ansContent, setAnsContent] = useState("");
   const [isSubmitAns, setIsSubmitAns] = useState(false);
@@ -79,8 +83,56 @@ const BasicQuestionDetail = () => {
     }
   };
 
+  const fetchRelatedQuestions = async (currentQuestionId, tags) => {
+    try {
+      const response = await fetch("http://localhost:5001/api/questions");
+      const data = await response.json();
+      const questions = data.questions || [];
+
+      console.log("Current question tags:", tags);
+      console.log("Sample question tags:", questions[0]?.tags);
+
+      // Filter questions that share tags with current question, exclude current question
+      const related = questions
+        .filter((q) => q.id !== currentQuestionId)
+        .filter((q) => {
+          const qTags = q.tags || [];
+          const hasCommonTag = tags.some((tag) => {
+            const tagIdMatch = qTags.some((qTag) => {
+              if (typeof tag === "object" && typeof qTag === "object") {
+                return qTag.id === tag.id || qTag.name === tag.name;
+              } else if (typeof tag === "string") {
+                return qTag.name === tag || qTag.id === tag;
+              }
+              return false;
+            });
+            return tagIdMatch;
+          });
+          console.log(
+            `Question ${q.id} has common tag: ${hasCommonTag}`,
+            qTags
+          );
+          return hasCommonTag;
+        })
+        .slice(0, 3); // Get top 3 related questions
+
+      console.log("Related questions found:", related);
+      setRelatedQuestions(related);
+    } catch (error) {
+      console.error("Error fetching related questions:", error);
+    }
+  };
+
   useEffect(() => {
+    // let isMounted = true;
+
     let isMounted = true;
+
+    const savedDraft = localStorage.getItem(draftKey);
+    if (savedDraft && isMounted) {
+      setAnsContent(savedDraft);
+    }
+
 
     const fetchQuestion = async () => {
       try {
@@ -112,6 +164,11 @@ const BasicQuestionDetail = () => {
 
           setQuestion(enhancedQuestion);
           await fetchUserData(data.question, answers);
+
+          // Fetch related questions based on tags
+          if (data.question.tags && data.question.tags.length > 0) {
+            fetchRelatedQuestions(data.question.id, data.question.tags);
+          }
         }
       } catch (error) {
         console.error("Error fetching question:", error);
@@ -198,7 +255,9 @@ const BasicQuestionDetail = () => {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  // }, [id]);
+    }, [id, draftKey]);
+
 
   // grab users previous votes if any
   useEffect(() => {
@@ -423,11 +482,6 @@ const BasicQuestionDetail = () => {
     }
   };
 
-  const handleBookmark = () => {
-    console.log("Bookmark question", question.id);
-    // Add bookmark logic here
-  };
-
   const handleShare = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
@@ -450,6 +504,9 @@ const BasicQuestionDetail = () => {
 
     setIsSubmitAns(true);
     setAnsErr("");
+
+    localStorage.removeItem(draftKey); // Clear draft after posting
+      setAnsContent("");
 
     try {
       const token = localStorage.getItem("token");
@@ -697,9 +754,6 @@ const BasicQuestionDetail = () => {
                       </button>
                     </div>
                   </div>
-                  <button className="action-button" onClick={handleBookmark}>
-                    {question.isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
-                  </button>
                   <button className="action-button" onClick={handleShare}>
                     Share
                   </button>
@@ -716,6 +770,19 @@ const BasicQuestionDetail = () => {
                 </div>
               </div>
             </div>
+            
+            {/*answer given by ai*/}
+            <AiAnsSec 
+              questionId={question.id}
+              questionTitle={question.title}
+              questionBody={question.body}
+            />
+            
+            {/*summary provided by ai*/}
+            {question?.answers?.length >= 2 && (
+              <AiSummariseSec questionId={question.id} />
+            )}
+            
             {/* Answers Section */}
 
             <div className="answers-section">
@@ -896,7 +963,13 @@ const BasicQuestionDetail = () => {
                   <ReactQuill
                     ref={quillRef}
                     value={ansContent}
-                    onChange={handleContentChange}
+                    // onChange={handleContentChange}
+                    onChange={(content) => {
+                        setAnsContent(content);
+                        localStorage.setItem(draftKey, content);
+                        if (ansErr) setAnsErr("");
+                        if (ansSuccess) setAnsSuccess("");
+                      }}
                     placeholder="Answer here pls![atleast 20 characters]"
                     modules={{
                       toolbar: [
@@ -906,7 +979,7 @@ const BasicQuestionDetail = () => {
                         ["link", "code-block"],
                         ["clean"],
                       ],
-                    }}
+                    }}  
                     className="ans-edit"
                   />
                 </div>
@@ -956,7 +1029,7 @@ const BasicQuestionDetail = () => {
                 <div className="author-details-container">
                   <div className="author-name-container">
                     <a
-                      href={`/users/${question.user_id}`}
+                      href={`/questions/${question.id}`}
                       className="author-name"
                     >
                       {questionAuthor.username}
@@ -1018,30 +1091,25 @@ const BasicQuestionDetail = () => {
             </div>
             <div className="card-content">
               <div className="related-questions-container">
-                <div className="related-question">
-                  <a href="/questions/2" className="related-question-link">
-                    How to handle nested routes in React Router?
-                  </a>
-                  <div className="related-question-meta">
-                    <span>12 answers</span>
+                {relatedQuestions.length > 0 ? (
+                  relatedQuestions.map((relatedQ) => (
+                    <div key={relatedQ.id} className="related-question">
+                      <a
+                        href={`/questions/${relatedQ.id}`}
+                        className="related-question-link"
+                      >
+                        {relatedQ.title}
+                      </a>
+                      <div className="related-question-meta">
+                        <span>{relatedQ.answerCount || 0} answers</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="related-question">
+                    <p className="no-related">No related questions found</p>
                   </div>
-                </div>
-                <div className="related-question">
-                  <a href="/questions/3" className="related-question-link">
-                    React Router v6 migration guide
-                  </a>
-                  <div className="related-question-meta">
-                    <span>8 answers</span>
-                  </div>
-                </div>
-                <div className="related-question">
-                  <a href="/questions/4" className="related-question-link">
-                    Protected routes with authentication in React
-                  </a>
-                  <div className="related-question-meta">
-                    <span>15 answers</span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
