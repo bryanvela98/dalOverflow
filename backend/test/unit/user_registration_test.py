@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from models.user import User
 
 #I need a class UserRegistration that handles all these functionalities
@@ -68,14 +68,21 @@ class TestUserRegistration(unittest.TestCase):
         #this test should return false since dal.ca is not present in the email id
         assert result is False
 
-    def test_verify_and_create_user_correct_otp(self):
+    @patch('services.user_registration.db.session')
+    def test_verify_and_create_user_correct_otp(self, mock_db_session):
         registration = UserRegistrationService()
         #user entered correct otp
         registration.check_otp = MagicMock(return_value=True)
+        # Set the pending email and password that verify_and_create_user needs
+        registration.pending_email = "test@dal.ca"
+        registration.pending_password = "$2b$12$hashedpassword123456789"
 
         result = registration.verify_and_create_user("123456")
         #since user entered correct otp, this should return true
         assert result is True
+        # Verify that db.session.add and db.session.commit were called
+        mock_db_session.add.assert_called_once()
+        mock_db_session.commit.assert_called_once()
 
     def test_verify_and_create_user_incorrect_otp(self):
         registration = UserRegistrationService()
