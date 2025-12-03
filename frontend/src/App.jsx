@@ -12,6 +12,7 @@ import ProfilePage from "./pages/ProfilePage";
 import SearchResults from "./pages/SearchResults";
 import EditQuestion from './components/Question/EditQuestion';
 import QuestionEditHistory from './components/Question/QuestionEditHistory';
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   return (

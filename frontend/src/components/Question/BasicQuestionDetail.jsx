@@ -9,6 +9,8 @@ import AiAnsSec from "./aiAns";
 import AiSummariseSec from "./aiSummarise";
 import API_BASE_URL from "../../constants/apiConfig";
 import { useNavigate } from "react-router-dom";
+import AiAnsSec from "./aiAns";
+import AiSummariseSec from "./aiSummarise";
 
 const BasicQuestionDetail = () => {
   const { id } = useParams();
@@ -1580,7 +1582,7 @@ const handleSubmitEditAnswer = async (answerId) => {
                         ["link", "code-block"],
                         ["clean"],
                       ],
-                    }}
+                    }}  
                     className="ans-edit"
                   />
                 </div>

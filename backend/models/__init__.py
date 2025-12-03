@@ -8,5 +8,6 @@ from .answer import Answer
 from .question import Question
 from .comment import Comment
 from .question_edit_history import QuestionEditHistory
+from .answer_edit_history import AnswerEditHistory
 
-__all__ = ['BaseModel', 'Notification', 'QuestionTag', 'User', 'Tag', 'Vote', 'Question', 'Answer', 'Comment','QuestionEditHistory']
+__all__ = ['BaseModel', 'Notification', 'QuestionTag', 'User', 'Tag', 'Vote', 'Question', 'Answer', 'Comment','QuestionEditHistory','AnswerEditHistory']

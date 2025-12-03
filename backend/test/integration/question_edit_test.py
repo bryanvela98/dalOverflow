@@ -1,6 +1,6 @@
 """
 Description: Tests for question edit and history routes
-Last Modified By: Claude
+Last Modified By: Mahek
 Created: 2025-12-02
 Testing the GET /edit, PUT /update, and GET /history endpoints
 """

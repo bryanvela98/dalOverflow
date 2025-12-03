@@ -121,7 +121,7 @@
 
 """
 Description: Question model with edit functionality
-Last Modified By: Claude
+Last Modified By: Mahek
 Created: 2025-10-25
 Last Modified: 
     2025-10-26 - File created and implemented basic CRUD operations.

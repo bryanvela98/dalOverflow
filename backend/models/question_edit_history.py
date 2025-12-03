@@ -1,6 +1,6 @@
 """
 Description: Question Edit History model for tracking all edits made to questions
-Last Modified By: Claude
+Last Modified By: Mahek
 Created: 2025-12-02
 Maintains audit trail of all question modifications
 """

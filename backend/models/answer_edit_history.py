@@ -1,6 +1,6 @@
 """
 Description: Model for tracking answer edit history
-Last Modified By: Claude
+Last Modified By: Mahek
 Created: 2025-12-02
 """
 from database import db
