@@ -4,7 +4,8 @@
  */
 export const apiFetch = async (url, options = {}) => {
   const headers = {
-    "ngrok-skip-browser-warning": "true",
+    "ngrok-skip-browser-warning": "69420",
+    "User-Agent": "CustomAgent",
     ...options.headers,
   };
 
