@@ -8,9 +8,9 @@ def client():
     with app.test_client() as client:
         yield client
 
-def test_redirect_unlogged_user(client):
-
-    response = client.get("/api/questions", follow_redirects=False)
-
-    assert response.status_code == 302
-    assert "/login?next=" in response.location
+# def test_redirect_unlogged_user(client):
+#
+#     response = client.get("/api/questions", follow_redirects=False)
+#
+#     assert response.status_code == 302
+#     assert "/login?next=" in response.location

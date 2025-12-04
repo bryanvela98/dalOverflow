@@ -7,6 +7,11 @@ def create_app():
     app = Flask(__name__) # Create Flask app instance
     app.config.from_object(Config) # Load configuration from Config class
     
+    # Override database URL if environment variable is set (for testing)
+    import os
+    if os.environ.get('DATABASE_URL'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+    
     db.init_app(app) # Initialize SQLAlchemy with the app
     
     # Disable strict slashes to prevent redirects
@@ -42,7 +47,7 @@ def create_app():
     app.register_blueprint(registration_bp, url_prefix='/api/auth')
     app.register_blueprint(login_bp, url_prefix='/api/auth')
     app.register_blueprint(tag_bp, url_prefix='/api/tags')
-    app.register_blueprint(questiontag_bp, url_prefix='/api/questiontags')
+    app.register_blueprint(questiontag_bp, url_prefix='/api')
     app.register_blueprint(answers_bp, url_prefix='/api/answers')
     app.register_blueprint(vote_bp, url_prefix='/api/votes')
     app.register_blueprint(comment_bp, url_prefix='/api/comments')
