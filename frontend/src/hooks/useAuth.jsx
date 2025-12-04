@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import API_BASE_URL from "../constants/apiConfig";
 
 export function useAuth() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);

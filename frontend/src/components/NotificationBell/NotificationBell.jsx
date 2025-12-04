@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useParams } from "react-router-dom";
+import API_BASE_URL from "../../constants/apiConfig";
 
 const NotificationBell = () => {
   const [showDropdown, setShowDropdown] = useState(false);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_BASE_URL from "../../constants/apiConfig";
 
 export default function UserRegistration() {
   const [email, setEmail] = useState("");

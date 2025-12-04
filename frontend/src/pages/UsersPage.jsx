@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar";
 import RightBar from "../components/RightBar";
+import API_BASE_URL from "../constants/apiConfig";
 import "../styles/UsersPage.css";
 
 const UsersPage = () => {

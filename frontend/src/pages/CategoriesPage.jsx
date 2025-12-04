@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar";
 import RightBar from "../components/RightBar";
+import API_BASE_URL from "../constants/apiConfig";
 import "../styles/CategoriesPage.css";
 
 export default function CategoriesPage() {

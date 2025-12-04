@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar";
 import RightBar from "../components/RightBar";
+import API_BASE_URL from "../constants/apiConfig";
 import "../styles/TagDetail.css";
 
 export default function TagDetail() {

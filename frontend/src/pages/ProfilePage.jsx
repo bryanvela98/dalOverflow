@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import API_BASE_URL from "../constants/apiConfig";
 
 import ProfilePicture from "../components/ProfilePicture";
 import "../styles/LoginRegistration.css";

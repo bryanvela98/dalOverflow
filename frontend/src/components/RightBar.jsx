@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import API_BASE_URL from "../constants/apiConfig";
 import "../styles/RightBar.css";
 
 export default function RightBar() {

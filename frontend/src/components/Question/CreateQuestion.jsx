@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../../constants/apiConfig";
 import CreateQuestionPage from "./CreateQuestionPage";
 
 const CreateQuestion = () => {
