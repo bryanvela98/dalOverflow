@@ -55,19 +55,21 @@ code_quality_designite:
   stage: quality
   tags:
     - deployment # Use your custom runner
-  image: openjdk:11
+  image: python:${PYTHON_VERSION}
   before_script:
-    - echo "Setting up DesigniteJava..."
-    # Download DesigniteJava (replace with actual download link or use mounted volume)
-    # - wget https://example.com/DesigniteJava.jar -O DesigniteJava.jar
+    - cd backend
+    - echo "Setting up DPy for Python code quality analysis..."
+    - chmod +x DPy/DPy
   script:
-    - echo "Running DesigniteJava code quality analysis..."
-    # Example command - adjust based on your DesigniteJava setup
-    # - java -jar DesigniteJava.jar -i $CI_PROJECT_DIR -o designite-output -f XML
+    - echo "Running DPy code quality analysis on backend..."
+    - mkdir -p dpy-output
+    - ./DPy/DPy analyze -i . -o dpy-output -f csv
     - echo "Code quality analysis completed"
+    - echo "Summary of analysis results:"
+    - cat dpy-output/dpy_log_*.log | grep -A 30 "Analysis summary" || true
   artifacts:
     paths:
-      - designite-output/
+      - backend/dpy-output/
     expire_in: 1 week
   allow_failure: true
   only:
@@ -80,11 +82,23 @@ upload_to_dcode:
   tags:
     - deployment # Use your custom runner
   image: python:${PYTHON_VERSION}
+  before_script:
+    - cd backend
+    - pip install requests # Required for the upload script
   script:
     - echo "Uploading code quality metrics to DCode..."
-    # Add DCode upload script here
-    # - python scripts/upload_to_dcode.py
-    - echo "Metrics uploaded successfully"
+    - |
+      # Check if DPy results exist
+      if [ -d "dpy-output" ]; then
+        echo "DPy analysis results found:"
+        ls -lh dpy-output/
+        echo "Uploading to DCodeHub..."
+        python DPy/push_to_dcode.py "$DCODE_PROJECT_ID" "$DCODE_API_KEY" "dpy-output" "$CI_COMMIT_SHA"
+        echo "Upload completed successfully!"
+      else
+        echo "Error: No DPy output directory found"
+        exit 1
+      fi
   dependencies:
     - code_quality_designite
   allow_failure: true
