@@ -4,6 +4,7 @@
 stages:
   - test
   - quality
+  - build
   - deploy
 
 variables:
@@ -80,7 +81,7 @@ code_quality_designite:
 upload_to_dcode:
   stage: quality
   tags:
-    - deployment 
+    - deployment
   image: python:${PYTHON_VERSION}
   needs:
     - job: code_quality_designite
@@ -178,15 +179,28 @@ deploy_backend_to_vm:
     - main
   when: manual #  manual trigger for safety
 
-# deploy_frontend_vercel:
-#   stage: deploy
-#   image: node:18
-#   before_script:
-#     - npm install -g vercel
-#   script:
-#     - cd frontend
-#     - vercel --token=$VERCEL_TOKEN --prod
-#   only:
-#     - develop
-#     - main
-#   when: manual
+build_frontend:
+  stage: build
+  image: node:23
+  before_script:
+    - cd frontend
+    - npm install
+  script:
+    - echo "Building frontend to check for errors..."
+    - npm run build
+  only:
+    - develop
+    - main
+
+deploy_frontend_vercel:
+  stage: deploy
+  image: node:23
+  before_script:
+    - cd frontend
+    - npm install
+  script:
+    - npx vercel --token=$VERCEL_TOKEN --prod --yes
+  only:
+    - develop
+    - main
+  when: manual
