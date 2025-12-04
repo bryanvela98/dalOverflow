@@ -172,6 +172,10 @@ const BasicQuestionDetail = () => {
           };
 
           setQuestion(enhancedQuestion);
+          const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+          const canUserEdit = data.question.can_edit || (currentUser.id === data.question.user_id);
+          setCanEdit(canUserEdit);
+
           await fetchUserData(data.question, answers);
 
           // Fetch related questions based on tags
@@ -414,9 +418,9 @@ const BasicQuestionDetail = () => {
   // };
 
   const handleEditClick = (e) => {
-  e.preventDefault();  // Add this!
-  e.stopPropagation(); // Add this!
-  navigate(`/questions/${id}/edit`);
+    e.preventDefault();  // Add this!
+    e.stopPropagation(); // Add this!
+    navigate(`/questions/${id}/edit`);
 };
 
   //validate if 20 chars are inputted

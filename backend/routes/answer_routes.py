@@ -17,6 +17,7 @@ from models.comment import Comment
 from models.notification import Notification
 from utils.html_sanitizer import sanitize_html_body
 from services.answer_services import AnswerServices
+import logging
 
 answers_bp = Blueprint('answers', __name__)
 
@@ -41,10 +42,14 @@ def get_answers(question_id):
                 'user': {
                     'username': user.username if user else 'Unknown',
                     'reputation': user.reputation if user else 0
-                }
+                },
+                'updated_at': answer.updated_at.isoformat() if answer.updated_at else None,
+                'edit_count': answer.edit_count or 0,
+                'is_edited': (answer.edit_count or 0) > 0,
             })
 
-        return jsonify({'answers': answers_list}), 200
+        # return jsonify({'answers': answers_list},), 200
+        return jsonify({'answers': answers_list},), 200
 
     except Exception as e:
         return jsonify({'message': f'Error fetching answers: {str(e)}'}), 500
