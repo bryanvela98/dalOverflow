@@ -151,7 +151,7 @@ deploy_backend_to_vm:
   script:
     - echo "Deploying backend to Dal VM..."
     - |
-      ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
+      ssh $SERVER_USER@$SERVER_IP << ENDSSH
         # Navigate to project directory
         cd ~/group02 || { echo "Project directory not found"; exit 1; }
         
