@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
     
-    @patch('services.gemini_services.GeminiServices.generate_answer')
+    @patch('routes.gemini_ai_routes.GeminiServices.generate_answer')
     def test_post_ai_answer_success(self, mock_generate):
         """Test POST /api/ai/answer generates AI response with HTML"""
         mock_generate.return_value = ("<p>You can create lists in Python like this:</p><pre><code>my_list = [1, 2, 3]</code></pre>", False)
@@ -38,7 +38,7 @@ class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
         data = response.get_json()
         self.assertIn('error', data)
         
-    @patch('services.gemini_services.GeminiServices.summarize_answers')
+    @patch('routes.gemini_ai_routes.GeminiServices.summarize_answers')
     def test_post_ai_summary_success(self, mock_summarize):
         """Test POST /api/ai/summarize generates a summary from answer and its comments"""
         mock_summarize.return_value = ("<p>This is a summary of the best answer.</p>", False)
