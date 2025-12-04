@@ -30,7 +30,8 @@ def create_app():
                 "https://*.vercel.app",  # Allow all Vercel deployments
                 "https://*.ngrok-free.dev"  # Allow ngrok tunnels
             ]}},
-            allow_headers=["Content-Type", "Authorization"],
+            #allow_headers=["Content-Type", "Authorization"],
+            allow_headers=["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
             methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         supports_credentials=True)
 
