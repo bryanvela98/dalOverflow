@@ -159,11 +159,6 @@ deploy_backend_to_vm:
     - main
   when: manual # Requires manual trigger for safety
 
-# =============================================
-# OPTIONAL: Frontend Vercel Deployment
-# (Recommended: Use Vercel's native GitLab integration instead)
-# =============================================
-
 # deploy_frontend_vercel:
 #   stage: deploy
 #   image: node:18
