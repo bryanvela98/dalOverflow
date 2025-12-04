@@ -184,7 +184,18 @@ deploy_backend_to_vm:
         else
           # Kill existing Flask process and restart
           pkill -f "python.*app.py" || true
+          sleep 2
           nohup python app.py > flask.log 2>&1 &
+          sleep 3
+          
+          # Verify Flask app is running
+          if lsof -i :5001 > /dev/null 2>&1; then
+            echo "✅ Flask app is running on port 5001"
+          else
+            echo "❌ Flask app failed to start. Check logs:"
+            tail -50 flask.log
+            exit 1
+          fi
         fi
         
         echo "Backend deployed successfully to Dal VM"
