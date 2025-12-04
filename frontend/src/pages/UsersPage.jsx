@@ -13,7 +13,7 @@ const UsersPage = () => {
   const [sortBy, setSortBy] = useState("username");
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/users`)
+    apiFetch(`${API_BASE_URL}/users`)
       .then((res) => res.json())
       .then((data) => {
         // console.log("All user information:", data.users);
