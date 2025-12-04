@@ -11,7 +11,7 @@ const UsersPage = () => {
   const [sortBy, setSortBy] = useState("username");
 
   useEffect(() => {
-    fetch("http://localhost:5001/api/users")
+    fetch(`${API_BASE_URL}/users`)
       .then((res) => res.json())
       .then((data) => {
         // console.log("All user information:", data.users);

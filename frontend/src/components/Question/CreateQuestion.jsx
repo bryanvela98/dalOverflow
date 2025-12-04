@@ -23,7 +23,7 @@ const CreateQuestion = () => {
   const loadTags = useCallback(async () => {
     try {
       setTagsLoading(true);
-      const response = await fetch("http://localhost:5001/api/tags", {
+      const response = await fetch(`${API_BASE_URL}/tags`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +126,7 @@ const CreateQuestion = () => {
 
       console.log("Sending to backend:", backendData);
 
-      const response = await fetch("http://localhost:5001/api/questions", {
+      const response = await fetch(`${API_BASE_URL}/questions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -190,7 +190,7 @@ const CreateQuestion = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5001/api/questions/search?query=${encodeURIComponent(
+        `${API_BASE_URL}/questions/search?query=${encodeURIComponent(
           title.trim()
         )}`,
         {
@@ -235,7 +235,7 @@ const CreateQuestion = () => {
         tag_description: `User-created tag: ${tagName}`,
       };
 
-      const response = await fetch("http://localhost:5001/api/tags", {
+      const response = await fetch(`${API_BASE_URL}/tags`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

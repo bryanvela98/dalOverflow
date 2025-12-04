@@ -14,7 +14,7 @@ export default function CategoriesPage() {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/tags");
+        const response = await fetch(`${API_BASE_URL}/tags`);
         const data = await response.json();
         if (data.tags) {
           setTags(data.tags);

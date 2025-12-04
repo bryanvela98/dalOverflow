@@ -8,16 +8,16 @@ const aiAnsSec = ({ questionTitle, questionBody, aiAnsMockUrl }) => {
 
   const handleGenerate = async () => {
     setGenState("loading");
-    
+
     try {
-      const endpoint = aiAnsMockUrl || `http://localhost:5001/api/ai/answer`;
+      const endpoint = aiAnsMockUrl || `${API_BASE_URL}/ai/answer`;
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          title: questionTitle, 
-          body: questionBody 
-        })
+        body: JSON.stringify({
+          title: questionTitle,
+          body: questionBody,
+        }),
       });
 
       if (response.ok) {
@@ -25,7 +25,9 @@ const aiAnsSec = ({ questionTitle, questionBody, aiAnsMockUrl }) => {
         setAiTxt(data.answer || data.content || "No answer generated.");
       } else {
         //mock answer for unpredicatable scenarios
-        setAiTxt(`Based on the question "${questionTitle}", here's a suggested approach: This appears to be a technical question that would benefit from checking the official documentation and testing the solution in a development environment.`);
+        setAiTxt(
+          `Based on the question "${questionTitle}", here's a suggested approach: This appears to be a technical question that would benefit from checking the official documentation and testing the solution in a development environment.`
+        );
       }
       setGenState("done");
     } catch (error) {
@@ -41,7 +43,6 @@ const aiAnsSec = ({ questionTitle, questionBody, aiAnsMockUrl }) => {
     };
     autoFetch();
   }, []);
-  
 
   if (genState === "loading") {
     return (
@@ -59,9 +60,7 @@ const aiAnsSec = ({ questionTitle, questionBody, aiAnsMockUrl }) => {
       <div className="ai-ans-header">
         <span className="ai-ans-badge">Gen-AI answer</span>
       </div>
-      <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.4" }}>
-        {aiTxt}
-      </div>
+      <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.4" }}>{aiTxt}</div>
     </div>
   );
 };

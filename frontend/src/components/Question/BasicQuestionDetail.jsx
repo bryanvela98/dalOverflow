@@ -7,6 +7,7 @@ import "react-quill/dist/quill.snow.css";
 import "./BasicQuestionDetail.css";
 import AiAnsSec from "./aiAns";
 import AiSummariseSec from "./aiSummarise";
+import API_BASE_URL from "../../constants/apiConfig";
 
 const BasicQuestionDetail = () => {
   const { id } = useParams();
@@ -63,7 +64,7 @@ const BasicQuestionDetail = () => {
   const fetchAnswers = async () => {
     try {
       const answersResponse = await fetch(
-        `http://localhost:5001/api/answers/questions/${id}/answers`
+        `${API_BASE_URL}/answers/questions/${id}/answers`
       );
       const answersData = await answersResponse.json();
       const answers = answersData.answers || [];
@@ -85,7 +86,7 @@ const BasicQuestionDetail = () => {
 
   const fetchRelatedQuestions = async (currentQuestionId, tags) => {
     try {
-      const response = await fetch("http://localhost:5001/api/questions");
+      const response = await fetch(`${API_BASE_URL}/questions`);
       const data = await response.json();
       const questions = data.questions || [];
 
@@ -135,9 +136,7 @@ const BasicQuestionDetail = () => {
 
     const fetchQuestion = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5001/api/questions/${id}`
-        );
+        const response = await fetch(`${API_BASE_URL}/questions/${id}`);
         const data = await response.json();
         console.log("Question data:", data);
 
@@ -148,7 +147,7 @@ const BasicQuestionDetail = () => {
           }
 
           const answersResponse = await fetch(
-            `http://localhost:5001/api/answers/questions/${id}/answers`
+            `${API_BASE_URL}/answers/questions/${id}/answers`
           );
           const answersData = await answersResponse.json();
           const answers = answersData.answers || [];
@@ -188,7 +187,7 @@ const BasicQuestionDetail = () => {
       if (questionData.user_id) {
         try {
           const voteResp = await fetch(
-            `http://localhost:5001/api/votes/question/${questionData.id}`
+            `${API_BASE_URL}/votes/question/${questionData.id}`
           );
           if (voteResp.ok) {
             const voteJson = await voteResp.json();
@@ -206,7 +205,7 @@ const BasicQuestionDetail = () => {
         if (answer.user_id && answer.id) {
           try {
             const voteResp = await fetch(
-              `http://localhost:5001/api/votes/answer/${answer.id}`
+              `${API_BASE_URL}/votes/answer/${answer.id}`
             );
             if (voteResp.ok) {
               const voteJson = await voteResp.json();
@@ -238,9 +237,7 @@ const BasicQuestionDetail = () => {
       // Fetch user data for each unique user ID
       for (const userId of userIds) {
         try {
-          const response = await fetch(
-            `http://localhost:5001/api/users/${userId}`
-          );
+          const response = await fetch(`${API_BASE_URL}/users/${userId}`);
           if (response.ok) {
             const userData = await response.json();
 
@@ -316,7 +313,7 @@ const BasicQuestionDetail = () => {
 
       try {
         const resp = await fetch(
-          `http://localhost:5001/api/votes/user?user_id=${usr.id}`
+          `${API_BASE_URL}/votes/user?user_id=${usr.id}`
         );
         if (!resp.ok) return;
         const json = await resp.json();
@@ -349,7 +346,7 @@ const BasicQuestionDetail = () => {
       try {
         // question votes
         const qResp = await fetch(
-          `http://localhost:5001/api/votes/question/${question.id}`
+          `${API_BASE_URL}/votes/question/${question.id}`
         );
         if (qResp.ok) {
           const json = await qResp.json();
@@ -368,9 +365,7 @@ const BasicQuestionDetail = () => {
         if (question.answers?.length) {
           const withCounts = await Promise.all(
             question.answers.map(async (a) => {
-              const aResp = await fetch(
-                `http://localhost:5001/api/votes/answer/${a.id}`
-              );
+              const aResp = await fetch(`${API_BASE_URL}/votes/answer/${a.id}`);
               if (aResp.ok) {
                 const json = await aResp.json();
                 return { ...a, upvotes: json.vote_count || 0 };
@@ -478,7 +473,7 @@ const BasicQuestionDetail = () => {
   // Add your vote logic here
   //creating vote, user votes for the first time. database entry
   const firstVote = async (type, targetId, vType, usrId) => {
-    const resp = await fetch("http://localhost:5001/api/votes/", {
+    const resp = await fetch(`${API_BASE_URL}/votes/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -498,7 +493,7 @@ const BasicQuestionDetail = () => {
 
   //upvote <-> downvote switch
   const switchVote = async (voteId, newType) => {
-    const resp = await fetch(`http://localhost:5001/api/votes/${voteId}`, {
+    const resp = await fetch(`${API_BASE_URL}/votes/${voteId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -513,7 +508,7 @@ const BasicQuestionDetail = () => {
 
   // Delete a vote
   const deleteVote = async (voteId) => {
-    const resp = await fetch(`http://localhost:5001/api/votes/${voteId}`, {
+    const resp = await fetch(`${API_BASE_URL}/votes/${voteId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -670,7 +665,7 @@ const BasicQuestionDetail = () => {
       });
       contentWithLanguage = tempDiv.innerHTML;
       const response = await fetch(
-        `http://localhost:5001/api/answers/questions/${id}/answers`,
+        `${API_BASE_URL}/answers/questions/${id}/answers`,
         {
           method: "POST",
           headers: {
@@ -706,9 +701,7 @@ const BasicQuestionDetail = () => {
       const userId = data.answer.user_id;
       if (userId) {
         try {
-          const userResponse = await fetch(
-            `http://localhost:5001/api/users/${userId}`
-          );
+          const userResponse = await fetch(`${API_BASE_URL}/users/${userId}`);
           if (userResponse.ok) {
             const userData = await userResponse.json();
             console.log(

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./QuestionTile.css";
+import API_BASE_URL from "../../constants/apiConfig";
 import NewQuestionButton from "../NewQuestionButton.jsx";
 
 export default function QuestionTile() {
@@ -16,7 +17,7 @@ export default function QuestionTile() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/questions");
+        const response = await fetch(`${API_BASE_URL}/questions`);
         const data = await response.json();
         if (data.questions) {
           setQuestions(data.questions);

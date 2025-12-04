@@ -15,9 +15,7 @@ export default function TagDetail() {
   useEffect(() => {
     const fetchTagAndQuestions = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5001/api/tags/${tagId}/questions`
-        );
+        const response = await fetch(`${API_BASE_URL}/tags/${tagId}/questions`);
         const data = await response.json();
         if (data.tag) {
           setTag(data.tag);

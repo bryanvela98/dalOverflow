@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./aiSummarise.css";
+import API_BASE_URL from "../../constants/apiConfig";
 
 const aiSummariseSec = ({ questionId, summMockUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,14 +20,17 @@ const aiSummariseSec = ({ questionId, summMockUrl }) => {
   const loadSummary = async () => {
     setLoading(true);
 
-    const url = summMockUrl || `http://localhost:5001/api/questions/${questionId}/summary`;
+    const url =
+      summMockUrl || `${API_BASE_URL}/questions/${questionId}/summary`;
     const res = await fetch(url);
 
     if (res.ok) {
       const data = await res.json();
       setSumTxt(data.summary || data.content || "No summary available.");
     } else {
-      setSumTxt("Temporary summary: Some answers focus on different approaches; comments add clarifications.");
+      setSumTxt(
+        "Temporary summary: Some answers focus on different approaches; comments add clarifications."
+      );
     }
 
     setAlrdyFetch(true);

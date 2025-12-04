@@ -17,7 +17,7 @@ export default function Login() {
     console.log("Logging in:", { email, password });
 
     try {
-      const response = await fetch("http://127.0.0.1:5001/api/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +53,7 @@ export default function Login() {
       setMessage("Network error. Please try again.");
       console.error("Login error:", error);
     }
-    localStorage.setItem("currentUser", JSON.stringify(data.user)); 
+    localStorage.setItem("currentUser", JSON.stringify(data.user));
   };
 
   const handleForgotPassword = async (e) => {
@@ -65,16 +65,13 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5001/api/auth/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
       setMessage(data.message);
@@ -101,14 +98,11 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5001/api/auth/reset-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, otp, new_password: newPassword }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp, new_password: newPassword }),
+      });
 
       const data = await response.json();
       setMessage(data.message);
@@ -127,16 +121,13 @@ export default function Login() {
 
   const handleResendOTP = async () => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5001/api/auth/resend-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
       setMessage(data.message);

@@ -58,9 +58,7 @@ const ProfilePage = () => {
     const fetchUser = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `http://localhost:5001/api/users/${userId}`
-        );
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`);
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
@@ -84,7 +82,7 @@ const ProfilePage = () => {
   const handleSave = (e) => {
     e.preventDefault();
     setSaving(true);
-    fetch(`http://localhost:5001/api/users/${userId}`, {
+    fetch(`${API_BASE_URL}/users/${userId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editData),
@@ -217,7 +215,7 @@ const ProfilePage = () => {
                     formData.append("file", file); // Fix key to 'file' for backend
                     try {
                       const res = await fetch(
-                        "http://localhost:5001/api/upload/profile-picture",
+                        `${API_BASE_URL}/upload/profile-picture`,
                         {
                           method: "POST",
                           body: formData,

@@ -96,7 +96,7 @@ export default function SearchResults() {
       setError(null);
       try {
         // Fetch all questions (same as QuestionTile - no view count increment)
-        const response = await fetch("http://localhost:5001/api/questions");
+        const response = await fetch(`${API_BASE_URL}/questions`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch questions");

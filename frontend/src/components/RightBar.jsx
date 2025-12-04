@@ -20,8 +20,8 @@ export default function RightBar() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const questionsRes = await fetch("http://localhost:5001/api/questions");
-        const usersRes = await fetch("http://localhost:5001/api/users");
+        const questionsRes = await fetch(`${API_BASE_URL}/questions`);
+        const usersRes = await fetch(`${API_BASE_URL}/users`);
 
         if (questionsRes.ok && usersRes.ok) {
           const questionsData = await questionsRes.json();

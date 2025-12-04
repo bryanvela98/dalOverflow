@@ -5,6 +5,7 @@ import "../../styles/Header.css";
 import NotificationBellContainer from "../NotificationBellContainer";
 import ProfileLink from "../ProfileLink";
 import Login from "../LogInButton";
+import API_BASE_URL from "../../constants/apiConfig";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function Header() {
       const fetchSuggestions = async () => {
         try {
           const response = await fetch(
-            `http://localhost:5001/api/questions/search?query=${encodeURIComponent(
+            `${API_BASE_URL}/questions/search?query=${encodeURIComponent(
               searchQuery
             )}`
           );

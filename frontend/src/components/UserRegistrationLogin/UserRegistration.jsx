@@ -28,7 +28,7 @@ export default function UserRegistration() {
     console.log("Registering:", { email, password });
 
     try {
-      const response = await fetch("http://127.0.0.1:5001/api/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,16 +54,13 @@ export default function UserRegistration() {
     console.log("Verifying OTP:", { email, otp });
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5001/api/auth/verify-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, otp }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, otp }),
+      });
 
       const data = await response.json();
       setMessage(data.message);
@@ -84,16 +81,13 @@ export default function UserRegistration() {
 
   const handleResendOTP = async () => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:5001/api/auth/resend-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
       setMessage(data.message);

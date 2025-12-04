@@ -15,7 +15,7 @@ export function useAuth() {
     setIsLoggedIn(true);
 
     //check if token is valid
-    fetch("http://127.0.0.1:5001/api/auth/validate", {
+    fetch(`${API_BASE_URL}/auth/validate`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => {
