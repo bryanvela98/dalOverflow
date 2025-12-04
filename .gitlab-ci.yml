@@ -10,6 +10,7 @@ stages:
 variables:
   PYTHON_VERSION: "3.11"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  NODE_VERSION: "23"
 
 # Cache dependencies to speed up pipeline
 cache:
@@ -113,6 +114,23 @@ upload_to_dcode:
     - main
 
 # =============================================
+# BUILD STAGE
+# =============================================
+
+build_frontend:
+  stage: build
+  image: node:${NODE_VERSION}
+  before_script:
+    - cd frontend
+    - npm install
+  script:
+    - echo "Building frontend to check for errors..."
+    - npm run build
+  only:
+    - develop
+    - main
+
+# =============================================
 # DEPLOY STAGE
 # =============================================
 
@@ -179,22 +197,9 @@ deploy_backend_to_vm:
     - main
   when: manual #  manual trigger for safety
 
-build_frontend:
-  stage: build
-  image: node:23
-  before_script:
-    - cd frontend
-    - npm install
-  script:
-    - echo "Building frontend to check for errors..."
-    - npm run build
-  only:
-    - develop
-    - main
-
 deploy_frontend_vercel:
   stage: deploy
-  image: node:23
+  image: node:${NODE_VERSION}
   before_script:
     - cd frontend
     - npm install
