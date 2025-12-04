@@ -36,12 +36,13 @@ def generate_ai_answer():
         
         # Generate answer using Gemini
         gemini_service = GeminiServices()
-        ai_answer = gemini_service.generate_answer(title, body)
+        ai_answer, is_truncated = gemini_service.generate_answer(title, body)
         
         return jsonify({
             'title': title,
             'body': body,
-            'answer': ai_answer
+            'answer': ai_answer,
+            'is_truncated': is_truncated
         }), 200
         
     except ValueError as e:
