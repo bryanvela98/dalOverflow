@@ -22,6 +22,8 @@ cache:
 
 backend_tests:
   stage: test
+  tags:
+    - deployment # Use your custom runner
   image: python:${PYTHON_VERSION}
   before_script:
     - cd backend
@@ -51,6 +53,8 @@ backend_tests:
 
 code_quality_designite:
   stage: quality
+  tags:
+    - deployment # Use your custom runner
   image: openjdk:11
   before_script:
     - echo "Setting up DesigniteJava..."
@@ -73,6 +77,8 @@ code_quality_designite:
 
 upload_to_dcode:
   stage: quality
+  tags:
+    - deployment # Use your custom runner
   image: python:${PYTHON_VERSION}
   script:
     - echo "Uploading code quality metrics to DCode..."
@@ -92,16 +98,22 @@ upload_to_dcode:
 
 deploy_backend_to_vm:
   stage: deploy
-  image: alpine:latest
+  tags:
+    - deployment # Use your custom runner
+  image: docker:stable
   before_script:
-    - apk add --no-cache openssh-client sshpass
+    - apk add --no-cache openssh-client bash
+    - eval $(ssh-agent -s)
+    - chmod 400 $ID_RSA
+    - ssh-add $ID_RSA
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - ssh-keyscan -H csci5308-vm2.research.cs.dal.ca >> ~/.ssh/known_hosts
+    - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
   script:
     - echo "Deploying backend to Dal VM..."
     - |
-      sshpass -p "$VM_PASSWORD" ssh student@csci5308-vm2.research.cs.dal.ca << 'ENDSSH'
+      ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
         # Navigate to project directory
         cd ~/group02 || { echo "Project directory not found"; exit 1; }
         
@@ -122,12 +134,10 @@ deploy_backend_to_vm:
         pip install -r requirements.txt
         
         # Update .env file with secrets from GitLab CI/CD variables
-        cat > .env << 'ENVFILE'
-      PORT=${FLASK_PORT}
-      DB_URL=${DB_URL}
-      SECRET_KEY=${SECRET_KEY}
-      GEMINI_API_KEY=${GEMINI_API_KEY}
-      ENVFILE
+        echo "PORT=$FLASK_PORT" > .env
+        echo "DB_URL=$DB_URL" >> .env
+        echo "SECRET_KEY=$SECRET_KEY" >> .env
+        echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
         
         # Restart the Flask application
         # Check if systemd service exists, otherwise use pm2 or direct restart
@@ -143,7 +153,7 @@ deploy_backend_to_vm:
       ENDSSH
   environment:
     name: production
-    url: http://csci5308-vm2.research.cs.dal.ca:5000
+    url: http://$SERVER_IP:5000
   only:
     - develop
     - main
