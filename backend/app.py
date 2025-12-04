@@ -28,7 +28,9 @@ def create_app():
                 "https://frontend-cne2sdqp7-y-onees-projects.vercel.app",
                 "https://frontend-6pbzspbet-y-onees-projects.vercel.app",
                 "https://*.vercel.app",  # Allow all Vercel deployments
-                "https://*.ngrok-free.dev"  # Allow ngrok tunnels
+                "https://*.ngrok-free.dev",  # Allow ngrok tunnels
+                "*",
+                r"https://.*\.vercel\.app"
             ]}},
             allow_headers=["Content-Type", "Authorization"],
             methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
