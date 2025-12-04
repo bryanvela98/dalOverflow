@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import apiFetch from "../../utils/api";
 import "./aiSummarise.css";
+import apiFetch from "../../utils/api";
 import API_BASE_URL from "../../constants/apiConfig";
 
 const aiSummariseSec = ({ questionId, summMockUrl }) => {

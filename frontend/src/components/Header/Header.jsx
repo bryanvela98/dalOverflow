@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import apiFetch from "../../utils/api";
 import { useNavigate } from "react-router-dom";
+import apiFetch from "../../utils/api";
 import { Link } from "react-router-dom";
 import "../../styles/Header.css";
 import NotificationBellContainer from "../NotificationBellContainer";

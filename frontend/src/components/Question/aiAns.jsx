@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import apiFetch from "../../utils/api";
 import API_BASE_URL from "../../constants/apiConfig";
+import apiFetch from "../../utils/api";
 import "./aiAns.css";
 
 //kept mock if we wanna use diff url just in case

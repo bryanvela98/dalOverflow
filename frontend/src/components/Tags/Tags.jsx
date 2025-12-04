@@ -1,5 +1,7 @@
 import React from "react";
+import apiFetch from "../../utils/api";
 import API_BASE_URL from "../../constants/apiConfig";
+import apiFetch from "../../utils/api";
 import TagsPage from "./TagsPage";
 
 const Tags = () => {

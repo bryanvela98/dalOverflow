@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import API_BASE_URL from "../constants/apiConfig";
+import apiFetch from "../utils/api";
 import "../styles/RightBar.css";
 
 export default function RightBar() {
@@ -21,8 +22,8 @@ export default function RightBar() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const questionsRes = await fetch(`${API_BASE_URL}/questions`);
-        const usersRes = await fetch(`${API_BASE_URL}/users`);
+        const questionsRes = await apiFetch(`${API_BASE_URL}/questions`);
+        const usersRes = await apiFetch(`${API_BASE_URL}/users`);
 
         if (questionsRes.ok && usersRes.ok) {
           const questionsData = await questionsRes.json();

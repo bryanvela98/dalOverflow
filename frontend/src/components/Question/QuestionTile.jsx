@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import apiFetch from "../../utils/api";
 import { Link } from "react-router-dom";
+import apiFetch from "../../utils/api";
 import "./QuestionTile.css";
 import API_BASE_URL from "../../constants/apiConfig";
 import NewQuestionButton from "../NewQuestionButton.jsx";
