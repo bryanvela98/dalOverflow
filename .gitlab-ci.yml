@@ -86,21 +86,19 @@ upload_to_dcode:
     - pip install requests # Required for the upload script
   script:
     - echo "Uploading code quality metrics to DCode..."
-    - echo "Current directory:" && pwd
-    - echo "Listing files:" && ls -la
-    - cd backend
-    - echo "Backend directory:" && pwd
-    - echo "Listing backend:" && ls -la
+    - echo "Checking for artifacts..."
+    - ls -la backend/ || true
     - |
-      # Check if DPy results exist
-      if [ -d "dpy-output" ]; then
+      # Check if DPy results exist (artifacts are downloaded to project root)
+      if [ -d "backend/dpy-output" ]; then
         echo "DPy analysis results found:"
-        ls -lh dpy-output/
+        ls -lh backend/dpy-output/
         echo "Uploading to DCodeHub..."
+        cd backend
         python DPy/push_to_dcode.py "$DCODE_PROJECT_ID" "$DCODE_API_KEY" "dpy-output" "$CI_COMMIT_SHA"
         echo "Upload completed successfully!"
       else
-        echo "Warning: No DPy output directory found"
+        echo "Warning: No DPy output directory found at backend/dpy-output"
         echo "Artifacts may not have been downloaded properly"
         exit 0
       fi
