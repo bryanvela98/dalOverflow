@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiFetch from "../../utils/api";
 import API_BASE_URL from "../../constants/apiConfig";
-import apiFetch from "../../utils/api";
 import "./aiAns.css";
 
 //kept mock if we wanna use diff url just in case
@@ -14,7 +13,7 @@ const aiAnsSec = ({ questionTitle, questionBody, aiAnsMockUrl }) => {
 
     try {
       const endpoint = aiAnsMockUrl || `${API_BASE_URL}/ai/answer`;
-      const response = await fetch(endpoint, {
+      const response = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

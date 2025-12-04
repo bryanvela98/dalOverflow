@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import apiFetch from "../../utils/api";
 import { createPortal } from "react-dom";
-import apiFetch from "../../utils/api";
 import { useParams } from "react-router-dom";
 import API_BASE_URL from "../../constants/apiConfig";
 
@@ -40,7 +39,7 @@ const NotificationBell = () => {
           const currentUser = JSON.parse(stored);
           const currentUserId = currentUser.id;
 
-          const response = await fetch(
+          const response = await apiFetch(
             `${API_BASE_URL}/notifications/${currentUserId}`
           );
           if (!response.ok) {

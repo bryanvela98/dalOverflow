@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import apiFetch from "../../utils/api";
 import { useNavigate } from "react-router-dom";
-import apiFetch from "../../utils/api";
 import API_BASE_URL from "../../constants/apiConfig";
 import CreateQuestionPage from "./CreateQuestionPage";
 
@@ -26,7 +25,7 @@ const CreateQuestion = () => {
   const loadTags = useCallback(async () => {
     try {
       setTagsLoading(true);
-      const response = await fetch(`${API_BASE_URL}/tags`, {
+      const response = await apiFetch(`${API_BASE_URL}/tags`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -129,7 +128,7 @@ const CreateQuestion = () => {
 
       console.log("Sending to backend:", backendData);
 
-      const response = await fetch(`${API_BASE_URL}/questions`, {
+      const response = await apiFetch(`${API_BASE_URL}/questions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -192,7 +191,7 @@ const CreateQuestion = () => {
         return [];
       }
 
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_BASE_URL}/questions/search?query=${encodeURIComponent(
           title.trim()
         )}`,
@@ -238,7 +237,7 @@ const CreateQuestion = () => {
         tag_description: `User-created tag: ${tagName}`,
       };
 
-      const response = await fetch(`${API_BASE_URL}/tags`, {
+      const response = await apiFetch(`${API_BASE_URL}/tags`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

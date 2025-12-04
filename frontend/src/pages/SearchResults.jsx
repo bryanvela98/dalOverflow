@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiFetch from "../utils/api";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import apiFetch from "../utils/api";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar";
 import RightBar from "../components/RightBar";
@@ -99,7 +98,7 @@ export default function SearchResults() {
       setError(null);
       try {
         // Fetch all questions (same as QuestionTile - no view count increment)
-        const response = await fetch(`${API_BASE_URL}/questions`);
+        const response = await apiFetch(`${API_BASE_URL}/questions`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch questions");

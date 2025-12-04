@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import apiFetch from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import apiFetch from "../utils/api";
 import API_BASE_URL from "../constants/apiConfig";
 import { useState } from "react";
 
@@ -20,7 +19,7 @@ export default function ProtectedRoute({ children }) {
         return;
       }
 
-      const backend_res = await fetch(`${API_BASE_URL}/auth/validate`, {
+      const backend_res = await apiFetch(`${API_BASE_URL}/auth/validate`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

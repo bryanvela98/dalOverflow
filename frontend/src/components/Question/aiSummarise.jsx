@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import apiFetch from "../../utils/api";
 import "./aiSummarise.css";
-import apiFetch from "../../utils/api";
 import API_BASE_URL from "../../constants/apiConfig";
 
 const aiSummariseSec = ({ questionId, summMockUrl }) => {
@@ -24,7 +23,7 @@ const aiSummariseSec = ({ questionId, summMockUrl }) => {
 
     const url =
       summMockUrl || `${API_BASE_URL}/questions/${questionId}/summary`;
-    const res = await fetch(url);
+    const res = await apiFetch(url);
 
     if (res.ok) {
       const data = await res.json();

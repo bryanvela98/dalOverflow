@@ -1,7 +1,6 @@
 import { useState } from "react";
 import apiFetch from "../../utils/api";
 import { useNavigate } from "react-router-dom";
-import apiFetch from "../../utils/api";
 import API_BASE_URL from "../../constants/apiConfig";
 
 export default function Login() {
@@ -20,7 +19,7 @@ export default function Login() {
     console.log("Logging in:", { email, password });
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await apiFetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +67,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      const response = await apiFetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +100,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      const response = await apiFetch(`${API_BASE_URL}/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp, new_password: newPassword }),
@@ -124,7 +123,7 @@ export default function Login() {
 
   const handleResendOTP = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
+      const response = await apiFetch(`${API_BASE_URL}/auth/resend-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

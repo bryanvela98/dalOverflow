@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiFetch from "../utils/api";
 import { useParams, Link } from "react-router-dom";
-import apiFetch from "../utils/api";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar";
 import RightBar from "../components/RightBar";
@@ -18,7 +17,7 @@ export default function TagDetail() {
   useEffect(() => {
     const fetchTagAndQuestions = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/tags/${tagId}/questions`);
+        const response = await apiFetch(`${API_BASE_URL}/tags/${tagId}/questions`);
         const data = await response.json();
         if (data.tag) {
           setTag(data.tag);

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import apiFetch from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import apiFetch from "../utils/api";
 import { useAuth } from "../hooks/useAuth";
 import API_BASE_URL from "../constants/apiConfig";
 
@@ -61,7 +60,7 @@ const ProfilePage = () => {
     const fetchUser = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+        const response = await apiFetch(`${API_BASE_URL}/users/${userId}`);
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
@@ -217,7 +216,7 @@ const ProfilePage = () => {
                     const formData = new FormData();
                     formData.append("file", file); // Fix key to 'file' for backend
                     try {
-                      const res = await fetch(
+                      const res = await apiFetch(
                         `${API_BASE_URL}/upload/profile-picture`,
                         {
                           method: "POST",

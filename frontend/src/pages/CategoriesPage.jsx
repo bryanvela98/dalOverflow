@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiFetch from "../utils/api";
 import { Link } from "react-router-dom";
-import apiFetch from "../utils/api";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar";
 import RightBar from "../components/RightBar";
@@ -17,7 +16,7 @@ export default function CategoriesPage() {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/tags`);
+        const response = await apiFetch(`${API_BASE_URL}/tags`);
         const data = await response.json();
         if (data.tags) {
           setTags(data.tags);

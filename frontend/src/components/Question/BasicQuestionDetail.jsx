@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiFetch from "../../utils/api";
 import { useParams } from "react-router-dom";
-import apiFetch from "../../utils/api";
 import ReactQuill from "react-quill";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -65,7 +64,7 @@ const BasicQuestionDetail = () => {
 
   const fetchAnswers = async () => {
     try {
-      const answersResponse = await fetch(
+      const answersResponse = await apiFetch(
         `${API_BASE_URL}/answers/questions/${id}/answers`
       );
       const answersData = await answersResponse.json();
@@ -88,7 +87,7 @@ const BasicQuestionDetail = () => {
 
   const fetchRelatedQuestions = async (currentQuestionId, tags) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/questions`);
+      const response = await apiFetch(`${API_BASE_URL}/questions`);
       const data = await response.json();
       const questions = data.questions || [];
 
@@ -138,7 +137,7 @@ const BasicQuestionDetail = () => {
 
     const fetchQuestion = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/questions/${id}`);
+        const response = await apiFetch(`${API_BASE_URL}/questions/${id}`);
         const data = await response.json();
         console.log("Question data:", data);
 
@@ -148,7 +147,7 @@ const BasicQuestionDetail = () => {
             return;
           }
 
-          const answersResponse = await fetch(
+          const answersResponse = await apiFetch(
             `${API_BASE_URL}/answers/questions/${id}/answers`
           );
           const answersData = await answersResponse.json();
@@ -188,7 +187,7 @@ const BasicQuestionDetail = () => {
       // Fetch vote data for question author's reputation
       if (questionData.user_id) {
         try {
-          const voteResp = await fetch(
+          const voteResp = await apiFetch(
             `${API_BASE_URL}/votes/question/${questionData.id}`
           );
           if (voteResp.ok) {
@@ -206,7 +205,7 @@ const BasicQuestionDetail = () => {
       for (const answer of answers) {
         if (answer.user_id && answer.id) {
           try {
-            const voteResp = await fetch(
+            const voteResp = await apiFetch(
               `${API_BASE_URL}/votes/answer/${answer.id}`
             );
             if (voteResp.ok) {
@@ -239,7 +238,7 @@ const BasicQuestionDetail = () => {
       // Fetch user data for each unique user ID
       for (const userId of userIds) {
         try {
-          const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+          const response = await apiFetch(`${API_BASE_URL}/users/${userId}`);
           if (response.ok) {
             const userData = await response.json();
 
@@ -314,7 +313,7 @@ const BasicQuestionDetail = () => {
       if (!usr.id) return;
 
       try {
-        const resp = await fetch(
+        const resp = await apiFetch(
           `${API_BASE_URL}/votes/user?user_id=${usr.id}`
         );
         if (!resp.ok) return;
@@ -347,7 +346,7 @@ const BasicQuestionDetail = () => {
     const getCounts = async () => {
       try {
         // question votes
-        const qResp = await fetch(
+        const qResp = await apiFetch(
           `${API_BASE_URL}/votes/question/${question.id}`
         );
         if (qResp.ok) {
@@ -367,7 +366,7 @@ const BasicQuestionDetail = () => {
         if (question.answers?.length) {
           const withCounts = await Promise.all(
             question.answers.map(async (a) => {
-              const aResp = await fetch(`${API_BASE_URL}/votes/answer/${a.id}`);
+              const aResp = await apiFetch(`${API_BASE_URL}/votes/answer/${a.id}`);
               if (aResp.ok) {
                 const json = await aResp.json();
                 return { ...a, upvotes: json.vote_count || 0 };
@@ -475,7 +474,7 @@ const BasicQuestionDetail = () => {
   // Add your vote logic here
   //creating vote, user votes for the first time. database entry
   const firstVote = async (type, targetId, vType, usrId) => {
-    const resp = await fetch(`${API_BASE_URL}/votes/`, {
+    const resp = await apiFetch(`${API_BASE_URL}/votes/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -495,7 +494,7 @@ const BasicQuestionDetail = () => {
 
   //upvote <-> downvote switch
   const switchVote = async (voteId, newType) => {
-    const resp = await fetch(`${API_BASE_URL}/votes/${voteId}`, {
+    const resp = await apiFetch(`${API_BASE_URL}/votes/${voteId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -510,7 +509,7 @@ const BasicQuestionDetail = () => {
 
   // Delete a vote
   const deleteVote = async (voteId) => {
-    const resp = await fetch(`${API_BASE_URL}/votes/${voteId}`, {
+    const resp = await apiFetch(`${API_BASE_URL}/votes/${voteId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -666,7 +665,7 @@ const BasicQuestionDetail = () => {
         pre.setAttribute("data-language", language);
       });
       contentWithLanguage = tempDiv.innerHTML;
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_BASE_URL}/answers/questions/${id}/answers`,
         {
           method: "POST",
@@ -703,7 +702,7 @@ const BasicQuestionDetail = () => {
       const userId = data.answer.user_id;
       if (userId) {
         try {
-          const userResponse = await fetch(`${API_BASE_URL}/users/${userId}`);
+          const userResponse = await apiFetch(`${API_BASE_URL}/users/${userId}`);
           if (userResponse.ok) {
             const userData = await userResponse.json();
             console.log(

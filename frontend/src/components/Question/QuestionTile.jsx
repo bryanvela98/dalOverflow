@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiFetch from "../../utils/api";
 import { Link } from "react-router-dom";
-import apiFetch from "../../utils/api";
 import "./QuestionTile.css";
 import API_BASE_URL from "../../constants/apiConfig";
 import NewQuestionButton from "../NewQuestionButton.jsx";
@@ -19,7 +18,7 @@ export default function QuestionTile() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/questions`);
+        const response = await apiFetch(`${API_BASE_URL}/questions`);
         const data = await response.json();
         if (data.questions) {
           setQuestions(data.questions);

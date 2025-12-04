@@ -1,7 +1,6 @@
 import { useState } from "react";
 import apiFetch from "../../utils/api";
 import API_BASE_URL from "../../constants/apiConfig";
-import apiFetch from "../../utils/api";
 
 export default function UserRegistration() {
   const [email, setEmail] = useState("");
@@ -31,7 +30,7 @@ export default function UserRegistration() {
     console.log("Registering:", { email, password });
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      const response = await apiFetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,7 +56,7 @@ export default function UserRegistration() {
     console.log("Verifying OTP:", { email, otp });
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+      const response = await apiFetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,7 +83,7 @@ export default function UserRegistration() {
 
   const handleResendOTP = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
+      const response = await apiFetch(`${API_BASE_URL}/auth/resend-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
