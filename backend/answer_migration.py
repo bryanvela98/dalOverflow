@@ -88,7 +88,6 @@ def run_migration():
                         previous_is_accepted BOOLEAN,
                         new_is_accepted BOOLEAN,
                         edit_reason TEXT,
-                        is_moderator_edit BOOLEAN DEFAULT FALSE,
                         created_at TIMESTAMP DEFAULT NOW(),
                         updated_at TIMESTAMP DEFAULT NOW(),
                         CONSTRAINT fk_answer_edit_history_answer_id 

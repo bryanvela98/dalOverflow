@@ -354,10 +354,9 @@ const BasicQuestionDetail = () => {
   useEffect(() => {
     if (question && question.user_id) {
       const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-      const isModerator = currentUser.is_moderator || false;
       const isAuthor = currentUser.id === question.user_id;
       
-      setCanEdit(isAuthor || isModerator);
+      setCanEdit(isAuthor);
     }
   }, [question]);
 
@@ -410,9 +409,15 @@ const BasicQuestionDetail = () => {
     tempDiv.innerHTML = html;
     return (tempDiv.textContent || "").trim().length;
   };
-  const handleEditClick = () => {
+  // const handleEditClick = () => {
+  // navigate(`/questions/${id}/edit`);
+  // };
+
+  const handleEditClick = (e) => {
+  e.preventDefault();  // Add this!
+  e.stopPropagation(); // Add this!
   navigate(`/questions/${id}/edit`);
-  };
+};
 
   //validate if 20 chars are inputted
   const isAnsLengVal = () => {
@@ -950,7 +955,7 @@ const handleSubmitEditAnswer = async (answerId) => {
                           marginTop: '8px',
                           cursor: 'pointer'
                         }}
-                        title={`Last edited ${question.last_edited_at ? new Date(question.last_edited_at).toLocaleString() : 'recently'}`}
+                        title={`Last edited ${question.updated_at ? new Date(question.updated_at).toLocaleString() : 'recently'}`}
                         onClick={() => navigate(`/questions/${id}/history`)}
                       >
                         <span style={{ marginRight: '4px' }}>✏️</span>
@@ -959,7 +964,6 @@ const handleSubmitEditAnswer = async (answerId) => {
                     )}
                   </div>
                   
-                  {/* Edit Button (AC 1) - Only visible to author/moderator */}
                   {canEdit && (
                     <button
                       onClick={handleEditClick}
@@ -1381,7 +1385,7 @@ const handleSubmitEditAnswer = async (answerId) => {
                                         marginTop: '8px',
                                         cursor: 'pointer'
                                       }}
-                                      title={`Last edited ${answer.last_edited_at ? new Date(answer.last_edited_at).toLocaleString() : 'recently'}`}
+                                      title={`Last edited ${answer.updated_at ? new Date(answer.updated_at).toLocaleString() : 'recently'}`}
                                     >
                                       <span style={{ marginRight: '4px' }}>✏️</span>
                                       <span>(edited {answer.edit_count} {answer.edit_count === 1 ? 'time' : 'times'})</span>

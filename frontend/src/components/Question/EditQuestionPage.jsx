@@ -191,7 +191,7 @@ const EditQuestionPage = ({
               }}
             >
               <p style={{ margin: 0, color: "#92400e" }}>
-                ℹ️ This edit may require moderator review since the question was
+                ℹ️ This edit may require review since the question was
                 posted more than 10 minutes ago.
               </p>
             </div>

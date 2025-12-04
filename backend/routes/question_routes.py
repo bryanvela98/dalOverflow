@@ -12,6 +12,7 @@ from models.question import Question
 from models.notification import Notification
 from utils.fuzzy_search import search_questions
 import logging  # For logging purposes
+from datetime import datetime,timedelta
 
 question_bp = Blueprint('questions', __name__)
 
@@ -71,10 +72,10 @@ def get_question_for_edit(question_id):
             return jsonify({"error": "Question not found"}), 404
         
         user_id = request.user_id
-        is_moderator = getattr(request, 'is_moderator', False)
+        # is_moderator = getattr(request, 'is_moderator', False)
         
-        # Check permissions (AC 12)
-        can_edit, requires_review = question.can_be_edited_by(user_id, is_moderator)
+        # Check permissions
+        can_edit, requires_review = question.can_be_edited_by(user_id)
         
         if not can_edit:
             return jsonify({
@@ -82,10 +83,10 @@ def get_question_for_edit(question_id):
             }), 403
         
         return jsonify({
-            "question": question.to_dict(include_edit_info=True, current_user_id=user_id),
+            "question": question.to_dict(current_user_id=user_id),
             "can_edit": can_edit,
             "requires_review": requires_review,
-            "edit_window_expired": requires_review and not is_moderator
+            "edit_window_expired": requires_review 
         }), 200
         
     except Exception as e:
@@ -103,8 +104,7 @@ def update_question(question_id):
         title: New title (optional)
         body: New body (optional)
         tag_ids: New tag IDs array (optional)
-        edit_reason: Reason for edit (optional)
-        last_known_update: ISO timestamp of when user loaded edit form (for concurrency check)
+        last_known_update: ISO timestamp (for concurrency check)
     
     Returns:
         JSON response with updated question or error
@@ -115,10 +115,10 @@ def update_question(question_id):
             return jsonify({"error": "Question not found"}), 404
         
         user_id = request.user_id
-        is_moderator = getattr(request, 'is_moderator', False)
+        # is_moderator = getattr(request, 'is_moderator', False)
         
-        # Check permissions (AC 12)
-        can_edit, requires_review = question.can_be_edited_by(user_id, is_moderator)
+        # Check permissions
+        can_edit, requires_review = question.can_be_edited_by(user_id)
         
         if not can_edit:
             return jsonify({
@@ -127,22 +127,13 @@ def update_question(question_id):
         
         data = request.get_json()
         
-        # # Concurrency check (AC 9)
-        # if 'last_known_update' in data:
-        #     last_known = datetime.fromisoformat(data['last_known_update'].replace('Z', '+00:00'))
-        #     if question.last_edited_at and question.last_edited_at > last_known:
-        #         return jsonify({
-        #             "error": "This question has been modified by another user. Please refresh and try again.",
-        #             "concurrent_edit": True
-        #         }), 409
-
-        # Concurrency check (AC 9)
+        # Concurrency check using updated_at (AC 9)
         if 'last_known_update' in data:
             try:
-        # Try ISO format first
+                # Try ISO format first
                 last_known = datetime.fromisoformat(data['last_known_update'].replace('Z', '+00:00'))
             except ValueError:
-        # If that fails, try HTTP date format (RFC 2822)
+                # Try HTTP date format (RFC 2822)
                 from email.utils import parsedate_to_datetime
                 try:
                     last_known = parsedate_to_datetime(data['last_known_update'])
@@ -150,13 +141,13 @@ def update_question(question_id):
                     # If both fail, skip concurrency check
                     last_known = None
             
-            if last_known and question.last_edited_at:
+            if last_known and question.updated_at:
                 # Make both timezone-aware or both naive for comparison
-                if question.last_edited_at.tzinfo is None:
-                    # If last_edited_at is naive, make last_known naive too
+                if question.updated_at.tzinfo is None:
                     last_known = last_known.replace(tzinfo=None)
                 
-                if question.last_edited_at > last_known:
+                # Check if question was updated after user loaded it
+                if (question.updated_at - last_known > timedelta(seconds=1)):
                     return jsonify({
                         "error": "This question has been modified by another user. Please refresh and try again.",
                         "concurrent_edit": True
@@ -168,7 +159,6 @@ def update_question(question_id):
         title = data.get('title')
         body = data.get('body')
         tag_ids = data.get('tag_ids')
-        edit_reason = data.get('edit_reason')
         
         # Title validation
         if title is not None:
@@ -179,7 +169,6 @@ def update_question(question_id):
         
         # Body validation
         if body is not None:
-            # Remove HTML tags for length check
             from bs4 import BeautifulSoup
             plain_text = BeautifulSoup(body, 'html.parser').get_text()
             if not plain_text or len(plain_text.strip()) < 20:
@@ -199,25 +188,19 @@ def update_question(question_id):
         if errors:
             return jsonify({"errors": errors}), 400
         
-        # Update question with history tracking
+        # Update question (no history tracking needed)
         try:
-            question.update_with_history(
-                editor_id=user_id,
+            question.update_question(
                 title=title,
                 body=body,
-                tag_ids=tag_ids,
-                edit_reason=edit_reason,
-                is_moderator=is_moderator
+                tag_ids=tag_ids
             )
             
-            # If moderator edited, optionally notify author (AC 10)
-            if is_moderator and user_id != question.user_id:
-                # TODO: Implement notification system
-                logging.info(f"Moderator {user_id} edited question {question_id}")
+            
             
             return jsonify({
                 "message": "Question updated successfully",
-                "question": question.to_dict(include_edit_info=True, current_user_id=user_id)
+                "question": question.to_dict(current_user_id=user_id)
             }), 200
             
         except PermissionError as e:
@@ -233,40 +216,7 @@ def update_question(question_id):
             "error": "Failed to update question. Please try again.",
             "details": str(e)
         }), 500
-
-
-@question_bp.route('/<int:question_id>/history', methods=['GET'])
-def get_question_history(question_id):
-    """
-    Get edit history for a question (AC 8)
     
-    Query parameters:
-        include_content: Include full content diffs (default: false)
-        limit: Limit number of records (default: all)
-    
-    Returns:
-        JSON response with edit history
-    """
-    try:
-        question = Question.get_by_id(question_id)
-        if not question:
-            return jsonify({"error": "Question not found"}), 404
-        
-        include_content = request.args.get('include_content', 'false').lower() == 'true'
-        limit = request.args.get('limit', type=int)
-        
-        history = QuestionEditHistory.get_by_question_id(question_id, limit=limit)
-        
-        return jsonify({
-            "question_id": question_id,
-            "edit_count": question.edit_count,
-            "history": [h.to_dict(include_content_diff=include_content) for h in history]
-        }), 200
-        
-    except Exception as e:
-        logging.error(f"Error fetching question history: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
-
 
 @question_bp.route('/', methods=['POST'])
 def create_question():

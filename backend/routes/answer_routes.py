@@ -144,32 +144,18 @@ def create_answer(current_user, question_id):
 @answers_bp.route('/<int:answer_id>/edit', methods=['GET'])
 @login_required
 def get_answer_for_edit(answer_id):
-    """
-    Get answer data for editing (AC 1)
-    
-    Returns:
-        JSON response with answer data and edit permissions
-    """
+    """Get answer for editing (AC 1)"""
     try:
         answer = Answer.query.get(answer_id)
         if not answer:
             return jsonify({"error": "Answer not found"}), 404
         
         user_id = request.user_id
-        is_moderator = getattr(request, 'is_moderator', False)
         
-        # Check permissions
-        can_edit = answer.can_be_edited_by(user_id, is_moderator)
+        if not answer.can_be_edited_by(user_id):
+            return jsonify({"error": "No permission to edit"}), 403
         
-        if not can_edit:
-            return jsonify({
-                "error": "You do not have permission to edit this answer"
-            }), 403
-        
-        return jsonify({
-            "answer": answer.to_dict(include_edit_info=True, current_user_id=user_id),
-            "can_edit": can_edit,
-        }), 200
+        return jsonify({"answer": answer.to_dict(current_user_id=user_id), "can_edit": True}), 200
         
     except Exception as e:
         logging.error(f"Error fetching answer for edit: {str(e)}")
@@ -179,78 +165,42 @@ def get_answer_for_edit(answer_id):
 @answers_bp.route('/<int:answer_id>', methods=['PUT'])
 @login_required
 def update_answer(answer_id):
-    """
-    Update an answer (AC 1, AC 2)
-    
-    Body parameters:
-        body: New body content (required)
-        edit_reason: Reason for edit (optional)
-    
-    Returns:
-        JSON response with updated answer or error
-    """
+    """Update answer (AC 1, AC 2)"""
     try:
         answer = Answer.query.get(answer_id)
         if not answer:
             return jsonify({"error": "Answer not found"}), 404
         
         user_id = request.user_id
-        is_moderator = getattr(request, 'is_moderator', False)
         
-        # Check permissions
-        can_edit = answer.can_be_edited_by(user_id, is_moderator)
-        
-        if not can_edit:
-            return jsonify({
-                "error": "You do not have permission to edit this answer"
-            }), 403
+        if not answer.can_be_edited_by(user_id):
+            return jsonify({"error": "No permission to edit"}), 403
         
         data = request.get_json()
-        
-        # Validate fields
-        errors = {}
-        
         body = data.get('body')
-        edit_reason = data.get('edit_reason')
         
-        # Body validation
-        if body is not None:
-            # Remove HTML tags for length check
-            from bs4 import BeautifulSoup
-            plain_text = BeautifulSoup(body, 'html.parser').get_text()
-            if not plain_text or len(plain_text.strip()) < 20:
-                errors['body'] = 'Answer body must be at least 20 characters'
-        else:
-            errors['body'] = 'Body is required'
+        if not body:
+            return jsonify({"errors": {"body": "Body is required"}}), 400
         
-        if errors:
-            return jsonify({"errors": errors}), 400
+        # Validate
+        from bs4 import BeautifulSoup
+        plain_text = BeautifulSoup(body, 'html.parser').get_text()
+        if len(plain_text.strip()) < 20:
+            return jsonify({"errors": {"body": "Answer must be at least 20 characters"}}), 400
         
-        # Track if answer was accepted before edit (AC 2)
+        # Track acceptance before edit
         was_accepted = answer.is_accepted
         
-        # Update answer with history tracking
+        # Update
         try:
-            answer.update_with_history(
-                editor_id=user_id,
-                body=body,
-                edit_reason=edit_reason,
-                is_moderator=is_moderator
-            )
-            
-            # AC 2: If accepted answer was edited, notify question author
-            if was_accepted and not answer.is_accepted:
-                # TODO: Implement notification system
-                logging.info(f"Accepted answer {answer_id} was edited and removed from accepted status")
+            answer.update_answer(body)
             
             return jsonify({
                 "message": "Answer updated successfully",
-                "answer": answer.to_dict(include_edit_info=True, current_user_id=user_id),
+                "answer": answer.to_dict(current_user_id=user_id),
                 "acceptance_removed": was_accepted and not answer.is_accepted  # AC 2
             }), 200
             
-        except PermissionError as e:
-            return jsonify({"error": str(e)}), 403
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
         
@@ -258,55 +208,17 @@ def update_answer(answer_id):
         import traceback
         logging.error(f"Error updating answer: {str(e)}")
         logging.error(traceback.format_exc())
-        return jsonify({
-            "error": "Failed to update answer. Please try again.",
-            "details": str(e)
-        }), 500
-
-
-@answers_bp.route('/<int:answer_id>/history', methods=['GET'])
-def get_answer_history(answer_id):
-    """
-    Get edit history for an answer
-    
-    Query parameters:
-        include_content: Include full content diffs (default: false)
-        limit: Limit number of records (default: all)
-    
-    Returns:
-        JSON response with edit history
-    """
-    try:
-        answer = Answer.query.get(answer_id)
-        if not answer:
-            return jsonify({"error": "Answer not found"}), 404
-        
-        include_content = request.args.get('include_content', 'false').lower() == 'true'
-        limit = request.args.get('limit', type=int)
-        
-        history = AnswerEditHistory.get_by_answer_id(answer_id, limit=limit)
-        
-        return jsonify({
-            "answer_id": answer_id,
-            "edit_count": answer.edit_count,
-            "history": [h.to_dict(include_content_diff=include_content) for h in history]
-        }), 200
-        
-    except Exception as e:
-        logging.error(f"Error fetching answer history: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": "Failed to update answer", "details": str(e)}), 500
 
 
 @answers_bp.route('/<int:answer_id>/comments', methods=['GET'])
 def get_comments_for_answer(answer_id):
-    """Get all comments for a specific answer"""
+    """Get comments for answer"""
     try: 
-        # check answer exists
         answer = Answer.query.get(answer_id)
         if not answer:
             return jsonify({'message': 'Answer not found'}), 404
         
-        #  all comments for this answer
         comments = Comment.query.filter_by(answer_id=answer_id).all()
         
         comments_list = []
@@ -324,10 +236,7 @@ def get_comments_for_answer(answer_id):
                 }
             })
         
-        return jsonify({
-            'answer_id': answer_id,
-            'comments': comments_list
-        }), 200
+        return jsonify({'answer_id': answer_id, 'comments': comments_list}), 200
         
     except Exception as e:
         return jsonify({'message': f'Error fetching comments: {str(e)}'}), 500

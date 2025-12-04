@@ -61,7 +61,6 @@ def login_required(view_func):
                 request.user_id = user.id
                 request.username = user.username
                 request.user = user
-                request.is_moderator = getattr(user, 'is_moderator', False)
                 request.is_admin = getattr(user, 'is_admin', False)
                 
                 print(f"DEBUG: Set request.user_id={request.user_id}")
