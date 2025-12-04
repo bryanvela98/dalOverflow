@@ -82,11 +82,15 @@ upload_to_dcode:
   tags:
     - deployment # Use your custom runner
   image: python:${PYTHON_VERSION}
+  needs:
+    - job: code_quality_designite
+      artifacts: true
   before_script:
     - pip install requests # Required for the upload script
   script:
     - echo "Uploading code quality metrics to DCode..."
     - echo "Checking for artifacts..."
+    - ls -la
     - ls -la backend/ || true
     - |
       # Check if DPy results exist (artifacts are downloaded to project root)
@@ -102,8 +106,6 @@ upload_to_dcode:
         echo "Artifacts may not have been downloaded properly"
         exit 0
       fi
-  dependencies:
-    - code_quality_designite
   allow_failure: true
   only:
     - develop
