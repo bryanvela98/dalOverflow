@@ -25,7 +25,9 @@ def create_app():
                 "http://localhost:5000", 
                 "http://localhost:5173", 
                 "https://frontend-five-roan-92.vercel.app",
-                "https://frontend-cne2sdqp7-y-onees-projects.vercel.app"
+                "https://frontend-cne2sdqp7-y-onees-projects.vercel.app",
+                "https://frontend-6pbzspbet-y-onees-projects.vercel.app",
+                "https://*.vercel.app"  # Allow all Vercel deployments
             ]}},
             allow_headers=["Content-Type", "Authorization"],
             methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
