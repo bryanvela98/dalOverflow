@@ -80,7 +80,7 @@ code_quality_designite:
 upload_to_dcode:
   stage: quality
   tags:
-    - deployment # Use your custom runner
+    - deployment 
   image: python:${PYTHON_VERSION}
   needs:
     - job: code_quality_designite
@@ -176,7 +176,7 @@ deploy_backend_to_vm:
   only:
     - develop
     - main
-  when: manual # Requires manual trigger for safety
+  when: manual #  manual trigger for safety
 
 # deploy_frontend_vercel:
 #   stage: deploy
