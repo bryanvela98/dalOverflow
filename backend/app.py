@@ -19,7 +19,14 @@ def create_app():
     
     # Enable CORS for React frontend with all necessary permissions
     CORS(app, 
-            resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:5000", "http://localhost:5173", "https://frontend-five-roan-92.vercel.app"]}},
+            resources={r"/api/*": {"origins": [
+                "http://localhost:3000", 
+                "http://localhost:3001", 
+                "http://localhost:5000", 
+                "http://localhost:5173", 
+                "https://frontend-five-roan-92.vercel.app",
+                "https://frontend-cne2sdqp7-y-onees-projects.vercel.app"
+            ]}},
             allow_headers=["Content-Type", "Authorization"],
             methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         supports_credentials=True)
