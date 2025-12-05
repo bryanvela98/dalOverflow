@@ -2,40 +2,50 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from config.config_postgres import Config
 from database import db
+import re
 
 def create_app():
-    app = Flask(__name__) # Create Flask app instance
-    app.config.from_object(Config) # Load configuration from Config class
+    app = Flask(__name__)
+    app.config.from_object(Config)
     
-    # Override database URL if environment variable is set (for testing)
     import os
     if os.environ.get('DATABASE_URL'):
         app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     
-    db.init_app(app) # Initialize SQLAlchemy with the app
-    
-    # Disable strict slashes to prevent redirects
+    db.init_app(app)
     app.url_map.strict_slashes = False
     
-    # Enable CORS for React frontend with all necessary permissions
-    CORS(app, 
-            resources={r"/api/*": {"origins": [
-                "http://localhost:3000", 
-                "http://localhost:3001", 
-                "http://localhost:5000", 
-                "http://localhost:5173", 
-                "https://frontend-five-roan-92.vercel.app",
-                "https://frontend-cne2sdqp7-y-onees-projects.vercel.app",
-                "https://frontend-6pbzspbet-y-onees-projects.vercel.app",
-                "https://*.vercel.app",  # Allow all Vercel deployments
-                "https://*.ngrok-free.dev",  # Allow ngrok tunnels
-                "*",
-                r"https://.*\.vercel\.app"
-            ]}},
-            allow_headers=["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
-            methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        supports_credentials=True)
-
+    # Don't use Flask-CORS at all - we'll handle it manually
+    
+    # Handle CORS manually with proper credentials support
+    @app.after_request
+    def after_request(response):
+        origin = request.headers.get('Origin')
+        
+        # Define allowed origin patterns
+        allowed_patterns = [
+            r'^http://localhost:\d+$',              # All localhost ports
+            r'^https://.*\.vercel\.app$',           # All Vercel deployments
+            r'^https://.*\.ngrok-free\.dev$',       # Ngrok tunnels
+        ]
+        
+        # Check if origin matches any allowed pattern
+        if origin and any(re.match(pattern, origin) for pattern in allowed_patterns):
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, ngrok-skip-browser-warning'
+            response.headers['Access-Control-Max-Age'] = '3600'
+        
+        return response
+    
+    # Handle preflight OPTIONS requests
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            response = app.make_default_options_response()
+            return response
+    
     # Register blueprints for routes
     from routes.notification_routes import notification_bp
     from routes.user_routes import user_bp
@@ -49,10 +59,7 @@ def create_app():
     from routes.comment_routes import comment_bp
     from routes.upload_routes import upload_bp
     from routes.gemini_ai_routes import ai_bp
-
-
     
-    # Register the notification blueprint with a URL prefix
     app.register_blueprint(notification_bp, url_prefix='/api/notifications')
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(question_bp, url_prefix='/api/questions')
@@ -65,29 +72,13 @@ def create_app():
     app.register_blueprint(comment_bp, url_prefix='/api/comments')
     app.register_blueprint(upload_bp, url_prefix='/api/upload')
     app.register_blueprint(ai_bp, url_prefix='/api/ai')
-
-    @app.before_request
-    def handle_preflight():
-        if request.method == "OPTIONS":
-            origin = request.headers.get("Origin")
-            if origin:
-                response.headers["Access-Control-Allow-Origin"] = origin
-                response.headers["Access-Control-Allow-Credentials"] = "true"
-            response = jsonify({"status": "ok"})
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,ngrok-skip-browser-warning")
-            response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-            return response, 200
-
+    
     # Create all database tables
     with app.app_context():
         db.create_all()
-
+    
     return app
 
-   
-
-# Run the app
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True, port=5001, use_reloader=False) # Disable reloader to prevent config issues
+    app.run(debug=True, port=5001, use_reloader=False)
