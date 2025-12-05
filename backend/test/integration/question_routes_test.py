@@ -152,7 +152,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(data['question']['view_count'], 2)  # be 2 after second view
 
 
-    def test_view_count_in_databse(self):
+    def test_view_count_persists_in_database(self):
         """Test that view count is properly saved in database"""
         question_id = self.question1.id
         
