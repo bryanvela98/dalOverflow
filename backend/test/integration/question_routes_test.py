@@ -162,13 +162,11 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         
         # Fetch question directly from database to verify persistence
         from models.question import Question
+        db.session.expire_all()  # Expire session to force fresh database read
         question = Question.get_by_id(question_id)
-        self.assertIsNotNone(question, f"Question with id {question_id} not found in database")
         
-        assert question is not None
+        self.assertIsNotNone(question, f"Question with id {question_id} not found in database")
         self.assertEqual(question.view_count, 5)
-
-        db.session.expire_all()
 
 
     def test_view_count_fake_ques(self):
