@@ -13,9 +13,6 @@ npm run dev
 
 # Build for production
 npm run build
-
-# Run tests
-npm run test
 ```
 
 The development server will be available at `http://localhost:5173`
@@ -24,53 +21,39 @@ The development server will be available at `http://localhost:5173`
 
 ```
 src/
-├── components/        # Reusable React components
-│   ├── Header/       # Header component with search
-│   ├── Question/     # Question-related components
-│   ├── Tags/         # Tag-related components
-│   └── ...           # Other components
-├── pages/            # Page components
+├── components/          # Reusable React components
+│   ├── Header/         # Navigation and search
+│   ├── Question/       # Question display and editing
+│   ├── NotificationBell/ # User notifications
+│   ├── Tags/           # Tag components
+│   └── ...             # Other UI components
+├── pages/              # Page components
 │   ├── LandingPage.jsx
-│   ├── LoginRegistration.jsx
 │   ├── ProfilePage.jsx
 │   ├── SearchResults.jsx
-│   ├── TagDetail.jsx
-│   ├── CategoriesPage.jsx
-│   └── UsersPage.jsx
-├── services/         # API service calls
-├── hooks/            # Custom React hooks
-├── routes/           # Route definitions
-├── styles/           # CSS styles
-├── types/            # TypeScript types
-├── constants/        # Constants
-├── utils/            # Utility functions
-├── test/             # Test files
-├── App.jsx           # Main app component
-├── main.jsx          # Entry point
-└── index.css         # Global styles
+│   └── ...             # Other pages
+├── hooks/              # Custom React hooks
+├── routes/             # Route definitions
+├── styles/             # CSS styling
+├── constants/          # Configuration constants
+├── utils/              # Utility functions
+├── App.jsx             # Main app component
+└── main.jsx            # Entry point
 ```
 
 ## Key Features
 
-- **Question Management** - Browse, search, and view questions with vote counts
-- **Authentication** - User login and registration
-- **User Profiles** - View user profiles with reputation calculated from votes
-- **Tags** - Filter questions by tags
-- **Search** - Full-text search across questions
-- **Notifications** - Real-time notifications for users
-- **Responsive Design** - Mobile-friendly UI
-
-## API Integration
-
-The frontend communicates with the backend API at `http://localhost:5001/api/`. Key endpoints used:
-
-- **Questions** - Fetch all questions, get specific questions
-- **Votes** - Get vote counts for questions and calculate reputation
-- **Users** - Fetch user data and profiles
-- **Tags** - Get available tags and filter by tags
-- **Answers** - Fetch and display answers
-- **Notifications** - Fetch user notifications
-- **Search** - Full-text search functionality
+- **Question Management** - Browse, search, and view questions with vote counts and view tracking
+- **Authentication** - User login, registration, and logout with session validation
+- **User Profiles** - View and edit user profiles with reputation calculated from votes
+- **Tags** - Filter and browse questions by tags
+- **Search** - Full-text fuzzy search across questions
+- **Voting System** - Upvote and downvote questions and answers with persistent state
+- **Comments** - Add and view comments on answers
+- **Notifications** - Real-time user notifications with mark-as-read functionality
+- **AI Features** - AI-powered answer generation and summarization
+- **Question Editing** - Edit questions with history tracking and permissions
+- **Responsive Design** - Mobile-friendly UI with consistent styling
 
 ## Development
 
@@ -78,25 +61,44 @@ The frontend communicates with the backend API at `http://localhost:5001/api/`. 
 # Run development server with HMR
 npm run dev
 
-# Run tests
-npm run test
+# Build for production
+npm run build
 
-# Run tests with coverage
-npm run test:coverage
-
-# Lint code
+# Run linter
 npm run lint
 ```
 
 ## Technologies
 
-- **React** - UI library
-- **Vite** - Build tool and dev server
-- **React Router** - Client-side routing
-- **Axios/Fetch** - HTTP requests (uses native Fetch API)
-- **CSS** - Styling
+- **React 18** - UI library for building components
+- **Vite** - Modern build tool and development server with instant HMR
+- **React Router** - Client-side routing and navigation
+- **Fetch API** - HTTP requests to backend API
+- **CSS3** - Styling with CSS variables and flexbox/grid layouts
+
+## Design System
+
+The frontend uses a consistent design system with:
+
+- **Color Theme** - Primary yellow (#FFC107) with supporting colors for success, danger, and neutral states
+- **Typography** - System font stack with consistent sizing scale
+- **Spacing** - Standardized spacing variables for consistent layout
+- **Components** - Reusable components following React best practices
 
 ## Environment Variables
+
+Create a `.env` file in the frontend root directory:
+
+```
+VITE_API_BASE_URL=http://localhost:5001/api
+```
+
+## Testing
+
+Tests are organized by type:
+
+- **Unit Tests** - Test individual components and utilities
+- **Integration Tests** - Test component interactions and API integration
 
 Create a `.env` file in the frontend root:
 
