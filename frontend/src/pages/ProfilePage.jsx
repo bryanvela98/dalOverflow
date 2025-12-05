@@ -114,6 +114,39 @@ const ProfilePage = () => {
 
   return (
     <>
+      <button
+        onClick={() => navigate("/")}
+        style={{
+          position: "fixed",
+          left: "2rem",
+          top: "2rem",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          padding: "0.5rem 1rem",
+          backgroundColor: "transparent",
+          border: "1px solid var(--color-border-light)",
+          borderRadius: "0.5rem",
+          color: "var(--color-text-primary)",
+          fontSize: "0.875rem",
+          fontWeight: "500",
+          cursor: "pointer",
+          transition: "all 0.2s ease",
+          zIndex: 1000,
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = "var(--color-primary)";
+          e.target.style.borderColor = "var(--color-primary)";
+          e.target.style.color = "var(--color-bg-primary)";
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = "transparent";
+          e.target.style.borderColor = "var(--color-border-light)";
+          e.target.style.color = "var(--color-text-primary)";
+        }}
+      >
+        ← Back to Home
+      </button>
       <div className="auth-container">
         <div className="form-container" style={{ maxWidth: 420 }}>
           <h2 style={{ marginBottom: "1.5rem", textAlign: "center" }}>
