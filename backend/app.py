@@ -81,8 +81,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-<<<<<<< HEAD
-    app.run(debug=True, host='0.0.0.0', port=5001, use_reloader=False) # Disable reloader to prevent config issues
-=======
     app.run(debug=True, port=5001, use_reloader=False)
->>>>>>> c894ead8f1ff26cefd8b0ae23c4fbea2015a32eb
