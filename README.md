@@ -239,8 +239,8 @@ Update API endpoint in `.env.production` to point to production backend.
 
 For detailed usage scenarios and feature workflows, see:
 
-- Frontend usage and component documentation: `/frontend/README.md`
-- Backend API documentation and endpoints: `/backend/README.md`
-- Usage scenario documentation: `/docs/Usage-scenario.pdf`
-- Code smell analysis: `/docs/smells`
-- User flow diagrams: `/docs/Userflow-diagrams.pdf`
+- Frontend usage and component documentation: [/frontend/README.md](/frontend/README.md)
+- Backend API documentation and endpoints: [/backend/README.md](/backend/README.md)
+- Usage scenario documentation: [/docs/Usage-scenario.pdf](/docs/Usage-scenario.pdf)
+- Code smell analysis: [/docs/smells](/docs/smells)
+- User flow diagrams: [/docs/Userflow-diagrams.pdf](/docs/Userflow-diagrams.pdf)
