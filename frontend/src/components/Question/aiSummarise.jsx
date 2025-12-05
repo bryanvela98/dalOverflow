@@ -25,13 +25,22 @@ const aiSummariseSec = ({ questionId, summMockUrl }) => {
       summMockUrl || `${API_BASE_URL}/questions/${questionId}/summary`;
     const res = await apiFetch(url);
 
-    if (res.ok) {
-      const data = await res.json();
-      setSumTxt(data.summary || data.content || "No summary available.");
-    } else {
-      setSumTxt(
-        "Temporary summary: Some answers focus on different approaches; comments add clarifications."
-      );
+      const url = summMockUrl || `${API_BASE_URL}/api/ai/summarize`;
+      const res = await apiFetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers: ansMultibody })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSumTxt(data.summary || "Nothing but cobwebs here");
+      } else {
+        setSumTxt("Can't summarise, try later pls, thanks");
+      }
+    } catch (err) {
+      console.error("Error", err);
+      setSumTxt("Sorry there's something wrong, can't get the summary. Pls try again later");
     }
 
     setAlrdyFetch(true);
