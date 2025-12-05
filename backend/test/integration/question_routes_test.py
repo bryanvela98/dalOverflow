@@ -170,6 +170,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
 
         db.session.expire_all()
 
+
     def test_view_count_fake_ques(self):
         """Test view count increment for non-existent question"""
         response = self.client.get('/api/questions/99999')
