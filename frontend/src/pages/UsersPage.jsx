@@ -75,7 +75,7 @@ const UsersPage = () => {
         <Sidebar />
         <div className="main-body">
           <div className="centre-body">
-            <h2 className="users-page-title">USERS</h2>
+            <h2 className="users-page-title">Users</h2>
             <input
               type="text"
               placeholder="Search by username or email"
