@@ -17,7 +17,7 @@ export function useAuth() {
     setIsLoggedIn(true);
 
     //check if token is valid
-    apiFetch(`${API_BASE_URL}/auth/validate`, {
+    fetch(`${API_BASE_URL}/auth/validate`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => {

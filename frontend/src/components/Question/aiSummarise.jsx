@@ -3,25 +3,7 @@ import apiFetch from "../../utils/api";
 import "./aiSummarise.css";
 import API_BASE_URL from "../../constants/apiConfig";
 
-//formatting
-const mdToHtml = (txt) => {
-  if (!txt) {
-    return "";
-  }
-  const str = String(txt);
-  return str
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, "<code>$1</code>")
-    .replace(/^### (.+)$/gm, "<h4>$1</h4>")
-    .replace(/^## (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^# (.+)$/gm, "<h2>$1</h2>")
-    .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/^\d+\. (.+)$/gm, "<li>$1</li>")
-    .replace(/\n/g, "<br/>");
-};
-
-const aiSummariseSec = ({ ans, summMockUrl }) => {
+const aiSummariseSec = ({ questionId, summMockUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sumTxt, setSumTxt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,8 +21,9 @@ const aiSummariseSec = ({ ans, summMockUrl }) => {
   const loadSummary = async () => {
     setLoading(true);
 
-    try {
-      const ansMultibody = ans.map(a => ({ body: a.content }));
+    const url =
+      summMockUrl || `${API_BASE_URL}/questions/${questionId}/summary`;
+    const res = await apiFetch(url);
 
       const url = summMockUrl || `${API_BASE_URL}/api/ai/summarize`;
       const res = await apiFetch(url, {
@@ -77,14 +60,11 @@ const aiSummariseSec = ({ ans, summMockUrl }) => {
         <div className="ai-sum-content">
           {loading ? (
             <div className="ai-sum-loading">
-              <span className="ai-sum-spinner">---</span>
-              <span>Summarised text upcoming</span>
+              <span className="ai-sum-spinner">...</span>
+              <span>Loading summary...</span>
             </div>
           ) : (
-            <div
-              className="ai-sum-text md-content"
-              dangerouslySetInnerHTML={{ __html: mdToHtml(sumTxt) }}
-            />
+            <div className="ai-sum-text">{sumTxt}</div>
           )}
         </div>
       )}

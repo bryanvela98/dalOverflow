@@ -924,7 +924,7 @@ const BasicQuestionDetail = () => {
 
             {/*summary provided by ai*/}
             {question?.answers?.length >= 2 && (
-              <AiSummariseSec ans={question.answers} />
+              <AiSummariseSec questionId={question.id} />
             )}
 
             {/* Answers Section */}
