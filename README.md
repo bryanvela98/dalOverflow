@@ -241,3 +241,6 @@ For detailed usage scenarios and feature workflows, see:
 
 - Frontend usage and component documentation: `/frontend/README.md`
 - Backend API documentation and endpoints: `/backend/README.md`
+- Usage scenario documentation: `/docs/Usage-scenario.pdf`
+- Code smell analysis: `/docs/smells`
+- User flow diagrams: `/docs/Userflow-diagrams.pdf`
