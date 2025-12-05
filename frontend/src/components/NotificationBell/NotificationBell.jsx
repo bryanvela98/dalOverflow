@@ -110,7 +110,7 @@ const NotificationBell = () => {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ color: "#6b7280" }}
+          style={{ color: "var(--color-text-secondary)" }}
         >
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -122,7 +122,7 @@ const NotificationBell = () => {
             position: "absolute",
             top: "2px",
             right: "2px",
-            background: "#ef4444",
+            background: "var(--color-danger)",
             color: "white",
             borderRadius: "50%",
             width: "20px",
@@ -148,12 +148,12 @@ const NotificationBell = () => {
               position: "fixed",
               top: `${dropdownPosition.top}px`,
               right: `${dropdownPosition.right}px`,
-              background: "white",
-              border: "2px solid #3b82f6",
+              background: "var(--color-bg-primary)",
+              border: "2px solid var(--color-primary)",
               borderRadius: "12px",
               padding: "24px",
               width: "380px",
-              boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
+              boxShadow: "var(--shadow-lg)",
               zIndex: 9999999,
               maxHeight: "500px",
               overflowY: "auto",
@@ -167,13 +167,13 @@ const NotificationBell = () => {
                 alignItems: "center",
                 marginBottom: "20px",
                 paddingBottom: "12px",
-                borderBottom: "2px solid #e5e7eb",
+                borderBottom: "1px solid var(--color-border-light)",
               }}
             >
               <h3
                 style={{
                   margin: 0,
-                  color: "#1f2937",
+                  color: "var(--color-text-primary)",
                   fontSize: "20px",
                   fontWeight: "700",
                 }}
@@ -199,11 +199,11 @@ const NotificationBell = () => {
               <button
                 onClick={() => setShowDropdown(false)}
                 style={{
-                  background: "#fee2e2",
+                  background: "var(--color-primary-light)",
                   border: "none",
                   fontSize: "18px",
                   cursor: "pointer",
-                  color: "#dc2626",
+                  color: "var(--color-danger)",
                   width: "32px",
                   height: "32px",
                   borderRadius: "50%",
@@ -300,65 +300,27 @@ const NotificationBell = () => {
             </div> */}
 
               {/* Read Notification */}
-              <div
-                style={{
-                  padding: "16px",
-                  background: "#f9fafb",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  borderLeft: "5px solid #d1d5db",
-                  opacity: 0.7,
-                  transition: "all 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = "1";
-                  e.currentTarget.style.transform = "translateX(4px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = "0.7";
-                  e.currentTarget.style.transform = "translateX(0)";
-                }}
-              >
-                <div
-                  style={{
-                    fontWeight: "600",
-                    color: "#4b5563",
-                    marginBottom: "8px",
-                    fontSize: "15px",
-                  }}
-                >
-                  👍 Your answer received 5 upvotes
-                </div>
-                <div
-                  style={{
-                    fontSize: "14px",
-                    color: "#6b7280",
-                    marginBottom: "8px",
-                    lineHeight: "1.5",
-                  }}
-                >
-                  "JavaScript async/await tutorial"
-                </div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#9ca3af",
-                  }}
-                >
-                  2 hours ago
-                </div>
-              </div>
 
               <div>
                 {loading && <div>Loading...</div>}
                 {error && (
-                  <div style={{ color: "red", marginBottom: "12px" }}>
+                  <div
+                    style={{
+                      color: "var(--color-danger)",
+                      marginBottom: "12px",
+                    }}
+                  >
                     {error}
                   </div>
                 )}
 
                 {notifications.length === 0 && !loading ? (
-                  <div style={{ color: "#6b7280", padding: "16px" }}>
+                  <div
+                    style={{
+                      color: "var(--color-text-secondary)",
+                      padding: "16px",
+                    }}
+                  >
                     No notifications
                   </div>
                 ) : (
@@ -368,16 +330,18 @@ const NotificationBell = () => {
                       style={{
                         padding: "16px",
                         background: notification.unread
-                          ? "linear-gradient(to right, #dbeafe, #eff6ff)"
-                          : "#f9fafb",
+                          ? "linear-gradient(to right, var(--color-primary-light), var(--color-bg-secondary))"
+                          : "var(--color-bg-tertiary)",
                         borderRadius: "10px",
                         marginBottom: "12px",
                         cursor: "pointer",
                         borderLeft: `5px solid ${
-                          notification.unread ? "#3b82f6" : "#d1d5db"
+                          notification.unread
+                            ? "var(--color-primary)"
+                            : "var(--color-border-light)"
                         }`,
                         opacity: notification.unread ? 1 : 0.7,
-                        transition: "all 0.2s",
+                        transition: "all var(--transition-base)",
                       }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.transform = "translateX(4px)")
@@ -389,7 +353,7 @@ const NotificationBell = () => {
                       <div
                         style={{
                           fontWeight: "700",
-                          color: "#1f2937",
+                          color: "var(--color-text-primary)",
                           marginBottom: "8px",
                           fontSize: "15px",
                         }}
@@ -399,7 +363,7 @@ const NotificationBell = () => {
                       <div
                         style={{
                           fontSize: "14px",
-                          color: "#4b5563",
+                          color: "var(--color-text-secondary)",
                           marginBottom: "8px",
                           lineHeight: "1.5",
                         }}
@@ -409,7 +373,7 @@ const NotificationBell = () => {
                       <div
                         style={{
                           fontSize: "12px",
-                          color: "#6b7280",
+                          color: "var(--color-text-tertiary)",
                         }}
                       >
                         {notification.created_at}
@@ -421,47 +385,6 @@ const NotificationBell = () => {
             </div>
 
             {/* Footer */}
-            <div
-              style={{
-                marginTop: "20px",
-                paddingTop: "16px",
-                borderTop: "2px solid #e5e7eb",
-                display: "flex",
-                gap: "12px",
-              }}
-            >
-              <button
-                style={{
-                  flex: 1,
-                  padding: "10px",
-                  background: "#3b82f6",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  fontSize: "14px",
-                }}
-              >
-                Mark all as read
-              </button>
-              <button
-                onClick={() => (window.location.href = "/notifications")}
-                style={{
-                  flex: 1,
-                  padding: "10px",
-                  background: "white",
-                  color: "#3b82f6",
-                  border: "2px solid #3b82f6",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  fontSize: "14px",
-                }}
-              >
-                View all
-              </button>
-            </div>
           </div>,
           document.body
         )}
