@@ -9,7 +9,7 @@ Last Modified: 2025-11-23
 
 from flask import Blueprint, request, jsonify
 from datetime import datetime
-from middleware.auth_middleware import token_required
+from middleware.auth_middleware import token_required, login_required
 from database import db
 from models import User
 from models.answer import Answer
@@ -17,6 +17,7 @@ from models.comment import Comment
 from models.notification import Notification
 from utils.html_sanitizer import sanitize_html_body
 from services.answer_services import AnswerServices
+import logging
 
 answers_bp = Blueprint('answers', __name__)
 
@@ -41,10 +42,14 @@ def get_answers(question_id):
                 'user': {
                     'username': user.username if user else 'Unknown',
                     'reputation': user.reputation if user else 0
-                }
+                },
+                'updated_at': answer.updated_at.isoformat() if answer.updated_at else None,
+                'edit_count': answer.edit_count or 0,
+                'is_edited': (answer.edit_count or 0) > 0,
             })
 
-        return jsonify({'answers': answers_list}), 200
+        # return jsonify({'answers': answers_list},), 200
+        return jsonify({'answers': answers_list},), 200
 
     except Exception as e:
         return jsonify({'message': f'Error fetching answers: {str(e)}'}), 500
@@ -137,16 +142,88 @@ def create_answer(current_user, question_id):
         return jsonify({'message': f'Error creating answer: {str(e)}'}), 500
 
 
+# ============================================================
+# NEW ENDPOINTS FOR ANSWER EDITING
+# ============================================================
+
+@answers_bp.route('/<int:answer_id>/edit', methods=['GET'])
+@login_required
+def get_answer_for_edit(answer_id):
+    """Get answer for editing (AC 1)"""
+    try:
+        answer = Answer.query.get(answer_id)
+        if not answer:
+            return jsonify({"error": "Answer not found"}), 404
+        
+        user_id = request.user_id
+        
+        if not answer.can_be_edited_by(user_id):
+            return jsonify({"error": "No permission to edit"}), 403
+        
+        return jsonify({"answer": answer.to_dict(current_user_id=user_id), "can_edit": True}), 200
+        
+    except Exception as e:
+        logging.error(f"Error fetching answer for edit: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@answers_bp.route('/<int:answer_id>', methods=['PUT'])
+@login_required
+def update_answer(answer_id):
+    """Update answer (AC 1, AC 2)"""
+    try:
+        answer = Answer.query.get(answer_id)
+        if not answer:
+            return jsonify({"error": "Answer not found"}), 404
+        
+        user_id = request.user_id
+        
+        if not answer.can_be_edited_by(user_id):
+            return jsonify({"error": "No permission to edit"}), 403
+        
+        data = request.get_json()
+        body = data.get('body')
+        
+        if not body:
+            return jsonify({"errors": {"body": "Body is required"}}), 400
+        
+        # Validate
+        from bs4 import BeautifulSoup
+        plain_text = BeautifulSoup(body, 'html.parser').get_text()
+        if len(plain_text.strip()) < 20:
+            return jsonify({"errors": {"body": "Answer must be at least 20 characters"}}), 400
+        
+        # Track acceptance before edit
+        was_accepted = answer.is_accepted
+        
+        # Update
+        try:
+            answer.update_answer(body)
+            
+            return jsonify({
+                "message": "Answer updated successfully",
+                "answer": answer.to_dict(current_user_id=user_id),
+                "acceptance_removed": was_accepted and not answer.is_accepted  # AC 2
+            }), 200
+            
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        
+    except Exception as e:
+        import traceback
+        logging.error(f"Error updating answer: {str(e)}")
+        logging.error(traceback.format_exc())
+        return jsonify({"error": "Failed to update answer", "details": str(e)}), 500
+
+
 @answers_bp.route('/<int:answer_id>/comments', methods=['GET'])
 def get_comments_for_answer(answer_id):
-    """Get all comments for a specific answer"""
+    """Get comments for answer"""
     try: 
-        # check answer exists
         answer = Answer.query.get(answer_id)
         if not answer:
             return jsonify({'message': 'Answer not found'}), 404
         
-        #  all comments for this answer
         comments = Comment.query.filter_by(answer_id=answer_id).all()
         
         comments_list = []
@@ -164,10 +241,7 @@ def get_comments_for_answer(answer_id):
                 }
             })
         
-        return jsonify({
-            'answer_id': answer_id,
-            'comments': comments_list
-        }), 200
+        return jsonify({'answer_id': answer_id, 'comments': comments_list}), 200
         
     except Exception as e:
         return jsonify({'message': f'Error fetching comments: {str(e)}'}), 500

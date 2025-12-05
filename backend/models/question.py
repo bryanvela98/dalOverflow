@@ -1,18 +1,22 @@
 """
-Description: Abstract base model for all database tables using SQLAlchemy.
-Last Modified By: Bryan Vela
+Description: Question model with edit functionality
+Last Modified By: Mahek
 Created: 2025-10-25
 Last Modified: 
     2025-10-26 - File created and implemented basic CRUD operations.
     2025-11-02 - Added Sanitize body and create with sanitized body content functions.
+    2025-12-02 - Added edit functionality with history tracking and permissions
 """
 from .base_model import BaseModel
 from database import db
 from utils.html_sanitizer import sanitize_html_body
+from datetime import datetime, timedelta
+from sqlalchemy import event
+
 
 class Question(BaseModel):
     """
-    Question model representing the the questions asked on the website.
+    Question model representing the questions asked on the website.
 
     Attributes:
         id = Primary Key.
@@ -24,13 +28,15 @@ class Question(BaseModel):
         status = Question status(accepted or rejected)
         accepted_answer_id = Accepted Answer
         ai_generated_ans = AI Generated Answer
+        edit_count = Number of times edited
     """
     __tablename__ = 'questions'
 
     type = db.Column(db.String(255))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    title = db.Column(db.Text)
-    body = db.Column(db.Text)
+    title = db.Column(db.Text, nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    
     # Many-to-many relationship with tags 
     tags = db.relationship(
         'Tag',
@@ -38,18 +44,29 @@ class Question(BaseModel):
         back_populates='questions',
         lazy='dynamic'
     )
+    
     answers = db.relationship(
         'Answer',
         back_populates='question',
-        lazy ='dynamic'
+        lazy='dynamic'
     )
-    status = db.Column(db.String(255))
+    
+    status = db.Column(db.String(255), default='open')
     view_count = db.Column(db.Integer, default=0)
     ai_generated_ans = db.Column(db.Text)
-    #accepted_answers_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=False)
-
     
-    def to_dict(self):
+    # Edit tracking fields
+    edit_count = db.Column(db.Integer, default=0)
+    
+
+    def to_dict(self, include_edit_info=False, current_user_id=None):
+        """
+        Convert question to dictionary with optional edit information
+        
+        Args:
+            include_edit_info: Include edit-related metadata
+            current_user_id: ID of current user to check permissions
+        """
         base_dict = super().to_dict()
         answers_list = self.answers.all()
         base_dict.update({
@@ -65,8 +82,22 @@ class Question(BaseModel):
             'status':self.status,
             'view_count': self.view_count or 0,
             'ai_generated_ans': self.ai_generated_ans,
-            #'accepted_answers_id':self.accepted_answers_id
+            'edit_count': self.edit_count or 0,
+            'is_edited': self.edit_count > 0
         })
+        
+        
+        
+        if current_user_id:
+            # Check if current user can edit
+            can_edit, requires_review = self.can_be_edited_by(
+                user_id=current_user_id
+            )
+            base_dict.update({
+                'can_edit': can_edit,
+                'requires_review': requires_review
+            })
+        
         return base_dict
     
     def sanitize_body(self):
@@ -81,6 +112,89 @@ class Question(BaseModel):
         self.view_count += 1
         db.session.commit()
         return self.view_count
+
+    def can_be_edited_by(self, user_id):
+        """
+        Check if a user can edit this question
+        
+        Args:
+            user_id: ID of the user attempting to edit
+            
+        Returns:
+            tuple: (can_edit: bool, requires_review: bool)
+        """
+        
+        # Non-authors cannot edit
+        if self.user_id != user_id:
+            return False, False
+        
+        # Author can edit within 10 minutes without review
+        time_since_creation = datetime.utcnow() - self.created_at
+        if time_since_creation <= timedelta(minutes=10):
+            return True, False
+        
+        # After 10 minutes, author can still edit but may need review
+        # This can be configured based on your policy
+        return True, True
+    
+    
+    
+    def update_question(self, title=None, body=None, tag_ids=None):
+        """
+        Update question content
+        
+        Args:
+            title: New title (optional)
+            body: New body (optional)
+            tag_ids: New tag IDs (optional)
+            
+        Raises:
+            ValueError: If validation fails
+        """
+        something_changed = False
+        
+        # Update title
+        if title is not None and title != self.title:
+            if not title or len(title.strip()) == 0:
+                raise ValueError("Title cannot be empty")
+            if len(title) > 120:
+                raise ValueError("Title must not exceed 120 characters")
+            self.title = title.strip()
+            something_changed = True
+        
+        # Update body
+        if body is not None:
+            sanitized_body = sanitize_html_body(body)
+            if sanitized_body != self.body:
+                from bs4 import BeautifulSoup
+                plain_text = BeautifulSoup(sanitized_body, 'html.parser').get_text()
+                if len(plain_text.strip()) < 20:
+                    raise ValueError("Body must be at least 20 characters")
+                self.body = sanitized_body
+                something_changed = True
+        
+        # Update tags
+        if tag_ids is not None:
+            if len(tag_ids) < 1:
+                raise ValueError("At least one tag is required")
+            if len(tag_ids) > 5:
+                raise ValueError("Maximum 5 tags allowed")
+            if len(tag_ids) != len(set(tag_ids)):
+                raise ValueError("Duplicate tags not allowed")
+            
+            from models.tag import Tag
+            self.tags = []
+            for tag_id in tag_ids:
+                tag = Tag.query.get(tag_id)
+                if tag:
+                    self.tags.append(tag)
+            something_changed = True
+        
+        if something_changed:
+            self.edit_count = (self.edit_count or 0) + 1
+            # updated_at is automatically set by BaseModel's onupdate
+        
+        db.session.commit()
 
     @classmethod
     def create_with_sanitized_body(cls, data):
@@ -102,7 +216,7 @@ class Question(BaseModel):
             # Refresh to ensure we have the ID
             db.session.refresh(question)
             
-            # associate tag
+            # associate tags
             if tag_ids:
                 from models.tag import Tag
                 from models.questiontag import QuestionTag
@@ -121,3 +235,10 @@ class Question(BaseModel):
         except Exception as e:
             db.session.rollback()
             raise e
+
+
+# Event listener to update updated_at timestamp
+@event.listens_for(Question, 'before_update')
+def update_timestamp(mapper, connection, target):
+    """Automatically update updated_at timestamp before update"""
+    target.updated_at = datetime.utcnow()

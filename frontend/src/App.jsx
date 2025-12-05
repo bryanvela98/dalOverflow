@@ -10,6 +10,8 @@ import BasicQuestionDetail from "./components/Question/BasicQuestionDetail";
 import UsersPage from "./pages/UsersPage";
 import ProfilePage from "./pages/ProfilePage";
 import SearchResults from "./pages/SearchResults";
+import EditQuestion from './components/Question/EditQuestion';
+import QuestionEditHistory from './components/Question/QuestionEditHistory';
 
 function App() {
   return (
@@ -39,6 +41,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/questions/:id/edit" element={<EditQuestion />} />
+        <Route path="/questions/:id/history" element={<QuestionEditHistory />} />
       </Routes>
     </BrowserRouter>
   );

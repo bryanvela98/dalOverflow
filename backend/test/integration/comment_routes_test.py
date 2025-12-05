@@ -23,7 +23,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         
         try:
             # Create test user and questions
-            self.test_user = self.create_test_user()
+            # self.test_user = self.create_test_user()
             
             # Create test user and question
             self.test_user = self.create_test_user()

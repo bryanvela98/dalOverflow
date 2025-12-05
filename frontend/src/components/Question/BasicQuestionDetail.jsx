@@ -9,6 +9,7 @@ import "./BasicQuestionDetail.css";
 import AiAnsSec from "./aiAns";
 import AiSummariseSec from "./aiSummarise";
 import API_BASE_URL from "../../constants/apiConfig";
+import { useNavigate } from "react-router-dom";
 
 const BasicQuestionDetail = () => {
   const { id } = useParams();
@@ -17,6 +18,14 @@ const BasicQuestionDetail = () => {
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
   const [relatedQuestions, setRelatedQuestions] = useState([]);
+  const navigate = useNavigate();
+  const [canEdit, setCanEdit] = useState(false);
+  const [editingAnswerId, setEditingAnswerId] = useState(null);
+  const [editAnswerContent, setEditAnswerContent] = useState("");
+  const [editAnswerReason, setEditAnswerReason] = useState("");
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+  const [editError, setEditError] = useState("");
+  const editQuillRef = React.useRef(null);
   const [copiedCodeId, setCopiedCodeId] = useState(null);
   const [ansContent, setAnsContent] = useState("");
   const [isSubmitAns, setIsSubmitAns] = useState(false);
@@ -162,6 +171,10 @@ const BasicQuestionDetail = () => {
           };
 
           setQuestion(enhancedQuestion);
+          const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+          const canUserEdit = data.question.can_edit || (currentUser.id === data.question.user_id);
+          setCanEdit(canUserEdit);
+
           await fetchUserData(data.question, answers);
 
           // Fetch related questions based on tags
@@ -340,6 +353,16 @@ const BasicQuestionDetail = () => {
     fetchUserVotes();
   }, [id]);
 
+  // Add this NEW useEffect here:
+  useEffect(() => {
+    if (question && question.user_id) {
+      const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const isAuthor = currentUser.id === question.user_id;
+      
+      setCanEdit(isAuthor);
+    }
+  }, [question]);
+
   // get vote counts and calculate reputation
   useEffect(() => {
     if (!question) return;
@@ -389,6 +412,15 @@ const BasicQuestionDetail = () => {
     tempDiv.innerHTML = html;
     return (tempDiv.textContent || "").trim().length;
   };
+  // const handleEditClick = () => {
+  // navigate(`/questions/${id}/edit`);
+  // };
+
+  const handleEditClick = (e) => {
+    e.preventDefault();  // Add this!
+    e.stopPropagation(); // Add this!
+    navigate(`/questions/${id}/edit`);
+};
 
   //validate if 20 chars are inputted
   const isAnsLengVal = () => {
@@ -732,6 +764,118 @@ const BasicQuestionDetail = () => {
     }
   };
 
+  const handleStartEditAnswer = (answer) => {
+  /**
+   * AC 1: Enter edit mode for an answer
+   * Pre-fills editor with existing content
+   */
+  setEditingAnswerId(answer.id);
+  setEditAnswerContent(answer.content);
+  setEditAnswerReason("");
+  setEditError("");
+  
+  // Scroll to the answer being edited
+  setTimeout(() => {
+    const answerElement = document.getElementById(`answer-${answer.id}`);
+    if (answerElement) {
+      answerElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 100);
+};
+
+const handleCancelEditAnswer = () => {
+  /**
+   * AC 1: Cancel editing
+   */
+  if (editAnswerContent !== "") {
+    const confirm = window.confirm("You have unsaved changes. Are you sure you want to cancel?");
+    if (!confirm) return;
+  }
+  
+  setEditingAnswerId(null);
+  setEditAnswerContent("");
+  setEditAnswerReason("");
+  setEditError("");
+};
+
+const handleSubmitEditAnswer = async (answerId) => {
+  /**
+   * AC 1: Save answer edits
+   */
+  // Validate minimum length
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = editAnswerContent;
+  const plainText = (tempDiv.textContent || "").trim();
+  
+  if (plainText.length < 20) {
+    setEditError("Answer must be at least 20 characters long.");
+    return;
+  }
+  
+  setIsSubmittingEdit(true);
+  setEditError("");
+  
+  try {
+    const token = localStorage.getItem("token");
+    
+    // Apply language tags to code blocks (similar to answer submission)
+    let contentWithLanguage = editAnswerContent;
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = editAnswerContent;
+    const preElements = tempDiv.querySelectorAll("pre.ql-syntax");
+    
+    preElements.forEach((pre, index) => {
+      const language = codeBlockLanguages.current[index] || selectedLanguage;
+      pre.setAttribute("data-language", language);
+    });
+    contentWithLanguage = tempDiv.innerHTML;
+    
+    const response = await fetch(
+      `${API_BASE_URL}/api/answers/${answerId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          body: contentWithLanguage,
+          edit_reason: editAnswerReason
+        }),
+      }
+    );
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      setEditError(data.error || data.message || "Failed to update answer");
+      return;
+    }
+    
+    // Success - reload answers to show updated content
+    await fetchAnswers();
+    
+    // Exit edit mode
+    setEditingAnswerId(null);
+    setEditAnswerContent("");
+    setEditAnswerReason("");
+    
+    // Show success message
+    alert("Answer updated successfully!");
+    
+    // AC 2: Show notification if acceptance was removed
+    if (data.acceptance_removed) {
+      alert("Note: Your answer was previously accepted. The acceptance has been temporarily removed until the question author reviews your changes.");
+    }
+    
+  } catch (error) {
+    console.error("Error updating answer:", error);
+    setEditError("Error updating answer: " + error.message);
+  } finally {
+    setIsSubmittingEdit(false);
+  }
+};
+
   if (loading) {
     return (
       <div className="question-detail-loading">
@@ -786,9 +930,70 @@ const BasicQuestionDetail = () => {
                 </button>
               </div>
 
-              <div className="question-header-content">
+              {/* <div className="question-header-content">
                 <div className="question-title-container">
                   <h1 className="question-title">{question.title}</h1>
+                </div> */}
+
+                <div className="question-header-content">
+                {/* Question Header with Edit Button */}
+                <div className="question-header-actions" style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <h1 className="question-title">{question.title}</h1>
+                    
+                    {/* Edit Indicator (AC 8) */}
+                    {question.edit_count > 0 && (
+                      <div 
+                        className="edit-indicator"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          fontSize: '14px',
+                          color: '#6b7280',
+                          marginTop: '8px',
+                          cursor: 'pointer'
+                        }}
+                        title={`Last edited ${question.updated_at ? new Date(question.updated_at).toLocaleString() : 'recently'}`}
+                        onClick={() => navigate(`/questions/${id}/history`)}
+                      >
+                        <span style={{ marginRight: '4px' }}>✏️</span>
+                        <span>(edited)</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {canEdit && (
+                    <button
+                      onClick={handleEditClick}
+                      className="action-button action-button--secondary"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px 16px',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      <svg 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2"
+                      >
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                      Edit Question
+                    </button>
+                  )}
                 </div>
 
                 <div className="question-meta-container">
@@ -937,7 +1142,7 @@ const BasicQuestionDetail = () => {
                 </h2>
               </div>
 
-              <div className="answers-list">
+              {/* <div className="answers-list">
                 {question.answers && question.answers.length > 0 ? (
                   question.answers.map((answer, index) => {
                     const answerAuthor = getUserInfo(answer.user_id);
@@ -1000,7 +1205,7 @@ const BasicQuestionDetail = () => {
                             />
 
                             {/* Answer Code Blocks */}
-                            <div className="answer-code-blocks">
+                            {/* <div className="answer-code-blocks">
                               {answerCodeBlocks.map((block, codeIndex) => (
                                 <div
                                   key={codeIndex}
@@ -1072,7 +1277,256 @@ const BasicQuestionDetail = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */} */
+              <div className="answers-list">
+                  {question.answers && question.answers.length > 0 ? (
+                    question.answers.map((answer, index) => {
+                      const answerAuthor = getUserInfo(answer.user_id);
+                      const answerCodeBlocks = extractCodeFromHTML(answer.content);
+                      const isEditing = editingAnswerId === answer.id;
+                      const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+                      const canEdit = answer.can_edit || (currentUser.id === answer.user_id);
+
+                      return (
+                        <div
+                          key={index}
+                          id={`answer-${answer.id}`}
+                          className={`answer-card ${
+                            answer.is_accepted ? "answer-card--accepted" : ""
+                          }`}
+                        >
+                          {answer.is_accepted && (
+                            <div className="answer-accepted-badge">
+                              ✓ Accepted Answer
+                            </div>
+                          )}
+
+                          <div className="answer-content-container">
+                            <div className="answer-vote-container">
+                              <button
+                                className="vote-button vote-button--up"
+                                onClick={() =>
+                                  handleVote("answer", answer.id, "up")
+                                }
+                              >
+                                ▲
+                              </button>
+                              <span className="vote-count">
+                                {answer.upvotes || 0}
+                              </span>
+                              <button
+                                className="vote-button vote-button--down"
+                                onClick={() =>
+                                  handleVote("answer", answer.id, "down")
+                                }
+                              >
+                                ▼
+                              </button>
+                            </div>
+
+                            <div className="answer-body-container">
+                              {!isEditing ? (
+                                <>
+                                  {/* Normal view mode */}
+                                  <div
+                                    className="answer-content"
+                                    dangerouslySetInnerHTML={{
+                                      __html: answer.content,
+                                    }}
+                                  />
+
+                                  {/* Answer Code Blocks */}
+                                  <div className="answer-code-blocks">
+                                    {answerCodeBlocks.map((block, codeIndex) => (
+                                      <div
+                                        key={codeIndex}
+                                        className="code-block-wrapper"
+                                      >
+                                        <div className="code-block-header">
+                                          <span className="code-language">
+                                            {block.language}
+                                          </span>
+                                          <button
+                                            className="code-copy-button"
+                                            onClick={() =>
+                                              handleCopyCode(
+                                                block.code,
+                                                `answer-${index}-${codeIndex}`
+                                              )
+                                            }
+                                          >
+                                            {copiedCodeId ===
+                                            `answer-${index}-${codeIndex}`
+                                              ? "Copied!"
+                                              : "Copy"}
+                                          </button>
+                                        </div>
+                                        <SyntaxHighlighter
+                                          language={block.language.toLowerCase()}
+                                          style={vscDarkPlus}
+                                          customStyle={{
+                                            margin: 0,
+                                            borderRadius: "0 0 8px 8px",
+                                            fontSize: "14px",
+                                          }}
+                                        >
+                                          {block.code}
+                                        </SyntaxHighlighter>
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  {/* AC 1: Edit indicator with tooltip */}
+                                  {answer.is_edited && (
+                                    <div 
+                                      className="edit-indicator"
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        fontSize: '12px',
+                                        color: '#6b7280',
+                                        marginTop: '8px',
+                                        cursor: 'pointer'
+                                      }}
+                                      title={`Last edited ${answer.updated_at ? new Date(answer.updated_at).toLocaleString() : 'recently'}`}
+                                    >
+                                      <span style={{ marginRight: '4px' }}>✏️</span>
+                                      <span>(edited {answer.edit_count} {answer.edit_count === 1 ? 'time' : 'times'})</span>
+                                    </div>
+                                  )}
+
+                                  <div className="answer-footer-container">
+                                    <div className="answer-meta">
+                                      <div className="answer-author">
+                                        <span className="answer-author-name">
+                                          Answered by {answerAuthor.username}
+                                        </span>
+                                      </div>
+                                      <span className="answer-time">
+                                        {formatDate(answer.created_at)}
+                                      </span>
+                                    </div>
+                                    <div className="answer-actions">
+                                      {/* AC 1: Edit button - only visible to author */}
+                                      {canEdit && (
+                                        <button 
+                                          className="action-button"
+                                          onClick={() => handleStartEditAnswer(answer)}
+                                        >
+                                          Edit
+                                        </button>
+                                      )}
+                                      <button className="action-button">Share</button>
+                                      <button className="action-button">
+                                        Report
+                                      </button>
+                                    </div>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  {/* Edit mode */}
+                                  <div className="answer-edit-form">
+                                    <h4>Edit your answer</h4>
+                                    
+                                    {editError && (
+                                      <div className="ans-inp-err">{editError}</div>
+                                    )}
+                                    
+                                    <div className="code-language-selector">
+                                      <label htmlFor="edit-code-lang">Code Language: </label>
+                                      <select
+                                        id="edit-code-lang"
+                                        value={selectedLanguage}
+                                        onChange={(e) => setSelectedLanguage(e.target.value)}
+                                      >
+                                        <option value="javascript">JavaScript</option>
+                                        <option value="python">Python</option>
+                                        <option value="java">Java</option>
+                                        <option value="cpp">C++</option>
+                                        <option value="csharp">C#</option>
+                                        <option value="typescript">TypeScript</option>
+                                        <option value="php">PHP</option>
+                                        <option value="ruby">Ruby</option>
+                                        <option value="go">Go</option>
+                                        <option value="rust">Rust</option>
+                                        <option value="sql">SQL</option>
+                                      </select>
+                                    </div>
+                                    
+                                    <ReactQuill
+                                      ref={editQuillRef}
+                                      value={editAnswerContent}
+                                      onChange={setEditAnswerContent}
+                                      placeholder="Edit your answer (minimum 20 characters)"
+                                      modules={{
+                                        toolbar: [
+                                          [{ header: [1, 2, 3, false] }],
+                                          ["bold", "italic", "underline", "strike"],
+                                          [{ list: "ordered" }, { list: "bullet" }],
+                                          ["link", "code-block"],
+                                          ["clean"],
+                                        ],
+                                      }}
+                                      className="ans-edit"
+                                    />
+                                    
+                                    <div style={{ marginTop: '12px' }}>
+                                      <label htmlFor="edit-reason" style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
+                                        Edit reason (optional):
+                                      </label>
+                                      <input
+                                        id="edit-reason"
+                                        type="text"
+                                        value={editAnswerReason}
+                                        onChange={(e) => setEditAnswerReason(e.target.value)}
+                                        placeholder="Why are you editing this answer?"
+                                        style={{
+                                          width: '100%',
+                                          padding: '8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '14px'
+                                        }}
+                                        maxLength={200}
+                                      />
+                                    </div>
+                                    
+                                    <div className="answer-edit-actions" style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
+                                      <button
+                                        onClick={() => handleSubmitEditAnswer(answer.id)}
+                                        className="action-button action-button--primary"
+                                        disabled={isSubmittingEdit}
+                                      >
+                                        {isSubmittingEdit ? "Saving..." : "Save Changes"}
+                                      </button>
+                                      <button
+                                        onClick={handleCancelEditAnswer}
+                                        className="action-button"
+                                        disabled={isSubmittingEdit}
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="no-answers-container">
+                      <div className="no-answers-content">
+                        <p>
+                          No answers yet. Be the first to answer this question!
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
 
               <form
                 className="user-ans-input"
@@ -1135,7 +1589,7 @@ const BasicQuestionDetail = () => {
                         ["link", "code-block"],
                         ["clean"],
                       ],
-                    }}
+                    }}  
                     className="ans-edit"
                   />
                 </div>
