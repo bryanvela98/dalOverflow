@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from config.config_postgres import Config
 from database import db
@@ -19,22 +19,10 @@ def create_app():
     
     # Enable CORS for React frontend with all necessary permissions
     CORS(app, 
-            resources={r"/api/*": {"origins": [
-                "http://localhost:3000", 
-                "http://localhost:3001", 
-                "http://localhost:5000", 
-                "http://localhost:5173", 
-                "https://frontend-five-roan-92.vercel.app",
-                "https://frontend-cne2sdqp7-y-onees-projects.vercel.app",
-                "https://frontend-6pbzspbet-y-onees-projects.vercel.app",
-                "https://*.vercel.app",  # Allow all Vercel deployments
-                "https://*.ngrok-free.dev",  # Allow ngrok tunnels
-                "*",
-                r"https://.*\.vercel\.app"
-            ]}},
-            allow_headers=["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
+            origins="*",
+            allow_headers="*",
             methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        supports_credentials=True)
+        supports_credentials=False)
 
     # Register blueprints for routes
     from routes.notification_routes import notification_bp
@@ -66,6 +54,14 @@ def create_app():
     app.register_blueprint(upload_bp, url_prefix='/api/upload')
     app.register_blueprint(ai_bp, url_prefix='/api/ai')
 
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            response = jsonify({"status": "ok"})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.headers.add("Access-Control-Allow-Headers", "*")
+            response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+            return response, 200
 
     # Create all database tables
     with app.app_context():
@@ -73,6 +69,7 @@ def create_app():
 
     return app
 
+   
 
 # Run the app
 if __name__ == '__main__':
