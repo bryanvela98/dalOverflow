@@ -15,6 +15,47 @@ const NotificationBell = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { id } = useParams();
+  const readNotificationsKey = "readNotifications";
+
+  // Fetch notifications on component mount
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const stored = localStorage.getItem("user");
+        if (!stored) {
+          return;
+        }
+        const currentUser = JSON.parse(stored);
+        const currentUserId = currentUser.id;
+
+        const response = await apiFetch(
+          `${API_BASE_URL}/notifications/${currentUserId}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch notifications");
+        }
+        const data = await response.json();
+        // Load read notifications from localStorage
+        const readNotifs = JSON.parse(
+          localStorage.getItem(readNotificationsKey) || "[]"
+        );
+        // Mark notifications as read if they're in the read list
+        const notificationsWithReadState = (data.notifications || []).map(
+          (notif) => ({
+            ...notif,
+            unread: !readNotifs.includes(notif.id),
+          })
+        );
+        // Sort by newest first (reverse order)
+        notificationsWithReadState.reverse();
+        setNotifications(notificationsWithReadState);
+      } catch (err) {
+        console.error("Could not load notifications");
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   // 计算下拉框位置
   useEffect(() => {
@@ -46,8 +87,20 @@ const NotificationBell = () => {
             throw new Error("Failed to fetch notifications");
           }
           const data = await response.json();
-          // Change according to your backend response format
-          setNotifications(data.notifications || []);
+          // Load read notifications from localStorage
+          const readNotifs = JSON.parse(
+            localStorage.getItem(readNotificationsKey) || "[]"
+          );
+          // Mark notifications as read if they're in the read list
+          const notificationsWithReadState = (data.notifications || []).map(
+            (notif) => ({
+              ...notif,
+              unread: !readNotifs.includes(notif.id),
+            })
+          );
+          // Sort by newest first (reverse order)
+          notificationsWithReadState.reverse();
+          setNotifications(notificationsWithReadState);
         } catch (err) {
           setError("Could not load notifications");
         } finally {
@@ -81,6 +134,22 @@ const NotificationBell = () => {
 
   const handleClick = () => {
     setShowDropdown(!showDropdown);
+  };
+
+  const handleMarkAsRead = (notificationId) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notif) =>
+        notif.id === notificationId ? { ...notif, unread: false } : notif
+      )
+    );
+    // Save to localStorage
+    const readNotifs = JSON.parse(
+      localStorage.getItem(readNotificationsKey) || "[]"
+    );
+    if (!readNotifs.includes(notificationId)) {
+      readNotifs.push(notificationId);
+      localStorage.setItem(readNotificationsKey, JSON.stringify(readNotifs));
+    }
   };
 
   return (
@@ -117,26 +186,28 @@ const NotificationBell = () => {
         </svg>
 
         {/* 未读数量徽章 */}
-        <span
-          style={{
-            position: "absolute",
-            top: "2px",
-            right: "2px",
-            background: "var(--color-danger)",
-            color: "white",
-            borderRadius: "50%",
-            width: "20px",
-            height: "20px",
-            fontSize: "11px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: "bold",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-          }}
-        >
-          2
-        </span>
+        {notifications.filter((n) => n.unread).length > 0 && (
+          <span
+            style={{
+              position: "absolute",
+              top: "2px",
+              right: "2px",
+              background: "var(--color-danger)",
+              color: "white",
+              borderRadius: "50%",
+              width: "20px",
+              height: "20px",
+              fontSize: "11px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: "bold",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+            }}
+          >
+            {notifications.filter((n) => n.unread).length}
+          </span>
+        )}
       </button>
 
       {/* 下拉菜单 - 使用 Portal 挂载到 body */}
@@ -327,6 +398,7 @@ const NotificationBell = () => {
                   notifications.map((notification, idx) => (
                     <div
                       key={notification.id || idx}
+                      onClick={() => handleMarkAsRead(notification.id)}
                       style={{
                         padding: "16px",
                         background: notification.unread
