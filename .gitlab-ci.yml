@@ -217,8 +217,6 @@ deploy_frontend_vercel:
     - cd frontend
     - npm install
   script:
-    - export VITE_CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME
-    - export VITE_CLOUDINARY_UPLOAD_PRESET=$CLOUDINARY_UPLOAD_PRESET
     - npx vercel --token=$VERCEL_TOKEN --prod --yes
   only:
     - develop
