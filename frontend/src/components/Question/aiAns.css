@@ -40,12 +40,13 @@
 }
 
 .ai-ans-badge {
-  background-color: var(--color-primary);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  background-color: #e8f4fd;
+  color: #1a73e8;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 300;
+  border: 1px solid #c8e1fc;
 }
 
 .ai-ans-content {
