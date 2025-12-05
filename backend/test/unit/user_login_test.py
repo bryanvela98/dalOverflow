@@ -8,7 +8,7 @@ class TestUserLogin(unittest.TestCase):
         self.mock_db = MagicMock()
 
     @patch('services.user_login.bcrypt.checkpw')
-    def test_verify_credentials_success(self, mock_checkpw):
+    def test_verify_credential_success(self, mock_checkpw):
         mock_user = MagicMock()
         mock_user.email = "test@dal.ca"
         mock_user.password = "$2b$12$hashedpassword123456789"  # Mock bcrypt hash
@@ -27,7 +27,7 @@ class TestUserLogin(unittest.TestCase):
         mock_checkpw.assert_called_once()
 
     @patch('services.user_login.bcrypt.checkpw')
-    def test_verify_credentials_wrong_password(self, mock_checkpw):
+    def test_verify_cred_wrg_pswd(self, mock_checkpw):
         mock_user = MagicMock()
         mock_user.email = "test@dal.ca"
         mock_user.password = "$2b$12$hashedpassword123456789"  # Mock bcrypt hash
@@ -45,7 +45,7 @@ class TestUserLogin(unittest.TestCase):
         assert result is False
         mock_checkpw.assert_called_once()
 
-    def test_verify_credentials_user_not_exists(self):
+    def test_verify_cred_user_nt_exist(self):
         User.query = MagicMock()
         User.query.filter_by = MagicMock()
         User.query.filter_by.return_value.first = MagicMock(return_value=None)

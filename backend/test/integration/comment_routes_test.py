@@ -55,7 +55,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
             db.session.rollback()
             raise e
 
-    def test_post_comment_success(self):
+    def test_post_comnt_success(self):
         """Test POST /api/comments creates a comment successfully"""
         payload = {
             'answer_id': self.answer.id,
@@ -72,7 +72,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(data['comment']['content'], 'This is a new test comment')
         self.assertIn('message', data)
 
-    def test_post_comment_missing_content(self):
+    def test_comnt_missing_content(self):
         """Test POST /api/comments fails when content is missing"""
         payload = {
             'answer_id': self.answer.id,
@@ -87,7 +87,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('content', data['error'].lower())
 
     # Patch comment tests
-    def test_patch_comment_success(self):
+    def test_patch_comm_success(self):
         """Test PATCH /api/comments/<comment_id> updates a comment successfully"""
         patch_payload = {
             'content': 'This is an updated comment content'
@@ -101,7 +101,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(data['comment']['id'], self.comment1.id)
         self.assertIn('message', data)
         
-    def test_patch_comment_not_found(self):
+    def test_patch_comm_not_found(self):
         """Test PATCH /api/comments/<comment_id> fails when comment doesn't exist"""
         patch_payload = {'content': 'Updated content'}
         response = self.client.patch('/api/comments/99999', json=patch_payload)
@@ -110,7 +110,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('error', data)
         self.assertIn('comment not found', data['error'].lower())
 
-    def test_patch_comment_empty_content(self):
+    def test_patch_comm_empty(self):
         """Test PATCH /api/comments/<comment_id> fails when content is empty"""
         patch_payload = {'content': ''}
         response = self.client.patch(f'/api/comments/{self.comment1.id}', json=patch_payload)
@@ -120,7 +120,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('content', data['error'].lower())
 
     # Delete comment tests
-    def test_delete_comment_success(self):
+    def test_del_commt_success(self):
         """Test DELETE /api/comments/<comment_id> deletes a comment successfully"""
         comment_id = self.comment1.id
         
@@ -135,7 +135,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         deleted_comment = Comment.query.get(comment_id)
         self.assertIsNone(deleted_comment)
 
-    def test_delete_comment_not_found(self):
+    def test_del_comnt_not_found(self):
         """Test DELETE /api/comments/<comment_id> fails when comment doesn't exist"""
         response = self.client.delete('/api/comments/99999')
         self.assertEqual(response.status_code, 404)
@@ -143,7 +143,7 @@ class CommentRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('error', data)
         self.assertIn('comment not found', data['error'].lower())
     
-    def test_get_all_comments(self):
+    def test_get_all_comnts(self):
         """Test GET /api/comments returns all comments"""
         response = self.client.get('/api/comments')
         self.assertEqual(response.status_code, 200)

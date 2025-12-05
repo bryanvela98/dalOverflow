@@ -9,7 +9,9 @@ import requests
 
 def main():
     # --- ARGUMENT VALIDATION ---
-    MAX_LEN = 5
+
+    MAX_LEN: int = 1 + 1 + 1 + 1 + 1
+
     if len(sys.argv) != MAX_LEN:
         print("Error: Incorrect number of arguments.", file=sys.stderr)
         print(f"Usage: {sys.argv[0]} <project-id> <api-key> <directory-to-upload> <commit-hash>", file=sys.stderr)

@@ -151,7 +151,7 @@ class TestAnswerEditRoutesMinimal:
         
         assert response.status_code == 401
     
-    def test_get_ans_for_edit_forbidden_non_author(self, client, question_author_headers):
+    def test_edit_forbidden_non_author(self, client, question_author_headers):
         """AC 1: Non-author cannot edit answer"""
         response = client.get('/api/answers/1/edit', headers=question_author_headers)
         
@@ -182,7 +182,7 @@ class TestAnswerEditRoutesMinimal:
             answer = Answer.query.get(1)
             assert answer.updated_at is not None
     
-    def test_update_answer_validation_min_length(self, client, auth_headers):
+    def test_update_validation_min_len(self, client, auth_headers):
         """Test validation: answer must be at least 20 characters"""
         update_data = {'body': 'Too short'}
         
@@ -197,7 +197,7 @@ class TestAnswerEditRoutesMinimal:
         assert 'errors' in data
         assert 'body' in data['errors']
     
-    def test_update_answer_validation_body_required(self, client, auth_headers):
+    def test_upd_validation_body_req(self, client, auth_headers):
         """Test validation: body is required"""
         update_data = {}
         
@@ -212,7 +212,7 @@ class TestAnswerEditRoutesMinimal:
         assert 'errors' in data
         assert 'body' in data['errors']
     
-    def test_update_answer_forbidden_non_author(self, client, question_author_headers):
+    def test_get_answer_edit_forbidden(self, client, question_author_headers):
         """AC 1: Non-author cannot update answer"""
         update_data = {
             'body': 'Hacked answer content with enough characters to meet requirements.'
@@ -226,7 +226,7 @@ class TestAnswerEditRoutesMinimal:
         
         assert response.status_code == 403
     
-    def test_update_answer_increments_edit_count(self, client, auth_headers, app):
+    def test_update_increments_edits(self, client, auth_headers, app):
         """AC 1: Edit count increments with each edit"""
         # First edit
         update_data = {'body': 'First edit with enough content for requirements.'}
@@ -247,7 +247,7 @@ class TestAnswerEditRoutesMinimal:
         data = json.loads(response.data)
         assert data['answer']['edit_count'] == 2
     
-    def test_update_answer_updates_timestamp(self, client, auth_headers, app):
+    def test_update_changes_timestamp(self, client, auth_headers, app):
         """Test that updated_at is updated on edit"""
         # Get original updated_at
         with app.app_context():
@@ -272,7 +272,7 @@ class TestAnswerEditRoutesMinimal:
             answer = Answer.query.get(1)
             assert answer.updated_at > original_updated
     
-    def test_edit_indicator_in_answer_list(self, client, auth_headers, app):
+    def test_edit_indicator_in_list(self, client, auth_headers, app):
         """AC 1: Edited answers show edit metadata in list"""
         # Make an edit
         update_data = {'body': 'Updated answer with enough content for requirements.'}
@@ -297,7 +297,7 @@ class TestAnswerEditRoutesMinimal:
     # Tests for AC 2: Edit After Answer is Accepted
     # ============================================================
     
-    def test_edit_accepted_answer_removes_acceptance(self, client, auth_headers, app):
+    def test_edit_accepted_clears_flag(self, client, auth_headers, app):
         """AC 2: Editing accepted answer removes acceptance status"""
         # Mark answer as accepted
         with app.app_context():
@@ -321,7 +321,7 @@ class TestAnswerEditRoutesMinimal:
         assert data['acceptance_removed'] is True
         assert data['answer']['is_accepted'] is False
     
-    def test_edit_unaccepted_answer_no_change(self, client, auth_headers):
+    def test_edit_unaccepted_no_change(self, client, auth_headers):
         """AC 2: Editing unaccepted answer doesn't affect acceptance"""
         update_data = {
             'body': 'Updated unaccepted answer with enough content for requirements.'
@@ -337,7 +337,7 @@ class TestAnswerEditRoutesMinimal:
         data = json.loads(response.data)
         assert data['acceptance_removed'] is False
     
-    def test_update_answer_no_change_no_increment(self, client, auth_headers, app):
+    def test_update_no_change_no_incr(self, client, auth_headers, app):
         """Test that edit_count doesn't increment if content didn't change"""
         # Update with same content
         update_data = {
@@ -357,7 +357,7 @@ class TestAnswerEditRoutesMinimal:
             answer = Answer.query.get(1)
             assert answer.edit_count == 0
     
-    def test_get_answers_includes_edit_metadata(self, client, auth_headers):
+    def test_get_answers_has_edit_data(self, client, auth_headers):
         """Test that get_answers includes edit metadata"""
         # Make an edit first
         update_data = {'body': 'Updated answer with enough content.'}

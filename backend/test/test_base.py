@@ -128,7 +128,7 @@ class TestDataCreation:
             db.session.rollback()
             raise e
     
-    def create_test_question(self, user_id, title='Test Question', body='Test body'):
+    def create_test_ques(self, user_id, title='Test Question', body='Test body'):
         """Helper method to create a test question"""
         from models.question import Question
         
@@ -146,7 +146,7 @@ class TestDataCreation:
             db.session.rollback()
             raise e
         
-    def create_test_answer(self, user_id, question_id, body='Test body'):
+    def create_test_ans(self, user_id, question_id, body='Test body'):
         """Helper method to create a test answer"""
         from models.answer import Answer
         
@@ -177,7 +177,7 @@ class TestDataCreation:
             db.session.rollback()
             raise e
 
-    def create_test_question_tag(self, question_id, tag_id):
+    def create_test_ques_tag(self, question_id, tag_id):
         """Helper method to create a question-tag association"""
         from models.questiontag import QuestionTag
         

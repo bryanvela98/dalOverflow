@@ -62,7 +62,7 @@ class TestUserRegistration(unittest.TestCase):
         result = registration.validate_email("test@dal.ca")
         assert result is True
 
-    def test_validate_email_not_contains(self):
+    def test_validate_no_email(self):
         registration = UserRegistrationService()
         result = registration.validate_email("test@gmail.com")
         #this test should return false since dal.ca is not present in the email id

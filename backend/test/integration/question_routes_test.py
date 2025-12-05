@@ -75,7 +75,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(first_result['title'], "what is python best practices?")
         self.assertEqual(first_result['score'], 1.0)
 
-    def test_fuzzy_search_partial_match(self):
+    def test_fuzzy_src_partial_match(self):
         """Test fuzzy search with partial keyword match"""
         response = self.client.get('/api/questions/search?query=Python')
         
@@ -92,7 +92,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
             self.assertTrue(result['score'] > 0.5)
             self.assertTrue(result['score'] <= 1.0)
             
-    def test_fuzzy_search_multiple_keywords(self):
+    def test_fuzzy_src_multiple_keywd(self):
         """Test fuzzy search with multiple keywords"""
         response = self.client.get('/api/questions/search?query=Python practices')
         
@@ -108,7 +108,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
             self.assertEqual(scores, sorted(scores, reverse=True))
         
         
-    def test_fuzzy_search_no_query_parameter(self):
+    def test_src_no_qry_parameter(self):
         """Test fuzzy search without query parameter"""
         response = self.client.get('/api/questions/search')
         
@@ -120,7 +120,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('message', data)
         self.assertEqual(data['message'], 'No query provided')
 
-    def test_fuzzy_search_whitespace_handling(self):
+    def test_fuzzy_search_whitespace(self):
         """Test fuzzy search handles extra whitespace"""
         response = self.client.get('/api/questions/search?query=   Python   ')
         
@@ -133,7 +133,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
     
     # Implementing test for question view counter feature
     
-    def test_question_get_increments_view_count(self):
+    def test_ques_get_incre_view_count(self):
         """Test that getting a question increments its view count"""
         question_id = self.question1.id
 
@@ -152,7 +152,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(data['question']['view_count'], 2)  # be 2 after second view
 
 
-    def test_view_count_persists_in_database(self):
+    def test_view_count_in_databse(self):
         """Test that view count is properly saved in database"""
         question_id = self.question1.id
         
@@ -170,7 +170,7 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
 
         db.session.expire_all()
 
-    def test_view_count_nonexistent_question(self):
+    def test_view_count_fake_ques(self):
         """Test view count increment for non-existent question"""
         response = self.client.get('/api/questions/99999')
         self.assertEqual(response.status_code, 404)

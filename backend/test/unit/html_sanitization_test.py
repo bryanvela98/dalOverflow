@@ -12,7 +12,7 @@ from utils.html_sanitizer import sanitize_html_body
 
 class TestHtmlSanitization(unittest.TestCase):
     
-    def test_sanitize_dangerous_script_tags(self):
+    def test_sanitize_dangerous_script(self):
         """Test that script tags are removed from content"""
         input_html = '<p>Safe content</p><script>alert("XSS")</script><p>More safe content</p>'
         
@@ -23,7 +23,7 @@ class TestHtmlSanitization(unittest.TestCase):
         self.assertIn('<p>Safe content</p>', result)
         self.assertIn('<p>More safe content</p>', result)
 
-    def test_preserve_safe_html_formatting(self):
+    def test_preserve_safe_html_format(self):
         """Test that safe HTML formatting is preserved"""
         input_html = '<p>This is <strong>bold</strong> and <em>italic</em> text with <code>code</code>.</p>'
         
@@ -34,7 +34,7 @@ class TestHtmlSanitization(unittest.TestCase):
         self.assertIn('<code>code</code>', result)
         self.assertEqual(result, input_html) 
         
-    def test_remove_dangerous_attributes(self):
+    def test_remove_dangerous_attr(self):
         """Test that dangerous attributes are removed"""
         input_html = '<p onclick="alert(\'XSS\')">Click me</p><img src="x" onerror="alert(\'XSS\')">'
         
@@ -69,7 +69,7 @@ class TestHtmlSanitization(unittest.TestCase):
         self.assertIn('<p>Safe</p>', result)
         self.assertIn('<p>More safe</p>', result)
 
-    def test_case_insensitive_script_removal(self):
+    def test_insensitive_scrpt_rem(self):
         """Test that script tags are removed regardless of case"""
         input_html = '<p>Safe</p><SCRIPT>alert("XSS")</SCRIPT><Script>alert("XSS2")</Script>'
         
@@ -80,7 +80,7 @@ class TestHtmlSanitization(unittest.TestCase):
         self.assertNotIn('XSS2', result)
         self.assertEqual(result, '<p>Safe</p>')
 
-    def test_allowed_link_attributes(self):
+    def test_allowed_link_attr(self):
         """Test that allowed attributes on links are preserved"""
         input_html = '<p><a href="https://dal.com" title="dal">Link</a></p>'
         
@@ -101,7 +101,7 @@ class TestHtmlSanitization(unittest.TestCase):
         # Link should remain but without the href
         self.assertIn('<a>Bad Link</a>', result)
 
-    def test_code_and_pre_tags_with_classes(self):
+    def test_code_and_pre_tags(self):
         """Test that code and pre tags preserve allowed class attributes"""
         input_html = '<pre class="language-python"><code class="highlight">print("hello")</code></pre>'
         
