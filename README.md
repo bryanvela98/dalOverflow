@@ -244,3 +244,4 @@ For detailed usage scenarios and feature workflows, see:
 - Usage scenario documentation: [/docs/Usage-scenario.pdf](/docs/Usage-scenario.pdf)
 - Code smells: [/docs/smells](/docs/smells)
 - User flow diagrams: [/docs/Userflow-diagrams.pdf](/docs/Userflow-diagrams.pdf)
+- Commit hashes for TDD approach: [docs/commit_hash-TDD.pdf](docs/commit_hash-TDD.pdf)
