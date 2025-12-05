@@ -1332,12 +1332,6 @@ const BasicQuestionDetail = () => {
                                         Edit
                                       </button>
                                     )}
-                                    <button className="action-button">
-                                      Share
-                                    </button>
-                                    <button className="action-button">
-                                      Report
-                                    </button>
                                   </div>
                                 </div>
                               </>
