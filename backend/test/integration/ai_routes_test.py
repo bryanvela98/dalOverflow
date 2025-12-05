@@ -29,7 +29,7 @@ class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('is_truncated', data)
         self.assertEqual(data['is_truncated'], False)
     
-    def test_post_ai_answer_missing_title(self):
+    def test_ai_answer_missing_title(self):
         """Test POST /api/ai/answer fails without title"""
         payload = {'body': 'some details'}
         

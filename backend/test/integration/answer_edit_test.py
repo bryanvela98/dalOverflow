@@ -129,7 +129,7 @@ class TestAnswerEditRoutesMinimal:
     # Tests for AC 1: Edit Own Answer
     # ============================================================
     
-    def test_get_answer_for_edit_success(self, client, auth_headers):
+    def test_load_edit_ans_success(self, client, auth_headers):
         """AC 1: Author can load their answer for editing"""
         response = client.get('/api/answers/1/edit', headers=auth_headers)
         
@@ -139,19 +139,19 @@ class TestAnswerEditRoutesMinimal:
         assert data['answer']['id'] == 1
         assert data['can_edit'] is True
     
-    def test_get_answer_for_edit_not_found(self, client, auth_headers):
+    def test_load_edit_ans_not_found(self, client, auth_headers):
         """Test loading non-existent answer"""
         response = client.get('/api/answers/999/edit', headers=auth_headers)
         
         assert response.status_code == 404
     
-    def test_get_answer_for_edit_unauthorized(self, client):
+    def test_get_ans_for_edit_unauth(self, client):
         """AC 1: Cannot edit without authentication"""
         response = client.get('/api/answers/1/edit')
         
         assert response.status_code == 401
     
-    def test_get_answer_for_edit_forbidden_non_author(self, client, question_author_headers):
+    def test_get_ans_for_edit_forbidden_non_author(self, client, question_author_headers):
         """AC 1: Non-author cannot edit answer"""
         response = client.get('/api/answers/1/edit', headers=question_author_headers)
         
