@@ -42,8 +42,8 @@ const aiSummariseSec = ({ ans, summMockUrl }) => {
     try {
       const ansMultibody = ans.map(a => ({ body: a.content }));
 
-      const url = summMockUrl || "http://localhost:5001/api/ai/summarize";
-      const res = await fetch(url, {
+      const url = summMockUrl || "http://${API_BASE_URL}/api/ai/summarize";
+      const res = await apiFetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answers: ansMultibody })
