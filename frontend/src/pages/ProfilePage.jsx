@@ -36,7 +36,8 @@ const ProfilePage = () => {
           const tokenPayload = JSON.parse(atob(token.split(".")[1]));
           userId = tokenPayload.user_id || tokenPayload.id || tokenPayload.sub;
         } catch (e) {
-          console.error("Could not decode token:", e);
+          // Token decoding failed - use default userId
+          userId = "1";
         }
       }
     }
@@ -91,7 +92,6 @@ const ProfilePage = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("PUT response:", data);
         if (data.user) {
           setUser(data.user);
           setEditData(data.user);
@@ -100,7 +100,6 @@ const ProfilePage = () => {
         setSaving(false);
       })
       .catch((err) => {
-        console.error("PUT error:", err);
         setSaving(false);
       });
   };

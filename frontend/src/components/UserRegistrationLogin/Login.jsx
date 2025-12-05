@@ -16,7 +16,6 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setMessage("");
-    console.log("Logging in:", { email, password });
 
     try {
       const response = await apiFetch(`${API_BASE_URL}/auth/login`, {
@@ -32,7 +31,6 @@ export default function Login() {
 
       if (data.success) {
         setMessage("Login successful! Redirecting...");
-        console.log("Login successful:", data.user);
         localStorage.setItem("token", data.user.token);
         // Store user data including ID for creating questions/answers
         localStorage.setItem(
@@ -45,15 +43,12 @@ export default function Login() {
             profile_picture_url: data.user.profile_picture_url,
           })
         );
-        console.log("Token: ", data.user.token);
         navigate("/");
       } else {
         setMessage("Login failed: " + data.message);
-        console.log("Login failed:", data.message);
       }
     } catch (error) {
       setMessage("Network error. Please try again.");
-      console.error("Login error:", error);
     }
     localStorage.setItem("currentUser", JSON.stringify(data.user));
   };
@@ -82,7 +77,6 @@ export default function Login() {
         setShowOtpField(true);
       }
     } catch (error) {
-      console.log(error);
       setMessage("Error sending reset OTP");
     }
   };
@@ -133,9 +127,7 @@ export default function Login() {
 
       const data = await response.json();
       setMessage(data.message);
-      console.log(data);
     } catch (error) {
-      console.log(error);
       setMessage("Error resending OTP");
     }
   };

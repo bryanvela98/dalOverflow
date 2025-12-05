@@ -37,10 +37,6 @@ export default function QuestionTile() {
                 }
                 return q;
               } catch (err) {
-                console.error(
-                  `Error fetching votes for question ${q.id}:`,
-                  err
-                );
                 return q;
               }
             })
@@ -60,7 +56,6 @@ export default function QuestionTile() {
         }
       } catch (err) {
         setError("Failed to load questions");
-        console.error("Error fetching questions:", err);
       } finally {
         setLoading(false);
       }

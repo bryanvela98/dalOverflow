@@ -17,7 +17,9 @@ export default function TagDetail() {
   useEffect(() => {
     const fetchTagAndQuestions = async () => {
       try {
-        const response = await apiFetch(`${API_BASE_URL}/tags/${tagId}/questions`);
+        const response = await apiFetch(
+          `${API_BASE_URL}/tags/${tagId}/questions`
+        );
         const data = await response.json();
         if (data.tag) {
           setTag(data.tag);
@@ -27,7 +29,6 @@ export default function TagDetail() {
         }
       } catch (err) {
         setError("Failed to load tag details");
-        console.error("Error fetching tag:", err);
       } finally {
         setLoading(false);
       }

@@ -37,7 +37,7 @@ const CreateQuestionPage = ({
           setSimilarQuestions(similar);
           setShowSimilar(similar.length > 0);
         } catch (error) {
-          console.error("Failed to search similar questions:", error);
+          // Error searching for similar questions
         }
       } else {
         setSimilarQuestions([]);
@@ -82,7 +82,6 @@ const CreateQuestionPage = ({
       const newTag = await onCreateTag(tagSearchTerm.trim());
       handleAddTag(newTag);
     } catch (error) {
-      console.error("Failed to create tag:", error);
       setErrors({ ...errors, tags: "Failed to create new tag" });
     }
   };
@@ -140,7 +139,6 @@ const CreateQuestionPage = ({
       setIsAnonymous(false);
       setErrors({});
     } catch (error) {
-      console.error("Failed to create question:", error);
       setErrors({
         ...errors,
         submit: "Failed to create question. Please try again.",

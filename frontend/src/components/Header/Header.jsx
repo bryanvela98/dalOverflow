@@ -31,7 +31,6 @@ export default function Header() {
           setSuggestions(data.results?.slice(0, 5) || []);
           setShowSuggestions(true);
         } catch (error) {
-          console.error("Suggestion fetch error:", error);
           setSuggestions([]);
         } finally {
           setIsLoadingSuggestions(false);

@@ -52,7 +52,6 @@ const EditQuestion = () => {
       }
 
       const data = await response.json();
-      console.log("Question data for editing:", data);
 
       setOriginalQuestion(data.question);
       setCanEdit(data.can_edit);
@@ -65,7 +64,6 @@ const EditQuestion = () => {
         );
       }
     } catch (error) {
-      console.error("Error loading question:", error);
       showNotification("Failed to load question for editing", "error");
       navigate(`/questions/${id}`);
     } finally {
@@ -101,7 +99,6 @@ const EditQuestion = () => {
 
       setAvailableTags(transformedTags);
     } catch (error) {
-      console.error("Error loading tags:", error);
       showNotification("Failed to load tags", "error");
     } finally {
       setTagsLoading(false);
@@ -116,8 +113,6 @@ const EditQuestion = () => {
   // Handle form submission (AC 5)
   const handleSubmit = async (questionData, editReason) => {
     try {
-      console.log("Submitting edit...");
-
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Please log in to edit questions");
@@ -133,8 +128,6 @@ const EditQuestion = () => {
           originalQuestion.updated_at || originalQuestion.created_at,
       };
 
-      console.log("Sending update to backend:", backendData);
-
       const response = await fetch(`${API_BASE_URL}/questions/${id}`, {
         method: "PUT",
         headers: {
@@ -144,8 +137,6 @@ const EditQuestion = () => {
         credentials: "include",
         body: JSON.stringify(backendData),
       });
-
-      console.log("Response status:", response.status);
 
       // Handle concurrent edit (AC 9)
       if (response.status === 409) {
@@ -170,14 +161,12 @@ const EditQuestion = () => {
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
-        console.error("Server returned non-JSON:", text.substring(0, 200));
         throw new Error(
           `Server error: ${response.status} ${response.statusText}`
         );
       }
 
       const result = await response.json();
-      console.log("Backend response:", result);
 
       if (response.ok) {
         showNotification("Question updated successfully!", "success");
@@ -198,7 +187,6 @@ const EditQuestion = () => {
         );
       }
     } catch (error) {
-      console.error("Submission error:", error);
       showNotification(error.message, "error");
       throw error;
     }
@@ -257,7 +245,6 @@ const EditQuestion = () => {
       showNotification("Tag created successfully!", "success");
       return newTag;
     } catch (error) {
-      console.error("Tag creation error:", error);
       showNotification(`Failed to create tag: ${error.message}`, "error");
       throw error;
     }

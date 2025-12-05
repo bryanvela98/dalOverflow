@@ -23,7 +23,6 @@ export default function CategoriesPage() {
         }
       } catch (err) {
         setError("Failed to load categories");
-        console.error("Error fetching tags:", err);
       } finally {
         setLoading(false);
       }

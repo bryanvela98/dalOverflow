@@ -50,7 +50,7 @@ const NotificationBell = () => {
         notificationsWithReadState.reverse();
         setNotifications(notificationsWithReadState);
       } catch (err) {
-        console.error("Could not load notifications");
+        // Error loading notifications
       }
     };
 

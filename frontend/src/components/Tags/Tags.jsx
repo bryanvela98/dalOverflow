@@ -19,7 +19,6 @@ const Tags = () => {
         total: data.total || 0,
       };
     } catch (error) {
-      console.error("Error fetching tags:", error);
       return { tags: [], total: 0 };
     }
   };

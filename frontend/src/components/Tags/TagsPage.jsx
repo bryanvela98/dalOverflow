@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import './TagsPage.css';
-
+import React, { useState, useEffect } from "react";
+import "./TagsPage.css";
 
 /**
  * Tags Page Component (Issue #3)
  * Pure JavaScript version
  */
-const TagsPage = ({
-  onFetchTags,
-  onTagClick,
-}) => {
+const TagsPage = ({ onFetchTags, onTagClick }) => {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('popular');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("popular");
   const [showNewOnly, setShowNewOnly] = useState(false);
   const [total, setTotal] = useState(0);
 
@@ -23,13 +19,13 @@ const TagsPage = ({
       try {
         const params = {
           search: searchTerm || undefined,
-          sort: showNewOnly ? 'new' : sortBy,
+          sort: showNewOnly ? "new" : sortBy,
         };
         const result = await onFetchTags(params);
         setTags(result.tags);
         setTotal(result.total);
       } catch (error) {
-        console.error('Failed to fetch tags:', error);
+        // Error fetching tags
       } finally {
         setLoading(false);
       }
@@ -45,7 +41,8 @@ const TagsPage = ({
         <header className="tags-header">
           <h1>Tags</h1>
           <p className="tags-subtitle">
-            A tag is a keyword or label that categorizes your question with other similar questions.
+            A tag is a keyword or label that categorizes your question with
+            other similar questions.
           </p>
         </header>
 
@@ -62,19 +59,33 @@ const TagsPage = ({
 
           <div className="sort-buttons">
             <button
-              className={`sort-button ${sortBy === 'popular' && !showNewOnly ? 'sort-button--active' : ''}`}
-              onClick={() => { setSortBy('popular'); setShowNewOnly(false); }}
+              className={`sort-button ${
+                sortBy === "popular" && !showNewOnly
+                  ? "sort-button--active"
+                  : ""
+              }`}
+              onClick={() => {
+                setSortBy("popular");
+                setShowNewOnly(false);
+              }}
             >
               Popular
             </button>
             <button
-              className={`sort-button ${sortBy === 'name' && !showNewOnly ? 'sort-button--active' : ''}`}
-              onClick={() => { setSortBy('name'); setShowNewOnly(false); }}
+              className={`sort-button ${
+                sortBy === "name" && !showNewOnly ? "sort-button--active" : ""
+              }`}
+              onClick={() => {
+                setSortBy("name");
+                setShowNewOnly(false);
+              }}
             >
               Name
             </button>
             <button
-              className={`sort-button ${showNewOnly ? 'sort-button--active' : ''}`}
+              className={`sort-button ${
+                showNewOnly ? "sort-button--active" : ""
+              }`}
               onClick={() => setShowNewOnly(!showNewOnly)}
             >
               New
@@ -83,7 +94,7 @@ const TagsPage = ({
         </div>
 
         <div className="results-info">
-          {total.toLocaleString()} {total === 1 ? 'tag' : 'tags'}
+          {total.toLocaleString()} {total === 1 ? "tag" : "tags"}
         </div>
 
         {loading ? (
@@ -94,13 +105,19 @@ const TagsPage = ({
         ) : (
           <div className="tags-grid">
             {tags.map((tag) => (
-              <div key={tag.id} className="tag-card" onClick={() => onTagClick(tag.id)}>
+              <div
+                key={tag.id}
+                className="tag-card"
+                onClick={() => onTagClick(tag.id)}
+              >
                 {tag.isNew && <span className="tag-new-badge">New</span>}
                 <h3 className="tag-name">{tag.name}</h3>
                 <p className="tag-description">{tag.description}</p>
                 <div className="tag-stats">
                   <div className="tag-stat">
-                    <span className="stat-value">{tag.totalQuestions.toLocaleString()}</span>
+                    <span className="stat-value">
+                      {tag.totalQuestions.toLocaleString()}
+                    </span>
                     <span className="stat-label">questions</span>
                   </div>
                   <div className="tag-activity">
@@ -119,4 +136,3 @@ const TagsPage = ({
 };
 
 export default TagsPage;
-

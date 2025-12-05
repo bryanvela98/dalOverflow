@@ -16,7 +16,6 @@ const UsersPage = () => {
     apiFetch(`${API_BASE_URL}/users`)
       .then((res) => res.json())
       .then((data) => {
-        // console.log("All user information:", data.users);
         setUsers(data.users);
         setLoading(false);
       })

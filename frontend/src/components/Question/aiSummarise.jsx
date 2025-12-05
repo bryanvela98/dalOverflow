@@ -56,7 +56,6 @@ const aiSummariseSec = ({ ans, summMockUrl }) => {
         setSumTxt("Can't summarise, try later pls, thanks");
       }
     } catch (err) {
-      console.error("Error", err);
       setSumTxt(
         "Sorry there's something wrong, can't get the summary. Pls try again later"
       );

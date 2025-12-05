@@ -45,7 +45,7 @@ const EditQuestionPage = ({
   useEffect(() => {
     const titleChanged = title !== originalQuestion.title;
     const descriptionChanged = description !== originalQuestion.body;
-    
+
     const originalTagIds = originalQuestion.tags?.map((t) => t.id).sort() || [];
     const currentTagIds = selectedTags.map((t) => t.id).sort();
     const tagsChanged =
@@ -87,7 +87,6 @@ const EditQuestionPage = ({
       const newTag = await onCreateTag(tagSearchTerm.trim());
       handleAddTag(newTag);
     } catch (error) {
-      console.error("Failed to create tag:", error);
       setErrors({ ...errors, tags: "Failed to create new tag" });
     }
   };
@@ -145,7 +144,6 @@ const EditQuestionPage = ({
       setErrors({});
       setHasUnsavedChanges(false);
     } catch (error) {
-      console.error("Failed to update question:", error);
       setErrors({
         ...errors,
         submit: error.message || "Failed to update question. Please try again.",
@@ -191,8 +189,8 @@ const EditQuestionPage = ({
               }}
             >
               <p style={{ margin: 0, color: "#92400e" }}>
-                ℹ️ This edit may require review since the question was
-                posted more than 10 minutes ago.
+                ℹ️ This edit may require review since the question was posted
+                more than 10 minutes ago.
               </p>
             </div>
           )}
@@ -208,7 +206,9 @@ const EditQuestionPage = ({
             <input
               id="title"
               type="text"
-              className={`form-input ${errors.title ? "form-input--error" : ""}`}
+              className={`form-input ${
+                errors.title ? "form-input--error" : ""
+              }`}
               placeholder="e.g., How do I implement user authentication in Node.js with Express?"
               value={title}
               onChange={(e) => {

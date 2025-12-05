@@ -39,7 +39,6 @@ const CreateQuestion = () => {
       }
 
       const data = await response.json();
-      console.log("Tags from backend:", data);
 
       // Transform backend tags to match frontend expectations
       const transformedTags = data.tags.map((tag) => ({
@@ -51,7 +50,6 @@ const CreateQuestion = () => {
 
       setAvailableTags(transformedTags);
     } catch (error) {
-      console.error("Error loading tags:", error);
       showNotification("Failed to load tags. Using default tags.", "error");
 
       // Fallback to some basic tags if API fails
@@ -88,8 +86,6 @@ const CreateQuestion = () => {
   // FIXED: Handle form submission with correct data structure
   const handleSubmit = async (questionData) => {
     try {
-      console.log("Starting submission...");
-
       // Get actual user data from localStorage
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const token = localStorage.getItem("token");
@@ -108,7 +104,7 @@ const CreateQuestion = () => {
           const tokenPayload = JSON.parse(atob(token.split(".")[1]));
           userId = tokenPayload.user_id || tokenPayload.id || tokenPayload.sub;
         } catch (e) {
-          console.error("Could not decode token:", e);
+          // Token decoding failed
         }
       }
 
@@ -126,8 +122,6 @@ const CreateQuestion = () => {
         status: "open", // Required field
       };
 
-      console.log("Sending to backend:", backendData);
-
       const response = await apiFetch(`${API_BASE_URL}/questions`, {
         method: "POST",
         headers: {
@@ -138,13 +132,10 @@ const CreateQuestion = () => {
         body: JSON.stringify(backendData),
       });
 
-      console.log("Response status:", response.status);
-
       // Handle non-JSON responses
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
-        console.error("Server returned non-JSON:", text.substring(0, 200));
 
         if (response.status === 404) {
           throw new Error(
@@ -157,7 +148,6 @@ const CreateQuestion = () => {
       }
 
       const result = await response.json();
-      console.log("Backend response:", result);
 
       if (response.ok) {
         showNotification("Question created successfully!", "success");
@@ -178,7 +168,6 @@ const CreateQuestion = () => {
         );
       }
     } catch (error) {
-      console.error("Submission error:", error);
       showNotification(error.message, "error");
       throw error;
     }
@@ -218,7 +207,6 @@ const CreateQuestion = () => {
         similarity: question.score,
       }));
     } catch (error) {
-      console.error("Search error:", error);
       return [];
     }
   };
@@ -229,8 +217,6 @@ const CreateQuestion = () => {
       if (!tagName.trim()) {
         throw new Error("Tag name cannot be empty");
       }
-
-      console.log("Creating tag:", tagName);
 
       const tagData = {
         tag_name: tagName.trim().toLowerCase(),
@@ -255,7 +241,6 @@ const CreateQuestion = () => {
       }
 
       const result = await response.json();
-      console.log("Tag created successfully:", result);
 
       // Transform the response to match frontend expectations
       const newTag = {
@@ -271,7 +256,6 @@ const CreateQuestion = () => {
       showNotification("Tag created successfully!", "success");
       return newTag;
     } catch (error) {
-      console.error("Tag creation error:", error);
       showNotification(`Failed to create tag: ${error.message}`, "error");
       throw new Error(`Failed to create tag: ${error.message}`);
     }

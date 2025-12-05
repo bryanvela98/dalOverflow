@@ -119,7 +119,6 @@ export default function SearchResults() {
         setResults(searchResults);
         setTotalResults(searchResults.length);
       } catch (err) {
-        console.error("Search error:", err);
         setError(
           "Something went wrong while loading results. Please try again later."
         );

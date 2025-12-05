@@ -45,7 +45,7 @@ export default function RightBar() {
           });
         }
       } catch (error) {
-        console.error("Error fetching stats:", error);
+        // Error fetching stats
       }
     };
 

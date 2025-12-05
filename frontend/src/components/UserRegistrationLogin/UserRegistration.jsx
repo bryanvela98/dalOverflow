@@ -27,8 +27,6 @@ export default function UserRegistration() {
       return;
     }
 
-    console.log("Registering:", { email, password });
-
     try {
       const response = await apiFetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
@@ -40,21 +38,17 @@ export default function UserRegistration() {
 
       const data = await response.json();
       setMessage(data.message);
-      console.log(data);
 
       if (response.ok) {
         setShowOtpField(true);
       }
     } catch (error) {
-      console.log(error);
       setMessage("Error connecting to the server");
     }
   };
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
-    console.log("Verifying OTP:", { email, otp });
-
     try {
       const response = await apiFetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: "POST",
@@ -66,7 +60,6 @@ export default function UserRegistration() {
 
       const data = await response.json();
       setMessage(data.message);
-      console.log(data);
 
       // Reset form if OTP verification was successful
       if (response.ok) {
@@ -76,7 +69,6 @@ export default function UserRegistration() {
         setShowOtpField(false);
       }
     } catch (error) {
-      console.log(error);
       setMessage("Error verifying OTP");
     }
   };
@@ -93,9 +85,7 @@ export default function UserRegistration() {
 
       const data = await response.json();
       setMessage(data.message);
-      console.log(data);
     } catch (error) {
-      console.log(error);
       setMessage("Error resending OTP");
     }
   };

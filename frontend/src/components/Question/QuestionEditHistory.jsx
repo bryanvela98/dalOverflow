@@ -56,7 +56,6 @@ const QuestionEditHistory = () => {
         const historyData = await historyResponse.json();
         setHistory(historyData.history || []);
       } catch (err) {
-        console.error("Error loading edit history:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -131,7 +130,9 @@ const QuestionEditHistory = () => {
                   <span className="edit-number">
                     Edit #{history.length - index}
                   </span>
-                  <span className="edit-date">{formatDate(edit.created_at)}</span>
+                  <span className="edit-date">
+                    {formatDate(edit.created_at)}
+                  </span>
                   {edit.is_moderator_edit && (
                     <span className="moderator-badge">Moderator Edit</span>
                   )}

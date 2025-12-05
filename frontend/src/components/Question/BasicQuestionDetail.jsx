@@ -89,7 +89,6 @@ const BasicQuestionDetail = () => {
 
       return answers;
     } catch (error) {
-      console.error("Error fetching answers:", error);
       return [];
     }
   };
@@ -99,9 +98,6 @@ const BasicQuestionDetail = () => {
       const response = await apiFetch(`${API_BASE_URL}/questions`);
       const data = await response.json();
       const questions = data.questions || [];
-
-      console.log("Current question tags:", tags);
-      console.log("Sample question tags:", questions[0]?.tags);
 
       // Filter questions that share tags with current question, exclude current question
       const related = questions
@@ -119,18 +115,13 @@ const BasicQuestionDetail = () => {
             });
             return tagIdMatch;
           });
-          console.log(
-            `Question ${q.id} has common tag: ${hasCommonTag}`,
-            qTags
-          );
           return hasCommonTag;
         })
         .slice(0, 3); // Get top 3 related questions
 
-      console.log("Related questions found:", related);
       setRelatedQuestions(related);
     } catch (error) {
-      console.error("Error fetching related questions:", error);
+      // Error fetching related questions
     }
   };
 
@@ -148,7 +139,6 @@ const BasicQuestionDetail = () => {
       try {
         const response = await apiFetch(`${API_BASE_URL}/questions/${id}`);
         const data = await response.json();
-        console.log("Question data:", data);
 
         if (isMounted) {
           if (!data.question) {
@@ -184,7 +174,7 @@ const BasicQuestionDetail = () => {
           }
         }
       } catch (error) {
-        console.error("Error fetching question:", error);
+        // Error fetching question data
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -211,7 +201,7 @@ const BasicQuestionDetail = () => {
             reputationMap[questionData.user_id] = upvotes * 10 - downvotes * 10;
           }
         } catch (e) {
-          console.error("Error fetching votes for question reputation:", e);
+          // Error fetching votes for question
         }
       }
 
@@ -233,7 +223,7 @@ const BasicQuestionDetail = () => {
                 (reputationMap[answer.user_id] || 0) + answerRep;
             }
           } catch (e) {
-            console.error(`Error fetching votes for answer ${answer.id}:`, e);
+            // Error fetching votes for answer
           }
         }
       }
@@ -272,23 +262,12 @@ const BasicQuestionDetail = () => {
             const currentUser = JSON.parse(
               localStorage.getItem("currentUser") || "{}"
             );
-            console.log("Current user from localStorage:", currentUser);
-            console.log("Fetched user data:", userData);
-            console.log("User ID being checked:", userId);
 
             if (
               currentUser.id === userId &&
               userData?.user?.answer_count !== undefined
             ) {
-              console.log(
-                `Answer count for logged in user (${userData.user.username}):`,
-                userData.user.answer_count
-              );
             } else if (userData?.user?.answer_count !== undefined) {
-              console.log(
-                `Answer count for user ${userId} (${userData.user.username}):`,
-                userData.user.answer_count
-              );
             }
           } else {
             usersMap[userId] = {
@@ -297,7 +276,6 @@ const BasicQuestionDetail = () => {
             };
           }
         } catch (error) {
-          console.error(`Error fetching user ${userId}:`, error);
           usersMap[userId] = {
             username: `User ${userId}`,
             reputation: 0,
@@ -348,7 +326,7 @@ const BasicQuestionDetail = () => {
         });
         setAnsVotes(aMap);
       } catch (e) {
-        console.error("couldnt load votes:", e);
+        // Error loading votes
       }
     };
     fetchUserVotes();
@@ -403,7 +381,7 @@ const BasicQuestionDetail = () => {
           setQuestion((prev) => ({ ...prev, answers: withCounts }));
         }
       } catch (e) {
-        console.error("vote count fetch failed", e);
+        // Error fetching vote counts
       }
     };
     getCounts();
@@ -517,7 +495,6 @@ const BasicQuestionDetail = () => {
   };
 
   // const handleVote = async (type, targetId, direction) => {
-  //   console.log(`Vote ${direction} on ${type} ${targetId}`);
   // Add your vote logic here
   //creating vote, user votes for the first time. database entry
   const firstVote = async (type, targetId, vType, usrId) => {
@@ -664,7 +641,6 @@ const BasicQuestionDetail = () => {
         }));
       }
     } catch (e) {
-      console.error("vote failed:", e);
       alert("Vote failed");
     } finally {
       setVoteInProgress(false);
@@ -725,8 +701,6 @@ const BasicQuestionDetail = () => {
       );
 
       const data = await response.json();
-      console.log("Response status:", response.status);
-      console.log("Response data:", data);
 
       if (!response.ok) {
         setAnsErr(data.message || "Failed to post answer");
@@ -742,8 +716,6 @@ const BasicQuestionDetail = () => {
       const currentUser = JSON.parse(
         localStorage.getItem("currentUser") || "{}"
       );
-      console.log("Current user for answer count update:", currentUser);
-      console.log("User ID from posted answer:", data.answer.user_id);
 
       // Use the user_id from the answer response
       const userId = data.answer.user_id;
@@ -754,27 +726,15 @@ const BasicQuestionDetail = () => {
           );
           if (userResponse.ok) {
             const userData = await userResponse.json();
-            console.log(
-              "Answer Posted!Updated answer count for logged in user:",
-              userData.user.answer_count
-            );
-          } else {
-            console.log(
-              "Failed to fetch user data, status:",
-              userResponse.status
-            );
           }
         } catch (error) {
-          console.error("Error fetching updated user data:", error);
+          // Handle error silently
         }
-      } else {
-        console.log("No user ID found to fetch answer count");
       }
 
       // Clear success message after 3 seconds
       setTimeout(() => setAnsSuccess(""), 3000);
     } catch (error) {
-      console.error("Fetch error:", error);
       setAnsErr("Error posting answer: " + error.message);
     } finally {
       setIsSubmitAns(false);
@@ -886,7 +846,6 @@ const BasicQuestionDetail = () => {
         );
       }
     } catch (error) {
-      console.error("Error updating answer:", error);
       setEditError("Error updating answer: " + error.message);
     } finally {
       setIsSubmittingEdit(false);
