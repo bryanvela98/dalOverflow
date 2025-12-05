@@ -32,7 +32,7 @@ def create_app():
                 "*",
                 r"https://.*\.vercel\.app"
             ]}},
-            allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+            allow_headers=["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
             methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         supports_credentials=True)
 
