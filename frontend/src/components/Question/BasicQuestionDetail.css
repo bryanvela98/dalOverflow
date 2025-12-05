@@ -450,45 +450,59 @@
 
 /* ===== COMMON COMPONENTS ===== */
 .vote-button {
-  width: 40px;
-  height: 40px;
-  border: 2px solid var(--color-border-medium);
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-sm);
   cursor: pointer;
   transition: all var(--transition-base);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  outline: none;
+}
+
+.vote-button:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.vote-button:focus.vote-button--up {
+  color: var(--color-primary);
+}
+
+.vote-button:focus.vote-button--down {
+  color: var(--color-primary);
 }
 
 .vote-button:hover {
-  background: var(--color-bg-tertiary);
+  background: transparent;
   border-color: var(--color-primary);
 }
 
 .vote-button--up:hover {
-  color: var(--color-upvote);
+  color: var(--color-primary);
 }
 
 .vote-button--down:hover {
-  color: var(--color-downvote);
+  color: var(--color-primary);
 }
 
 .vote-button.active {
-  background: var(--color-bg-tertiary);
+  background: transparent;
+  border-color: var(--color-primary);
 }
 
 .vote-button--up.active {
-  color: var(--color-upvote);
-  border-color: var(--color-upvote);
+  color: var(--color-primary);
 }
 
 .vote-button--down.active {
-  color: var(--color-downvote);
-  border-color: var(--color-downvote);
+  color: var(--color-primary);
 }
 
 .vote-button:disabled {

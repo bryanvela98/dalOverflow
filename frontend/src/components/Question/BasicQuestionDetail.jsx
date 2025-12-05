@@ -1202,7 +1202,11 @@ const BasicQuestionDetail = () => {
                         <div className="answer-content-container">
                           <div className="answer-vote-container">
                             <button
-                              className="vote-button vote-button--up"
+                              className={`vote-button vote-button--up ${
+                                ansVotes[answer.id]?.type === "upvote"
+                                  ? "active"
+                                  : ""
+                              }`}
                               onClick={() =>
                                 handleVote("answer", answer.id, "up")
                               }
@@ -1213,7 +1217,11 @@ const BasicQuestionDetail = () => {
                               {answer.upvotes || 0}
                             </span>
                             <button
-                              className="vote-button vote-button--down"
+                              className={`vote-button vote-button--down ${
+                                ansVotes[answer.id]?.type === "downvote"
+                                  ? "active"
+                                  : ""
+                              }`}
                               onClick={() =>
                                 handleVote("answer", answer.id, "down")
                               }
