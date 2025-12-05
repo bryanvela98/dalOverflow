@@ -113,7 +113,7 @@ class TestQuestionEditRoutesMinimal:
     # Tests for GET /api/questions/<id>/edit
     # ============================================================
     
-    def test_get_question_for_edit_success(self, client, auth_headers):
+    def test_get_ques_for_edit(self, client, auth_headers):
         """Test successfully loading question for editing"""
         response = client.get('/api/questions/1/edit', headers=auth_headers)
         
@@ -125,7 +125,7 @@ class TestQuestionEditRoutesMinimal:
         assert data['can_edit'] is True
         assert 'requires_review' in data
     
-    def test_get_question_for_edit_not_found(self, client, auth_headers):
+    def test_ques_for_edit_not_found(self, client, auth_headers):
         """Test loading non-existent question"""
         response = client.get('/api/questions/999/edit', headers=auth_headers)
         
@@ -133,7 +133,7 @@ class TestQuestionEditRoutesMinimal:
         data = json.loads(response.data)
         assert 'error' in data
     
-    def test_get_question_for_edit_unauthorized(self, client):
+    def test_get_ques_for_edit_unauth(self, client):
         """Test loading without authentication"""
         response = client.get('/api/questions/1/edit')
         
@@ -141,7 +141,7 @@ class TestQuestionEditRoutesMinimal:
         data = json.loads(response.data)
         assert 'error' in data
     
-    def test_get_question_for_edit_forbidden_non_author(self, client, other_auth_headers):
+    def test_ques_for_edit_non_author(self, client, other_auth_headers):
         """Test non-author cannot edit question"""
         response = client.get('/api/questions/1/edit', headers=other_auth_headers)
         
@@ -149,7 +149,7 @@ class TestQuestionEditRoutesMinimal:
         data = json.loads(response.data)
         assert 'permission' in data['error'].lower()
     
-    def test_get_question_for_edit_within_grace_period(self, client, auth_headers, app):
+    def test_edit_ques_within_ten_min(self, client, auth_headers, app):
         """Test editing within 10-minute grace period"""
         # Question was just created, so within grace period
         response = client.get('/api/questions/1/edit', headers=auth_headers)
@@ -159,7 +159,7 @@ class TestQuestionEditRoutesMinimal:
         assert data['requires_review'] is False
         assert data['edit_window_expired'] is False
     
-    def test_get_question_for_edit_after_grace_period(self, client, auth_headers, app):
+    def test_edit_ques_after_ten_min(self, client, auth_headers, app):
         """Test editing after 10-minute grace period"""
         # Set question created_at to 15 minutes ago
         with app.app_context():
@@ -178,7 +178,7 @@ class TestQuestionEditRoutesMinimal:
     # Tests for PUT /api/questions/<id>
     # ============================================================
     
-    def test_update_question_success(self, client, auth_headers, app):
+    def test_upd_ques_success(self, client, auth_headers, app):
         """Test successfully updating a question"""
         update_data = {
             'title': 'Updated Test Question',
@@ -204,7 +204,7 @@ class TestQuestionEditRoutesMinimal:
             question = Question.query.get(1)
             assert question.updated_at is not None
     
-    def test_update_question_not_found(self, client, auth_headers):
+    def test_upd_ques_not_found(self, client, auth_headers):
         """Test updating non-existent question"""
         update_data = {'title': 'Updated Title'}
         
@@ -216,7 +216,7 @@ class TestQuestionEditRoutesMinimal:
         
         assert response.status_code == 404
     
-    def test_update_question_unauthorized(self, client):
+    def test_upd_ques_unauthorized(self, client):
         """Test updating without authentication"""
         update_data = {'title': 'Updated Title'}
         
@@ -228,7 +228,7 @@ class TestQuestionEditRoutesMinimal:
         
         assert response.status_code == 401
     
-    def test_update_question_forbidden_non_author(self, client, other_auth_headers):
+    def test_upd_ques_non_author(self, client, other_auth_headers):
         """Test non-author cannot update question"""
         update_data = {'title': 'Hacked Title'}
         
@@ -243,7 +243,7 @@ class TestQuestionEditRoutesMinimal:
         data = json.loads(response.data)
         assert 'error' in data
     
-    def test_update_question_validation_title_required(self, client, auth_headers):
+    def test_upd_ques_valid_ttl_req(self, client, auth_headers):
         """Test validation: title cannot be empty"""
         update_data = {'title': ''}
         
@@ -258,7 +258,7 @@ class TestQuestionEditRoutesMinimal:
         assert 'errors' in data
         assert 'title' in data['errors']
     
-    def test_update_question_validation_title_max_length(self, client, auth_headers):
+    def test_upd_ques_valid_ttl_maxlen(self, client, auth_headers):
         """Test validation: title max 120 characters"""
         update_data = {'title': 'a' * 121}
         
@@ -273,7 +273,7 @@ class TestQuestionEditRoutesMinimal:
         assert 'errors' in data
         assert 'title' in data['errors']
     
-    def test_update_question_validation_body_min_length(self, client, auth_headers):
+    def test_upd_ques_valid_bdy_minlen(self, client, auth_headers):
         """Test validation: body min 20 characters"""
         update_data = {'body': 'Short'}
         
@@ -288,7 +288,7 @@ class TestQuestionEditRoutesMinimal:
         assert 'errors' in data
         assert 'body' in data['errors']
     
-    def test_update_question_validation_tags_min_one(self, client, auth_headers):
+    def test_upd_ques_valid_tags_min(self, client, auth_headers):
         """Test validation: at least one tag required"""
         update_data = {'tag_ids': []}
         
@@ -303,7 +303,7 @@ class TestQuestionEditRoutesMinimal:
         assert 'errors' in data
         assert 'tags' in data['errors']
     
-    def test_update_question_validation_tags_max_five(self, client, auth_headers):
+    def test_upd_ques_tags_max_five(self, client, auth_headers):
         """Test validation: maximum 5 tags"""
         update_data = {'tag_ids': [1, 2, 1, 2, 1, 2]}
         
@@ -318,7 +318,7 @@ class TestQuestionEditRoutesMinimal:
         assert 'errors' in data
         assert 'tags' in data['errors']
     
-    def test_update_question_validation_no_duplicate_tags(self, client, auth_headers):
+    def test_upd_ques_no_same_tags(self, client, auth_headers):
         """Test validation: no duplicate tags"""
         update_data = {'tag_ids': [1, 1, 2]}
         
@@ -333,7 +333,7 @@ class TestQuestionEditRoutesMinimal:
         assert 'errors' in data
         assert 'tags' in data['errors']
     
-    def test_update_question_increments_edit_count(self, client, auth_headers, app):
+    def test_upd_ques_incre_edit_cnt(self, client, auth_headers, app):
         """Test that edit_count increments with each edit"""
         # First edit
         update_data = {'title': 'First Edit'}
@@ -354,7 +354,7 @@ class TestQuestionEditRoutesMinimal:
         data = json.loads(response.data)
         assert data['question']['edit_count'] == 2
     
-    def test_update_question_updates_timestamp(self, client, auth_headers, app):
+    def test_upd_ques_upd_time(self, client, auth_headers, app):
         """Test that updated_at is updated on edit"""
         # Get original updated_at
         with app.app_context():
@@ -429,7 +429,7 @@ class TestQuestionEditRoutesMinimal:
     #             'modified' in data['error'].lower() or
     #             'edited' in data['error'].lower())
         
-        def test_update_question_no_changes_no_increment(self, client, auth_headers, app):
+        def test_upd_ques_no_chng_no_incre(self, client, auth_headers, app):
             """Test that edit_count doesn't increment if nothing changed"""
             # Update with same values
             update_data = {
@@ -450,7 +450,7 @@ class TestQuestionEditRoutesMinimal:
                 question = Question.query.get(1)
                 assert question.edit_count == 0
     
-    def test_update_question_partial_update(self, client, auth_headers):
+    def test_upd_ques_partial_upd(self, client, auth_headers):
         """Test updating only title"""
         update_data = {'title': 'Only Title Changed'}
         
@@ -465,7 +465,7 @@ class TestQuestionEditRoutesMinimal:
         assert data['question']['title'] == 'Only Title Changed'
         assert 'test question' in data['question']['body'].lower()  # Body unchanged
     
-    def test_update_question_with_tags(self, client, auth_headers, app):
+    def test_upd_ques_with_tags(self, client, auth_headers, app):
         """Test updating tags"""
         update_data = {'tag_ids': [1, 2]}
         

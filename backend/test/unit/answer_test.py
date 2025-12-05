@@ -18,7 +18,7 @@ class TestAnswerValidation(unittest.TestCase):
     def setUp(self):
         self.answer_service = AnswerServices()
     
-    def test_validate_answer_body_valid(self):
+    def test_validate_ans_body_valid(self):
         """Test that valid answer body passes validation"""
         body = "This is a valid answer with at least 20 characters."
         result = self.answer_service.validate_answer_body(body)
@@ -31,7 +31,7 @@ class TestAnswerCreation(unittest.TestCase):
         self.answer_service = AnswerServices()
         self.mock_db = MagicMock()
     
-    def test_create_answer_with_valid_data(self):
+    def test_create_valid_ans(self):
         """Test creating an answer with valid data"""
         # Mock question exists
         mock_question = MagicMock()
@@ -50,7 +50,7 @@ class TestAnswerCreation(unittest.TestCase):
         self.assertEqual(result.question_id, 1)
         self.assertEqual(result.user_id, 1)
         
-    def test_create_answer_with_invalid_body(self):
+    def test_invalid_ans_creation(self):
         """Test creating answer with invalid body returns None"""
         result = self.answer_service.create_answer(
             question_id=1,
@@ -60,7 +60,7 @@ class TestAnswerCreation(unittest.TestCase):
         
         self.assertIsNone(result)
     
-    def test_create_answer_with_nonexistent_question(self):
+    def test_create_ans_with_false_qs(self):
         """Test creating answer for non-existent question returns None"""
         Question.query = MagicMock()
         Question.query.get = MagicMock(return_value=None)
@@ -81,7 +81,7 @@ class TestAnswerRetrieval(unittest.TestCase):
         self.answer_service = AnswerServices()
         self.mock_db = MagicMock()
     
-    def test_get_answers_by_question_id(self):
+    def test_get_ans_by_ques_id(self):
         """Test retrieving answers for a specific question"""
         mock_answer1 = MagicMock()
         mock_answer1.id = 1
@@ -105,7 +105,7 @@ class TestAnswerRetrieval(unittest.TestCase):
         self.assertEqual(result[0].question_id, 1)
         self.assertEqual(result[1].question_id, 1)
         
-    def test_get_answers_by_user_id(self):
+    def test_get_ans_by_user_id(self):
         """Test retrieving all answers by a specific user"""
         mock_answer1 = MagicMock()
         mock_answer1.id = 1
@@ -129,7 +129,7 @@ class TestAnswerRetrieval(unittest.TestCase):
         self.assertEqual(result[0].user_id, 1)
         self.assertEqual(result[1].user_id, 1)
         
-    def test_get_answers_empty_result(self):
+    def test_get_ans_empty_result(self):
         """Test retrieving answers when none exist"""
         Answer.query = MagicMock()
         Answer.query.filter_by = MagicMock()
@@ -147,7 +147,7 @@ class TestAnswerCount(unittest.TestCase):
         self.answer_service = AnswerServices()
         self.mock_db = MagicMock()
     
-    def test_count_answers_for_user(self):
+    def test_count_ans_for_user(self):
         """Test counting total answers for a user"""
         Answer.query = MagicMock()
         Answer.query.filter_by = MagicMock()
@@ -157,7 +157,7 @@ class TestAnswerCount(unittest.TestCase):
         
         self.assertEqual(result, 5)
         
-    def test_count_answers_for_question(self):
+    def test_count_ans_for_ques(self):
         """Test counting total answers for a question"""
         Answer.query = MagicMock()
         Answer.query.filter_by = MagicMock()

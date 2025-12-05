@@ -69,7 +69,7 @@ class VoteRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertTrue(any(v['id'] == vote1.id for v in data['votes']))
         self.assertTrue(any(v['id'] == vote2.id for v in data['votes']))
 
-    def test_get_vote_count_for_question(self):
+    def test_get_vote_count_for_ques(self):
         """Test GET /api/votes/question/<target_id> returns vote count for a question"""
         self.create_test_vote(target_id=self.question.id, user_id=self.user.id, vote_type='upvote', target_type='question')
         self.create_test_vote(target_id=self.question.id, user_id=self.user.id, vote_type='downvote', target_type='question')
@@ -82,7 +82,7 @@ class VoteRoutesTestCase(DatabaseTestCase, TestDataCreation):
         # upvote (+1) + downvote (-1) = 0
         self.assertEqual(data['vote_count'], 0)
 
-    def test_get_vote_count_for_answer(self):
+    def test_get_vote_count_for_ans(self):
         """Test GET /api/votes/answer/<target_id> returns vote count for an answer"""
         self.create_test_vote(target_id=self.answer.id, user_id=self.user.id, vote_type='upvote', target_type='answer')
         db.session.commit()
@@ -136,7 +136,7 @@ class VoteRoutesTestCase(DatabaseTestCase, TestDataCreation):
         deleted_vote = Vote.query.get(vote.id)
         self.assertIsNone(deleted_vote)
 
-    def test_delete_vote_not_found(self):
+    def test_del_vote_not_found(self):
         """Test DELETE /api/votes/<vote_id> returns 404 when vote doesn't exist"""
         response = self.client.delete('/api/votes/9999')
         self.assertEqual(response.status_code, 404)

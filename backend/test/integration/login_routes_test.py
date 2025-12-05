@@ -68,7 +68,7 @@ class LoginRoutesTestCase(DatabaseTestCase):
         self.assertFalse(data['success'])
         self.assertIn('required', data['message'].lower())
 
-    def test_login_missing_password(self):
+    def test_login_missing_pswd(self):
         """Test login fails when password is missing"""
         payload = {
             'email': 'test@dal.ca'
@@ -81,7 +81,7 @@ class LoginRoutesTestCase(DatabaseTestCase):
         self.assertFalse(data['success'])
         self.assertIn('required', data['message'].lower())
 
-    def test_login_invalid_credentials(self):
+    def test_login_invalid_cred(self):
         """Test login fails with invalid password"""
         payload = {
             'email': 'test@dal.ca',
@@ -124,14 +124,14 @@ class LoginRoutesTestCase(DatabaseTestCase):
         self.assertIn('message', data)
         self.assertIn('logout', data['message'].lower())
 
-    def test_check_login_endpoint_exists(self):
+    def test_chk_login_endpoint_exist(self):
         """Test that the GET /api/auth/check-login endpoint exists"""
         response = self.client.get('/api/auth/check-login')
         
         # Should not return 404 (endpoint exists)
         self.assertNotEqual(response.status_code, 404)
 
-    def test_check_login_not_logged_in(self):
+    def test_chk_login_not_logged_in(self):
         """Test check-login returns loggedIn: false when not logged in"""
         response = self.client.get('/api/auth/check-login')
         
@@ -139,14 +139,14 @@ class LoginRoutesTestCase(DatabaseTestCase):
         data = response.get_json()
         self.assertFalse(data['loggedIn'])
 
-    def test_login_page_endpoint_exists(self):
+    def test_login_page_endpoint_exist(self):
         """Test that the GET /api/auth/login endpoint exists"""
         response = self.client.get('/api/auth/login')
         
         # Should not return 404 (endpoint exists)
         self.assertNotEqual(response.status_code, 404)
 
-    def test_login_page_returns_next_url(self):
+    def test_login_pg_return_next_url(self):
         """Test login page returns next URL parameter"""
         response = self.client.get('/api/auth/login?next=/api/questions')
         

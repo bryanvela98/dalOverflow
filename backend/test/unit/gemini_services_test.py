@@ -45,7 +45,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertIn('GEMINI_API_KEY', str(context.exception))
 
     @patch('services.gemini_services.genai.Client')
-    def test_generate_answer_success(self, mock_client):
+    def test_generate_ans_success(self, mock_client):
         """Test successful answer generation"""
         # Mock the API response
         mock_response = MagicMock()
@@ -68,7 +68,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         mock_client_instance.models.generate_content.assert_called_once()
 
     @patch('services.gemini_services.genai.Client')
-    def test_generate_answer_empty_title(self, mock_client):
+    def test_generate_ans_empty_title(self, mock_client):
         """Test answer generation fails with empty title"""
         service = GeminiServices()
         
@@ -78,7 +78,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertIn("title cannot be empty", str(context.exception))
 
     @patch('services.gemini_services.genai.Client')
-    def test_generate_answer_whitespace_title(self, mock_client):
+    def test_generate_ans_whtspace_ttl(self, mock_client):
         """Test answer generation fails with whitespace-only title"""
         service = GeminiServices()
         
@@ -88,7 +88,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertIn("title cannot be empty", str(context.exception))
 
     @patch('services.gemini_services.genai.Client')
-    def test_generate_answer_truncated(self, mock_client):
+    def test_generate_ans_truncated(self, mock_client):
         """Test answer generation when response is truncated"""
         # First call returns truncated response
         mock_truncated_response = MagicMock()
@@ -121,7 +121,7 @@ class GeminiServicesTestCase(unittest.TestCase):
 
     @patch('services.gemini_services.genai.Client')
     @patch('services.gemini_services.logging')
-    def test_generate_answer_api_error(self, mock_logging, mock_client):
+    def test_generate_ans_api_err(self, mock_logging, mock_client):
         """Test answer generation handles API errors"""
         mock_client_instance = mock_client.return_value
         mock_client_instance.models.generate_content.side_effect = Exception("API Error")
@@ -136,7 +136,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertIsNone(result)
 
     @patch('services.gemini_services.genai.Client')
-    def test_summarize_answers_with_list(self, mock_client):
+    def test_summarize_ans_with_list(self, mock_client):
         """Test summarize_answers with list of answers"""
         mock_response = MagicMock()
         mock_response.text = "<p>Summary of all answers</p>"
@@ -160,7 +160,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         mock_client_instance.models.generate_content.assert_called_once()
 
     @patch('services.gemini_services.genai.Client')
-    def test_summarize_answers_with_single_dict(self, mock_client):
+    def test_summarize_ans_w_one_dict(self, mock_client):
         """Test summarize_answers with single answer dict"""
         mock_response = MagicMock()
         mock_response.text = "<p>Summary of single answer</p>"
@@ -179,7 +179,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertFalse(is_truncated)
 
     @patch('services.gemini_services.genai.Client')
-    def test_summarize_answers_truncated(self, mock_client):
+    def test_summarize_ans_truncated(self, mock_client):
         """Test summarize_answers when response is truncated"""
         # First call returns truncated
         mock_truncated = MagicMock()
@@ -209,7 +209,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertEqual(mock_client_instance.models.generate_content.call_count, 2)
 
     @patch('services.gemini_services.genai.Client')
-    def test_summarize_answers_invalid_type(self, mock_client):
+    def test_ans_invalid_type(self, mock_client):
         """Test summarize_answers with invalid input type"""
         service = GeminiServices()
         
@@ -220,7 +220,7 @@ class GeminiServicesTestCase(unittest.TestCase):
 
     @patch('services.gemini_services.genai.Client')
     @patch('services.gemini_services.logging')
-    def test_summarize_answers_api_error(self, mock_logging, mock_client):
+    def test_summarize_ans_api_err(self, mock_logging, mock_client):
         """Test summarize_answers handles API errors"""
         mock_client_instance = mock_client.return_value
         mock_client_instance.models.generate_content.side_effect = Exception("API Error")
@@ -235,7 +235,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         mock_logging.error.assert_called()
 
     @patch('services.gemini_services.genai.Client')
-    def test_is_response_truncated_true(self, mock_client):
+    def test_is_response_trunc_true(self, mock_client):
         """Test is_response_truncated returns True for MAX_TOKENS"""
         service = GeminiServices()
         
@@ -248,7 +248,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertTrue(result)
 
     @patch('services.gemini_services.genai.Client')
-    def test_is_response_truncated_false(self, mock_client):
+    def test_is_response_trunc_false(self, mock_client):
         """Test is_response_truncated returns False for STOP"""
         service = GeminiServices()
         
@@ -261,7 +261,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertFalse(result)
 
     @patch('services.gemini_services.genai.Client')
-    def test_is_response_truncated_no_candidates(self, mock_client):
+    def test_is_res_trun_no_candidates(self, mock_client):
         """Test is_response_truncated with no candidates"""
         service = GeminiServices()
         
@@ -273,7 +273,7 @@ class GeminiServicesTestCase(unittest.TestCase):
         self.assertFalse(result)
 
     @patch('services.gemini_services.genai.Client')
-    def test_is_response_truncated_none_response(self, mock_client):
+    def test_is_res_trunc_none_res(self, mock_client):
         """Test is_response_truncated with None response"""
         service = GeminiServices()
         

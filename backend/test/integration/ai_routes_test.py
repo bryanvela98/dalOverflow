@@ -10,7 +10,7 @@ from unittest.mock import patch
 class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
     
     @patch('routes.gemini_ai_routes.GeminiServices.generate_answer')
-    def test_post_ai_answer_success(self, mock_generate):
+    def test_post_ai_ans_success(self, mock_generate):
         """Test POST /api/ai/answer generates AI response with HTML"""
         mock_generate.return_value = ("<p>You can create lists in Python like this:</p><pre><code>my_list = [1, 2, 3]</code></pre>", False)
 
@@ -29,7 +29,7 @@ class AiRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('is_truncated', data)
         self.assertEqual(data['is_truncated'], False)
     
-    def test_post_ai_answer_missing_title(self):
+    def test_ai_answer_missing_title(self):
         """Test POST /api/ai/answer fails without title"""
         payload = {'body': 'some details'}
         

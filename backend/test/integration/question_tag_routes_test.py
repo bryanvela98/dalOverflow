@@ -69,7 +69,7 @@ class QuestionTagRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(len(data['tags']), 0)
         
     # non existent question
-    def test_get_tags_question_not_found(self):
+    def test_get_tags_ques_not_found(self):
         """returns 404"""
         response = self.client.get('/api/questions/99999/tags')
         
@@ -92,7 +92,7 @@ class QuestionTagRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertEqual(data['tags'][0]['tag_name'], 'Python')
 
     # question with multiple tags
-    def test_get_tags_with_multiple_tags(self):
+    def test_get_tag_with_multiple_tag(self):
         """question with multiple tags returns all tags"""
         # Associate multiple tags with question
         self.create_test_question_tag(self.question1.id, self.tag_python.id)
@@ -110,7 +110,7 @@ class QuestionTagRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('Programming', tag_names)
 
     # questions endpoint exists
-    def test_get_questions_endpoint_exists(self):
+    def test_get_ques_endpoint_exist(self):
         """GET /api/tags/{id}/questions endpoint exists"""
         response = self.client.get(f'/api/tags/{self.tag_python.id}/questions')
         
@@ -122,7 +122,7 @@ class QuestionTagRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIsNotNone(data)
 
     # questions with no tags
-    def test_get_questions_empty_response(self):
+    def test_get_ques_empty_res(self):
         """Tag with no questions returns empty list"""
         response = self.client.get(f'/api/tags/{self.tag_python.id}/questions')
         

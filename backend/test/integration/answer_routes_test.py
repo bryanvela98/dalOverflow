@@ -52,7 +52,7 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
             db.session.rollback()
             raise e
 
-    def test_get_answers_endpoint_exists(self):
+    def test_ans_endpoint_exists(self):
         """Test that the GET answers endpoint exists"""
         response = self.client.get(f'/api/answers/questions/{self.test_question.id}/answers')
 
@@ -63,7 +63,7 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         data = response.get_json()
         self.assertIsNotNone(data)
         
-    def test_get_answers_response_structure(self):
+    def test_ans_response_structure(self):
         """Test that GET answers endpoint returns correct response structure"""
         response = self.client.get(f'/api/answers/questions/{self.test_question.id}/answers')
 
@@ -74,7 +74,7 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIn('answers', data)
         self.assertIsInstance(data['answers'], list)
         
-    def test_get_answer_count_endpoint_exists(self):
+    def test_ans_count_endpoint_exists(self):
         """Test that the answer count endpoint exists and returns proper structure"""
         response = self.client.get(f'/api/answers/questions/{self.test_question.id}/answers/count')
 
@@ -85,7 +85,7 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         data = response.get_json()
         self.assertIsNotNone(data)
 
-    def test_get_answer_count_response_structure(self):
+    def test_ans_count_response_struc(self):
         """Test that answer count endpoint returns correct response structure"""
         response = self.client.get(f'/api/answers/questions/{self.test_question.id}/answers/count')
 
@@ -98,7 +98,7 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         self.assertIsInstance(data['question_id'], int)
         self.assertIsInstance(data['answer_count'], int)
 
-    def test_create_answer_endpoint_exists(self):
+    def test_create_ans_endpoint_exist(self):
         """Test that the POST answer endpoint exists"""
         response = self.client.post(
             f'/api/answers/questions/{self.test_question.id}/answers',
@@ -112,7 +112,7 @@ class AnswerRoutesTestCase(DatabaseTestCase, TestDataCreation):
         data = response.get_json()
         self.assertIsNotNone(data)
         
-    def test_get_comments_for_answer(self):
+    def test_get_comment_for_ans(self):
         """Test GET /answers/<id>/comments returns all comments for an answer"""
         response = self.client.get(f'/api/answers/{self.answer.id}/comments')
         self.assertEqual(response.status_code, 200)

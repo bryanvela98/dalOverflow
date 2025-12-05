@@ -12,7 +12,7 @@ from utils.fuzzy_search import *
 class TestFuzzySearchBasic(unittest.TestCase):
 
     
-    def test_search_exact_match_returns_result(self):
+    def test_src_match_ret_result(self):
         """Test that exact title match returns high score result"""
         
         # Mock question data
@@ -30,7 +30,7 @@ class TestFuzzySearchBasic(unittest.TestCase):
             self.assertEqual(results[0]['id'], 1)
             self.assertGreater(results[0]['score'], 0.8) # High score for exact match
 
-    def test_search_empty_query_returns_empty(self):
+    def test_src_empty_qry_ret_empty(self):
         """Test that empty query returns no results"""
         from utils.fuzzy_search import search_questions
         
@@ -40,7 +40,7 @@ class TestFuzzySearchBasic(unittest.TestCase):
         results = search_questions('   ')  # whitespace only
         self.assertEqual(results, [])
     
-    def test_search_partial_match_lower_score(self):
+    def test_partial_match_lower_score(self):
         """Test that partial matches return lower scores"""
         from utils.fuzzy_search import search_questions
         
@@ -58,7 +58,7 @@ class TestFuzzySearchBasic(unittest.TestCase):
             self.assertLess(results[0]['score'], 1.0)  # leess than exact match
             self.assertGreater(results[0]['score'], 0.0)  # But still found
     
-    def test_search_no_match_returns_empty(self):
+    def test_src_no_match_ret_empty(self):
         """Test that queries with no matches return empty results"""
         
         mock_questions = [
@@ -71,7 +71,7 @@ class TestFuzzySearchBasic(unittest.TestCase):
             results = search_questions('JavaScript')  # No match
             
             self.assertEqual(results, [])
-    def test_search_word_order_independent(self):
+    def test_wrd_order_independent(self):
             """Test that word order doesn't affect matching"""
             from utils.fuzzy_search import search_questions
             
