@@ -69,6 +69,10 @@ def create_app():
     @app.before_request
     def handle_preflight():
         if request.method == "OPTIONS":
+            origin = request.headers.get("Origin")
+            if origin:
+                response.headers["Access-Control-Allow-Origin"] = origin
+                response.headers["Access-Control-Allow-Credentials"] = "true"
             response = jsonify({"status": "ok"})
             response.headers.add("Access-Control-Allow-Origin", "*")
             response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,ngrok-skip-browser-warning")
