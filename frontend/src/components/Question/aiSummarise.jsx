@@ -39,15 +39,14 @@ const aiSummariseSec = ({ ans, summMockUrl }) => {
   const loadSummary = async () => {
     setLoading(true);
 
-
     try {
-      const ansMultibody = ans.map(a => ({ body: a.content }));
+      const ansMultibody = ans.map((a) => ({ body: a.content }));
 
-      const url = summMockUrl || `${API_BASE_URL}/api/ai/summarize`;
+      const url = summMockUrl || `${API_BASE_URL}/ai/summarize`;
       const res = await apiFetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: ansMultibody })
+        body: JSON.stringify({ answers: ansMultibody }),
       });
 
       if (res.ok) {
@@ -58,7 +57,9 @@ const aiSummariseSec = ({ ans, summMockUrl }) => {
       }
     } catch (err) {
       console.error("Error", err);
-      setSumTxt("Sorry there's something wrong, can't get the summary. Pls try again later");
+      setSumTxt(
+        "Sorry there's something wrong, can't get the summary. Pls try again later"
+      );
     }
 
     setAlrdyFetch(true);
