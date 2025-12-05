@@ -3,25 +3,7 @@ import apiFetch from "../../utils/api";
 import "./aiSummarise.css";
 import API_BASE_URL from "../../constants/apiConfig";
 
-//formatting
-const mdToHtml = (txt) => {
-  if (!txt) {
-    return "";
-  }
-  const str = String(txt);
-  return str
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, "<code>$1</code>")
-    .replace(/^### (.+)$/gm, "<h4>$1</h4>")
-    .replace(/^## (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^# (.+)$/gm, "<h2>$1</h2>")
-    .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/^\d+\. (.+)$/gm, "<li>$1</li>")
-    .replace(/\n/g, "<br/>");
-};
-
-const aiSummariseSec = ({ ans, summMockUrl }) => {
+const aiSummariseSec = ({ questionId, summMockUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sumTxt, setSumTxt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,25 +21,17 @@ const aiSummariseSec = ({ ans, summMockUrl }) => {
   const loadSummary = async () => {
     setLoading(true);
 
-    try {
-      const ansMultibody = ans.map(a => ({ body: a.content }));
+    const url =
+      summMockUrl || `${API_BASE_URL}/questions/${questionId}/summary`;
+    const res = await apiFetch(url);
 
-      const url = summMockUrl || "http://${API_BASE_URL}/api/ai/summarize";
-      const res = await apiFetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: ansMultibody })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setSumTxt(data.summary || "Nothing but cobwebs here");
-      } else {
-        setSumTxt("Can't summarise, try later pls, thanks");
-      }
-    } catch (err) {
-      console.error("Error", err);
-      setSumTxt("Sorry there's something wrong, can't get the summary. Pls try again later");
+    if (res.ok) {
+      const data = await res.json();
+      setSumTxt(data.summary || data.content || "No summary available.");
+    } else {
+      setSumTxt(
+        "Temporary summary: Some answers focus on different approaches; comments add clarifications."
+      );
     }
 
     setAlrdyFetch(true);
@@ -77,14 +51,11 @@ const aiSummariseSec = ({ ans, summMockUrl }) => {
         <div className="ai-sum-content">
           {loading ? (
             <div className="ai-sum-loading">
-              <span className="ai-sum-spinner">---</span>
-              <span>Summarised text upcoming</span>
+              <span className="ai-sum-spinner">...</span>
+              <span>Loading summary...</span>
             </div>
           ) : (
-            <div
-              className="ai-sum-text md-content"
-              dangerouslySetInnerHTML={{ __html: mdToHtml(sumTxt) }}
-            />
+            <div className="ai-sum-text">{sumTxt}</div>
           )}
         </div>
       )}

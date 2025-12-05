@@ -64,25 +64,5 @@
   color: #374151;
   font-size: 14px;
   line-height: 1.6;
-}
-
-.ai-sum-text.md-content strong {
-  font-weight: 600;
-}
-
-.ai-sum-text.md-content em {
-  font-style: italic;
-}
-
-.ai-sum-text.md-content code {
-  background-color: #f3f4f6;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 13px;
-}
-
-.ai-sum-text.md-content li {
-  margin-left: 20px;
-  list-style: disc;
+  white-space: pre-line;
 }

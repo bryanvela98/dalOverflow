@@ -84,7 +84,7 @@ const ProfilePage = () => {
   const handleSave = (e) => {
     e.preventDefault();
     setSaving(true);
-    apiFetch(`${API_BASE_URL}/users/${userId}`, {
+    fetch(`${API_BASE_URL}/users/${userId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editData),
