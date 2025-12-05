@@ -216,8 +216,8 @@ export default function QuestionTile() {
                   <div className="question">{question.title}</div>
                   <hr />
                   <div className="answer">
-                    {question.body?.substring(0, 200) ||
-                      "No description available"}
+                    {(question.body?.replace(/<[^>]*>/g, "").substring(0, 200) ||
+                      "No description available")}
                     ...
                   </div>
                 </div>
