@@ -21,10 +21,32 @@ export default function QuestionTile() {
         const response = await apiFetch(`${API_BASE_URL}/questions`);
         const data = await response.json();
         if (data.questions) {
-          setQuestions(data.questions);
+          // Fetch vote counts for all questions
+          const questionsWithVotes = await Promise.all(
+            data.questions.map(async (q) => {
+              try {
+                const voteResponse = await apiFetch(
+                  `${API_BASE_URL}/votes/question/${q.id}`
+                );
+                if (voteResponse.ok) {
+                  const voteData = await voteResponse.json();
+                  return {
+                    ...q,
+                    voteCount: voteData.vote_count || 0,
+                  };
+                }
+                return q;
+              } catch (err) {
+                console.error(`Error fetching votes for question ${q.id}:`, err);
+                return q;
+              }
+            })
+          );
+
+          setQuestions(questionsWithVotes);
           // Extract unique tags from all questions
           const tags = new Set();
-          data.questions.forEach((q) => {
+          questionsWithVotes.forEach((q) => {
             if (q.tags && Array.isArray(q.tags)) {
               q.tags.forEach((tag) =>
                 tags.add(JSON.stringify({ id: tag.id, name: tag.tag_name }))
