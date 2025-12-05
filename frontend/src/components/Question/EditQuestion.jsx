@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import EditQuestionPage from "./EditQuestionPage";
+import API_BASE_URL from "../../constants/apiConfig";
 
 const EditQuestion = () => {
   const { id } = useParams();
@@ -29,17 +30,14 @@ const EditQuestion = () => {
   const loadQuestion = useCallback(async () => {
     try {
       setQuestionLoading(true);
-      const response = await fetch(
-        `${API_BASE_URL}/api/questions/${id}/edit`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/questions/${id}/edit`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+      });
 
       if (!response.ok) {
         if (response.status === 403) {
@@ -131,7 +129,8 @@ const EditQuestion = () => {
         body: questionData.description,
         tag_ids: questionData.tags.map((tag) => parseInt(tag)),
         edit_reason: editReason,
-        last_known_update: originalQuestion.updated_at || originalQuestion.created_at,
+        last_known_update:
+          originalQuestion.updated_at || originalQuestion.created_at,
       };
 
       console.log("Sending update to backend:", backendData);
@@ -156,9 +155,13 @@ const EditQuestion = () => {
             "This question was edited by someone else. Please refresh and try again.",
           "error"
         );
-        
+
         // Prompt user to refresh
-        if (window.confirm("The question has been modified. Refresh to see the latest version?")) {
+        if (
+          window.confirm(
+            "The question has been modified. Refresh to see the latest version?"
+          )
+        ) {
           window.location.reload();
         }
         return;
@@ -188,11 +191,11 @@ const EditQuestion = () => {
       } else {
         // Handle validation errors (AC 4)
         if (result.errors) {
-          throw new Error(
-            Object.values(result.errors).join(", ")
-          );
+          throw new Error(Object.values(result.errors).join(", "));
         }
-        throw new Error(result.error || `Failed to update question: ${response.status}`);
+        throw new Error(
+          result.error || `Failed to update question: ${response.status}`
+        );
       }
     } catch (error) {
       console.error("Submission error:", error);
@@ -318,7 +321,7 @@ const EditQuestion = () => {
       )}
 
       {/* Loading state */}
-      {(tagsLoading || questionLoading) ? (
+      {tagsLoading || questionLoading ? (
         <div
           style={{
             display: "flex",
