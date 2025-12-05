@@ -22,7 +22,7 @@ const QuestionEditHistory = () => {
 
         // Fetch question details
         const questionResponse = await fetch(
-          `http://localhost:5001/api/questions/${id}`,
+          `${API_BASE_URL}/api/questions/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -40,7 +40,7 @@ const QuestionEditHistory = () => {
 
         // Fetch edit history
         const historyResponse = await fetch(
-          `http://localhost:5001/api/questions/${id}/history`,
+          `${API_BASE_URL}/api/questions/${id}/history`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

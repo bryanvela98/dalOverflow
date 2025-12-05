@@ -9,8 +9,6 @@ import AiAnsSec from "./aiAns";
 import AiSummariseSec from "./aiSummarise";
 import API_BASE_URL from "../../constants/apiConfig";
 import { useNavigate } from "react-router-dom";
-import AiAnsSec from "./aiAns";
-import AiSummariseSec from "./aiSummarise";
 
 const BasicQuestionDetail = () => {
   const { id } = useParams();
@@ -832,7 +830,7 @@ const handleSubmitEditAnswer = async (answerId) => {
     contentWithLanguage = tempDiv.innerHTML;
     
     const response = await fetch(
-      `http://localhost:5001/api/answers/${answerId}`,
+      `${API_BASE_URL}/api/answers/${answerId}`,
       {
         method: "PUT",
         headers: {
