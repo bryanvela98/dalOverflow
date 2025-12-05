@@ -21,10 +21,35 @@ export default function QuestionTile() {
         const response = await apiFetch(`${API_BASE_URL}/questions`);
         const data = await response.json();
         if (data.questions) {
-          setQuestions(data.questions);
+          // Fetch vote counts for all questions
+          const questionsWithVotes = await Promise.all(
+            data.questions.map(async (q) => {
+              try {
+                const voteResponse = await apiFetch(
+                  `${API_BASE_URL}/votes/question/${q.id}`
+                );
+                if (voteResponse.ok) {
+                  const voteData = await voteResponse.json();
+                  return {
+                    ...q,
+                    voteCount: voteData.vote_count || 0,
+                  };
+                }
+                return q;
+              } catch (err) {
+                console.error(
+                  `Error fetching votes for question ${q.id}:`,
+                  err
+                );
+                return q;
+              }
+            })
+          );
+
+          setQuestions(questionsWithVotes);
           // Extract unique tags from all questions
           const tags = new Set();
-          data.questions.forEach((q) => {
+          questionsWithVotes.forEach((q) => {
             if (q.tags && Array.isArray(q.tags)) {
               q.tags.forEach((tag) =>
                 tags.add(JSON.stringify({ id: tag.id, name: tag.tag_name }))
@@ -213,11 +238,19 @@ export default function QuestionTile() {
             >
               <div className="tile">
                 <div className="tile-centre">
-                  <div className="question">{question.title}</div>
+                  <div className="question">
+                    {question.title.charAt(0).toUpperCase() +
+                      question.title.slice(1)}
+                  </div>
                   <hr />
                   <div className="answer">
-                    {question.body?.substring(0, 200) ||
-                      "No description available"}
+                    {(() => {
+                      const text =
+                        question.body
+                          ?.replace(/<[^>]*>/g, "")
+                          .substring(0, 200) || "No description available";
+                      return text.charAt(0).toUpperCase() + text.slice(1);
+                    })()}
                     ...
                   </div>
                 </div>

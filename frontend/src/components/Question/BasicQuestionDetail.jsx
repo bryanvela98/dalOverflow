@@ -450,6 +450,18 @@ const BasicQuestionDetail = () => {
     });
   };
 
+  const capitalizeFirstLetter = (html) => {
+    if (!html) return html;
+    // Create a temporary div to parse HTML
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+    const text = temp.textContent || temp.innerText;
+    if (!text) return html;
+    // Capitalize first character of text and replace in HTML
+    const firstChar = text.charAt(0).toUpperCase();
+    return html.replace(text.charAt(0), firstChar);
+  };
+
   const handleCopyCode = (code, index) => {
     navigator.clipboard.writeText(code);
     setCopiedCodeId(index);
@@ -911,6 +923,12 @@ const BasicQuestionDetail = () => {
         {/* Main Content Container */}
         <div className="question-main-container">
           <div className="question-content-card">
+            {/* Home Button */}
+            <div className="home-button-container">
+              <button className="home-button" onClick={() => navigate("/")}>
+                ← Back to Home
+              </button>
+            </div>
             {/* Question Header Section */}
             <div className="question-header-section">
               <div className="question-vote-container">
@@ -952,7 +970,10 @@ const BasicQuestionDetail = () => {
                   }}
                 >
                   <div style={{ flex: 1 }}>
-                    <h1 className="question-title">{question.title}</h1>
+                    <h1 className="question-title">
+                      {question.title.charAt(0).toUpperCase() +
+                        question.title.slice(1)}
+                    </h1>
 
                     {/* Edit Indicator (AC 8) */}
                     {question.edit_count > 0 && (
@@ -1060,7 +1081,9 @@ const BasicQuestionDetail = () => {
               <div className="question-content-container">
                 <div
                   className="question-description"
-                  dangerouslySetInnerHTML={{ __html: question.body }}
+                  dangerouslySetInnerHTML={{
+                    __html: capitalizeFirstLetter(question.body),
+                  }}
                 />
 
                 {/* Code Blocks Container */}
@@ -1153,143 +1176,7 @@ const BasicQuestionDetail = () => {
                   {question.answers?.length !== 1 ? "s" : ""}
                 </h2>
               </div>
-              {/* <div className="answers-list">
-                {question.answers && question.answers.length > 0 ? (
-                  question.answers.map((answer, index) => {
-                    const answerAuthor = getUserInfo(answer.user_id);
-                    const answerCodeBlocks = extractCodeFromHTML(
-                      answer.content
-                    );
 
-                    return (
-                      <div
-                        key={index}
-                        className={`answer-card ${
-                          answer.isAccepted ? "answer-card--accepted" : ""
-                        }`}
-                      >
-                        {answer.isAccepted && (
-                          <div className="answer-accepted-badge">
-                            ✓ Accepted Answer
-                          </div>
-                        )}
-
-                        <div className="answer-content-container">
-                          <div className="answer-vote-container">
-                            <button
-                              className={`vote-button vote-button--up ${
-                                ansVotes[answer.id]?.type === "upvote"
-                                  ? "active"
-                                  : ""
-                              }`}
-                              onClick={() =>
-                                handleVote("answer", answer.id, "up")
-                              }
-                              disabled={voteInProgress}
-                            >
-                              ▲
-                            </button>
-                            <span className="vote-count">
-                              {answer.upvotes || 0}
-                            </span>
-                            <button
-                              className={`vote-button vote-button--down ${
-                                ansVotes[answer.id]?.type === "downvote"
-                                  ? "active"
-                                  : ""
-                              }`}
-                              onClick={() =>
-                                handleVote("answer", answer.id, "down")
-                              }
-                              disabled={voteInProgress}
-                            >
-                              ▼
-                            </button>
-                          </div>
-
-                          <div className="answer-body-container">
-                            <div
-                              className="answer-content"
-                              dangerouslySetInnerHTML={{
-                                __html: answer.content,
-                              }}
-                            />
-
-                            {/* Answer Code Blocks */}
-              {/* <div className="answer-code-blocks">
-                              {answerCodeBlocks.map((block, codeIndex) => (
-                                <div
-                                  key={codeIndex}
-                                  className="code-block-wrapper"
-                                >
-                                  <div className="code-block-header">
-                                    <span className="code-language">
-                                      {block.language}
-                                    </span>
-                                    <button
-                                      className="code-copy-button"
-                                      onClick={() =>
-                                        handleCopyCode(
-                                          block.code,
-                                          `answer-${index}-${codeIndex}`
-                                        )
-                                      }
-                                    >
-                                      {copiedCodeId ===
-                                      `answer-${index}-${codeIndex}`
-                                        ? "Copied!"
-                                        : "Copy"}
-                                    </button>
-                                  </div>
-                                  <SyntaxHighlighter
-                                    language={block.language.toLowerCase()}
-                                    style={vscDarkPlus}
-                                    customStyle={{
-                                      margin: 0,
-                                      borderRadius: "0 0 8px 8px",
-                                      fontSize: "14px",
-                                    }}
-                                  >
-                                    {block.code}
-                                  </SyntaxHighlighter>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="answer-footer-container">
-                              <div className="answer-meta">
-                                <div className="answer-author">
-                                  <span className="answer-author-name">
-                                    Answered by {answerAuthor.username}
-                                  </span>
-                                </div>
-                                <span className="answer-time">
-                                  {formatDate(answer.created_at)}
-                                </span>
-                              </div>
-                              <div className="answer-actions">
-                                <button className="action-button">Share</button>
-                                <button className="action-button">
-                                  Report
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="no-answers-container">
-                    <div className="no-answers-content">
-                      <p>
-                        No answers yet. Be the first to answer this question!
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div> */}{" "}
-              */
               <div className="answers-list">
                 {question.answers && question.answers.length > 0 ? (
                   question.answers.map((answer, index) => {
@@ -1321,7 +1208,11 @@ const BasicQuestionDetail = () => {
                         <div className="answer-content-container">
                           <div className="answer-vote-container">
                             <button
-                              className="vote-button vote-button--up"
+                              className={`vote-button vote-button--up ${
+                                ansVotes[answer.id]?.type === "upvote"
+                                  ? "active"
+                                  : ""
+                              }`}
                               onClick={() =>
                                 handleVote("answer", answer.id, "up")
                               }
@@ -1332,7 +1223,11 @@ const BasicQuestionDetail = () => {
                               {answer.upvotes || 0}
                             </span>
                             <button
-                              className="vote-button vote-button--down"
+                              className={`vote-button vote-button--down ${
+                                ansVotes[answer.id]?.type === "downvote"
+                                  ? "active"
+                                  : ""
+                              }`}
                               onClick={() =>
                                 handleVote("answer", answer.id, "down")
                               }
@@ -1348,7 +1243,9 @@ const BasicQuestionDetail = () => {
                                 <div
                                   className="answer-content"
                                   dangerouslySetInnerHTML={{
-                                    __html: answer.content,
+                                    __html: capitalizeFirstLetter(
+                                      answer.content
+                                    ),
                                   }}
                                 />
 
@@ -1449,12 +1346,6 @@ const BasicQuestionDetail = () => {
                                         Edit
                                       </button>
                                     )}
-                                    <button className="action-button">
-                                      Share
-                                    </button>
-                                    <button className="action-button">
-                                      Report
-                                    </button>
                                   </div>
                                 </div>
                               </>
