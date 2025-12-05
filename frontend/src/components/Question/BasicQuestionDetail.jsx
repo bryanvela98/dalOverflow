@@ -923,6 +923,12 @@ const BasicQuestionDetail = () => {
         {/* Main Content Container */}
         <div className="question-main-container">
           <div className="question-content-card">
+            {/* Home Button */}
+            <div className="home-button-container">
+              <button className="home-button" onClick={() => navigate("/")}>
+                ← Back to Home
+              </button>
+            </div>
             {/* Question Header Section */}
             <div className="question-header-section">
               <div className="question-vote-container">
