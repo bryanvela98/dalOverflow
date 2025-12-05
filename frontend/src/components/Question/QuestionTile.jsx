@@ -37,7 +37,10 @@ export default function QuestionTile() {
                 }
                 return q;
               } catch (err) {
-                console.error(`Error fetching votes for question ${q.id}:`, err);
+                console.error(
+                  `Error fetching votes for question ${q.id}:`,
+                  err
+                );
                 return q;
               }
             })
@@ -235,11 +238,19 @@ export default function QuestionTile() {
             >
               <div className="tile">
                 <div className="tile-centre">
-                  <div className="question">{question.title}</div>
+                  <div className="question">
+                    {question.title.charAt(0).toUpperCase() +
+                      question.title.slice(1)}
+                  </div>
                   <hr />
                   <div className="answer">
-                    {(question.body?.replace(/<[^>]*>/g, "").substring(0, 200) ||
-                      "No description available")}
+                    {(() => {
+                      const text =
+                        question.body
+                          ?.replace(/<[^>]*>/g, "")
+                          .substring(0, 200) || "No description available";
+                      return text.charAt(0).toUpperCase() + text.slice(1);
+                    })()}
                     ...
                   </div>
                 </div>
