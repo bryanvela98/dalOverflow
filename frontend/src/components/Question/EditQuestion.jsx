@@ -30,7 +30,7 @@ const EditQuestion = () => {
   const loadQuestion = useCallback(async () => {
     try {
       setQuestionLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/questions/${id}/edit`, {
+      const response = await fetch(`${API_BASE_URL}/questions/${id}/edit`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +77,7 @@ const EditQuestion = () => {
   const loadTags = useCallback(async () => {
     try {
       setTagsLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/tags`, {
+      const response = await fetch(`${API_BASE_URL}/tags`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -135,7 +135,7 @@ const EditQuestion = () => {
 
       console.log("Sending update to backend:", backendData);
 
-      const response = await fetch(`${API_BASE_URL}/api/questions/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/questions/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -227,7 +227,7 @@ const EditQuestion = () => {
         tag_description: `User-created tag: ${tagName}`,
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/tags`, {
+      const response = await fetch(`${API_BASE_URL}/tags`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
