@@ -8,7 +8,8 @@ Last Modified:
 import os
 import logging
 from google import genai
-from google.genai.types import FinishReason
+# import google.generativeai as genai
+from google.genai.types  import FinishReason
 
 class GeminiServices:
     def __init__(self):

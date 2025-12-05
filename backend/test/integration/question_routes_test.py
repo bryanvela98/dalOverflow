@@ -168,6 +168,8 @@ class QuestionRoutesTestCase(DatabaseTestCase, TestDataCreation):
         assert question is not None
         self.assertEqual(question.view_count, 5)
 
+        db.session.expire_all()
+
     def test_view_count_nonexistent_question(self):
         """Test view count increment for non-existent question"""
         response = self.client.get('/api/questions/99999')

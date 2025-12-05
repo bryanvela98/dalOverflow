@@ -176,6 +176,8 @@ deploy_backend_to_vm:
         echo "DB_URL=$DB_URL" >> .env
         echo "SECRET_KEY=$SECRET_KEY" >> .env
         echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
+        echo "CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME" >> .env
+        echo "CLOUDINARY_UPLOAD_PRESET=$CLOUDINARY_UPLOAD_PRESET" >> .env
         
         # Restart the Flask application
         # Check if systemd service exists, otherwise use pm2 or direct restart
