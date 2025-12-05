@@ -450,6 +450,18 @@ const BasicQuestionDetail = () => {
     });
   };
 
+  const capitalizeFirstLetter = (html) => {
+    if (!html) return html;
+    // Create a temporary div to parse HTML
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+    const text = temp.textContent || temp.innerText;
+    if (!text) return html;
+    // Capitalize first character of text and replace in HTML
+    const firstChar = text.charAt(0).toUpperCase();
+    return html.replace(text.charAt(0), firstChar);
+  };
+
   const handleCopyCode = (code, index) => {
     navigator.clipboard.writeText(code);
     setCopiedCodeId(index);
@@ -952,7 +964,10 @@ const BasicQuestionDetail = () => {
                   }}
                 >
                   <div style={{ flex: 1 }}>
-                    <h1 className="question-title">{question.title}</h1>
+                    <h1 className="question-title">
+                      {question.title.charAt(0).toUpperCase() +
+                        question.title.slice(1)}
+                    </h1>
 
                     {/* Edit Indicator (AC 8) */}
                     {question.edit_count > 0 && (
@@ -1060,7 +1075,9 @@ const BasicQuestionDetail = () => {
               <div className="question-content-container">
                 <div
                   className="question-description"
-                  dangerouslySetInnerHTML={{ __html: question.body }}
+                  dangerouslySetInnerHTML={{
+                    __html: capitalizeFirstLetter(question.body),
+                  }}
                 />
 
                 {/* Code Blocks Container */}
@@ -1212,7 +1229,9 @@ const BasicQuestionDetail = () => {
                                 <div
                                   className="answer-content"
                                   dangerouslySetInnerHTML={{
-                                    __html: answer.content,
+                                    __html: capitalizeFirstLetter(
+                                      answer.content
+                                    ),
                                   }}
                                 />
 

@@ -2,6 +2,7 @@
 .question-detail-page {
   min-height: 100vh;
   background-color: var(--color-bg-secondary);
+  font-family: var(--font-family);
 }
 
 .question-detail-layout {
@@ -437,7 +438,7 @@
 .stat-value {
   color: var(--color-text-primary);
   font-weight: 600;
-  font-size: var(--font-size-sm);
+  font-size: 0.95rem !important;
 }
 
 .related-questions-container {
