@@ -139,6 +139,99 @@ class Question(BaseModel):
     
     
     
+    def _validate_and_update_title(self, title):
+        """
+        Validate and update title if changed
+        
+        Args:
+            title: New title value
+            
+        Returns:
+            bool: True if title was updated
+            
+        Raises:
+            ValueError: If validation fails
+        """
+        if title is None or title == self.title:
+            return False
+            
+        if not title or len(title.strip()) == 0:
+            raise ValueError("Title cannot be empty")
+        if len(title) > 120:
+            raise ValueError("Title must not exceed 120 characters")
+            
+        self.title = title.strip()
+        return True
+    
+    def _validate_and_update_body(self, body):
+        """
+        Validate and update body if changed
+        
+        Args:
+            body: New body content
+            
+        Returns:
+            bool: True if body was updated
+            
+        Raises:
+            ValueError: If validation fails
+        """
+        if body is None:
+            return False
+            
+        sanitized_body = sanitize_html_body(body)
+        if sanitized_body == self.body:
+            return False
+            
+        from bs4 import BeautifulSoup
+        plain_text = BeautifulSoup(sanitized_body, 'html.parser').get_text()
+        if len(plain_text.strip()) < 20:
+            raise ValueError("Body must be at least 20 characters")
+            
+        self.body = sanitized_body
+        return True
+    
+    def _validate_tag_ids(self, tag_ids):
+        """
+        Validate tag IDs
+        
+        Args:
+            tag_ids: List of tag IDs
+            
+        Raises:
+            ValueError: If validation fails
+        """
+        if len(tag_ids) < 1:
+            raise ValueError("At least one tag is required")
+        if len(tag_ids) > 5:
+            raise ValueError("Maximum 5 tags allowed")
+        if len(tag_ids) != len(set(tag_ids)):
+            raise ValueError("Duplicate tags not allowed")
+    
+    def _update_tags(self, tag_ids):
+        """
+        Update question tags
+        
+        Args:
+            tag_ids: List of tag IDs
+            
+        Returns:
+            bool: True if tags were updated
+        """
+        if tag_ids is None:
+            return False
+            
+        self._validate_tag_ids(tag_ids)
+        
+        from models.tag import Tag
+        self.tags = []
+        for tag_id in tag_ids:
+            tag = Tag.query.get(tag_id)
+            if tag:
+                self.tags.append(tag)
+        
+        return True
+    
     def update_question(self, title=None, body=None, tag_ids=None):
         """
         Update question content
@@ -153,42 +246,10 @@ class Question(BaseModel):
         """
         something_changed = False
         
-        # Update title
-        if title is not None and title != self.title:
-            if not title or len(title.strip()) == 0:
-                raise ValueError("Title cannot be empty")
-            if len(title) > 120:
-                raise ValueError("Title must not exceed 120 characters")
-            self.title = title.strip()
-            something_changed = True
-        
-        # Update body
-        if body is not None:
-            sanitized_body = sanitize_html_body(body)
-            if sanitized_body != self.body:
-                from bs4 import BeautifulSoup
-                plain_text = BeautifulSoup(sanitized_body, 'html.parser').get_text()
-                if len(plain_text.strip()) < 20:
-                    raise ValueError("Body must be at least 20 characters")
-                self.body = sanitized_body
-                something_changed = True
-        
-        # Update tags
-        if tag_ids is not None:
-            if len(tag_ids) < 1:
-                raise ValueError("At least one tag is required")
-            if len(tag_ids) > 5:
-                raise ValueError("Maximum 5 tags allowed")
-            if len(tag_ids) != len(set(tag_ids)):
-                raise ValueError("Duplicate tags not allowed")
-            
-            from models.tag import Tag
-            self.tags = []
-            for tag_id in tag_ids:
-                tag = Tag.query.get(tag_id)
-                if tag:
-                    self.tags.append(tag)
-            something_changed = True
+        # Update each field using dedicated methods
+        something_changed |= self._validate_and_update_title(title)
+        something_changed |= self._validate_and_update_body(body)
+        something_changed |= self._update_tags(tag_ids)
         
         if something_changed:
             self.edit_count = (self.edit_count or 0) + 1
