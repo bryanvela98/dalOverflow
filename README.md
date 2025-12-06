@@ -180,7 +180,7 @@ npm run dev
 Frontend runs on `http://localhost:5173`
 
 ## Deployment Instructions
--[DEPLOYMENT.md](DEPLOYMENT.md)
+For Deployment details see: [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## Usage Scenarios
 
