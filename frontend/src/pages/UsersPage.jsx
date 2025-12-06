@@ -11,15 +11,93 @@ const UsersPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("username");
+  const [usersWithReputation, setUsersWithReputation] = useState([]);
 
   useEffect(() => {
-    apiFetch(`${API_BASE_URL}/users`)
-      .then((res) => res.json())
-      .then((data) => {
-        setUsers(data.users);
+    const fetchUsersAndReputation = async () => {
+      try {
+        const res = await apiFetch(`${API_BASE_URL}/users`);
+        const data = await res.json();
+        const usersList = data.users || [];
+
+        // Calculate reputation for each user
+        const reputationMap = {};
+
+        for (const user of usersList) {
+          let totalReputation = 0;
+
+          try {
+            // Fetch questions for this user
+            const questionsRes = await apiFetch(`${API_BASE_URL}/questions`);
+            const questionsData = await questionsRes.json();
+            const userQuestions = (questionsData.questions || []).filter(
+              (q) => q.user_id === user.id
+            );
+
+            // Calculate reputation from question votes
+            for (const question of userQuestions) {
+              try {
+                const voteRes = await apiFetch(
+                  `${API_BASE_URL}/votes/question/${question.id}`
+                );
+                if (voteRes.ok) {
+                  const voteData = await voteRes.json();
+                  const upvotes = voteData.upvotes || 0;
+                  const downvotes = voteData.downvotes || 0;
+                  totalReputation += upvotes * 10 - downvotes * 10;
+                }
+              } catch (e) {
+                // Continue if vote fetch fails
+              }
+            }
+
+            // Fetch answers for this user
+            const answersRes = await apiFetch(
+              `${API_BASE_URL}/answers/user/${user.id}`
+            );
+            if (answersRes.ok) {
+              const answersData = await answersRes.json();
+              const userAnswers = answersData.answers || [];
+
+              // Calculate reputation from answer votes
+              for (const answer of userAnswers) {
+                try {
+                  const voteRes = await apiFetch(
+                    `${API_BASE_URL}/votes/answer/${answer.id}`
+                  );
+                  if (voteRes.ok) {
+                    const voteData = await voteRes.json();
+                    const upvotes = voteData.upvotes || 0;
+                    const downvotes = voteData.downvotes || 0;
+                    totalReputation += upvotes * 10 - downvotes * 10;
+                  }
+                } catch (e) {
+                  // Continue if vote fetch fails
+                }
+              }
+            }
+          } catch (e) {
+            // Continue with default reputation
+          }
+
+          reputationMap[user.id] = totalReputation;
+        }
+
+        // Add calculated reputation to users
+        const usersWithRep = usersList.map((user) => ({
+          ...user,
+          reputation: reputationMap[user.id] || 0,
+        }));
+
+        setUsers(usersWithRep);
+        setUsersWithReputation(usersWithRep);
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      } catch (e) {
+        setLoading(false);
+      }
+    };
+
+    fetchUsersAndReputation();
   }, []);
 
   // Fuzzy search function
@@ -120,7 +198,12 @@ const UsersPage = () => {
                       />
                       <div className="user-tile-info">
                         <div>{user.display_name || user.username}</div>
-                        <div>{user.reputation}</div>
+                        <div className="user-reputation">
+                          <span className="reputation-icon">⭐</span>
+                          <span className="reputation-value">
+                            {user.reputation || 0} reputation
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

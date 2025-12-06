@@ -120,6 +120,22 @@
   gap: var(--spacing-md);
 }
 
+.user-reputation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.reputation-icon {
+  font-size: 1rem;
+}
+
+.reputation-value {
+  font-weight: 500;
+}
+
 .user-name {
   font-weight: 600;
   font-size: var(--font-size-lg);
