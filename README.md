@@ -180,60 +180,7 @@ npm run dev
 Frontend runs on `http://localhost:5173`
 
 ## Deployment Instructions
-
-### Backend Deployment
-
-1. Push code to repository:
-
-```bash
-git add .
-git commit -m "Deployment"
-git push origin main
-```
-
-2. SSH into Dal CS VM:
-
-```bash
-ssh student@csci5308-vm2.research.cs.dal.ca
-```
-
-3. Pull latest changes:
-
-```bash
-cd /path/to/group02
-git pull origin main
-```
-
-4. Install dependencies:
-
-```bash
-cd backend
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-5. Start server with production settings:
-
-```bash
-export FLASK_ENV=production
-python app.py
-```
-
-### Frontend Deployment
-
-1. Build production bundle:
-
-```bash
-npm run build
-```
-
-2. Deploy `dist/` folder to hosting service (Vercel, Netlify, or static server):
-
-```bash
-vercel --prod  # For Vercel
-```
-
-Update API endpoint in `.env.production` to point to production backend.
+-[DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## Usage Scenarios
 
