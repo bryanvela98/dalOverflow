@@ -156,7 +156,7 @@ deploy_backend_to_vm:
         cd ~/group02 || { echo "Project directory not found"; exit 1; }
         
         # Pull latest changes
-        git pull origin develop
+        git pull origin main
         
         # Navigate to backend
         cd backend
