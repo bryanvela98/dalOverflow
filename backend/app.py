@@ -1,0 +1,84 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from config.config_postgres import Config
+from database import db
+import re
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    
+    import os
+    if os.environ.get('DATABASE_URL'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+    
+    db.init_app(app)
+    app.url_map.strict_slashes = False
+    
+    # Don't use Flask-CORS at all - we'll handle it manually
+    
+    # Handle CORS manually with proper credentials support
+    @app.after_request
+    def after_request(response):
+        origin = request.headers.get('Origin')
+        
+        # Define allowed origin patterns
+        allowed_patterns = [
+            r'^http://localhost:\d+$',              # All localhost ports
+            r'^https://.*\.vercel\.app$',           # All Vercel deployments
+            r'^https://.*\.ngrok-free\.dev$',       # Ngrok tunnels
+        ]
+        
+        # Check if origin matches any allowed pattern
+        if origin and any(re.match(pattern, origin) for pattern in allowed_patterns):
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, ngrok-skip-browser-warning'
+            response.headers['Access-Control-Max-Age'] = '3600'
+        
+        return response
+    
+    # Handle preflight OPTIONS requests
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            response = app.make_default_options_response()
+            return response
+    
+    # Register blueprints for routes
+    from routes.notification_routes import notification_bp
+    from routes.user_routes import user_bp
+    from routes.question_routes import question_bp
+    from routes.registration_routes import registration_bp
+    from routes.login_routes import login_bp
+    from routes.questiontag_routes import questiontag_bp
+    from routes.tag_routes import tag_bp
+    from routes.vote_routes import vote_bp
+    from routes.answer_routes import answers_bp
+    from routes.comment_routes import comment_bp
+    from routes.upload_routes import upload_bp
+    from routes.gemini_ai_routes import ai_bp
+    
+    app.register_blueprint(notification_bp, url_prefix='/api/notifications')
+    app.register_blueprint(user_bp, url_prefix='/api/users')
+    app.register_blueprint(question_bp, url_prefix='/api/questions')
+    app.register_blueprint(registration_bp, url_prefix='/api/auth')
+    app.register_blueprint(login_bp, url_prefix='/api/auth')
+    app.register_blueprint(tag_bp, url_prefix='/api/tags')
+    app.register_blueprint(questiontag_bp, url_prefix='/api')
+    app.register_blueprint(answers_bp, url_prefix='/api/answers')
+    app.register_blueprint(vote_bp, url_prefix='/api/votes')
+    app.register_blueprint(comment_bp, url_prefix='/api/comments')
+    app.register_blueprint(upload_bp, url_prefix='/api/upload')
+    app.register_blueprint(ai_bp, url_prefix='/api/ai')
+    
+    # Create all database tables
+    with app.app_context():
+        db.create_all()
+    
+    return app
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True, port=5001, use_reloader=False)

@@ -1,0 +1,80 @@
+"""
+Description: AI services routes for handling AI-related API endpoints.
+Last Modified By: Bryan Vela
+Created: 2025-10-25
+Last Modified: 
+    2025-11-29 - File created with AI response generation endpoint.
+
+"""
+
+from flask import Blueprint, request, jsonify
+from models.notification import Notification
+import logging  # For logging purposes
+from services.gemini_services import GeminiServices
+
+ai_bp = Blueprint('ai', __name__)
+
+@ai_bp.route('/answer', methods=['POST'])
+def generate_ai_answer():
+    """Generate an AI answer for a question
+
+    Returns:
+        JSON response containing the AI-generated answer.
+    """
+    try:
+        data = request.get_json()
+        
+        # Validate input
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+            
+        title = data.get('title', '').strip()
+        body = data.get('body', '').strip()
+        
+        if not title:
+            return jsonify({'error': 'Question title is required'}), 400
+        
+        # Generate answer using Gemini
+        gemini_service = GeminiServices()
+        ai_answer, is_truncated = gemini_service.generate_answer(title, body)
+        
+        return jsonify({
+            'title': title,
+            'body': body,
+            'answer': ai_answer,
+            'is_truncated': is_truncated
+        }), 200
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logging.error(f"AI generation error: {str(e)}")
+        return jsonify({'error': 'Failed to generate AI response'}), 500
+    
+
+@ai_bp.route('/summarize', methods=['POST'])
+def summarize_top_answers():
+    """
+    Generate an AI summary of an answer and its comments.
+    """
+    try:
+        data = request.get_json()
+        # Accept either a single answer dict under 'answer' (backwards compat)
+        # or a list of answers under 'answers'. The summarization will focus on answer bodies.
+        if not data or ('answers' not in data and 'answer' not in data):
+            return jsonify({'error': 'Request must include "answers" or "answer"'}), 400
+
+        answers = data.get('answers') if 'answers' in data else data.get('answer')
+
+        # answers can be a list of dicts or a single dict
+        if not isinstance(answers, (list, dict)):
+            return jsonify({'error': '"answers" must be a list or single answer dictionary'}), 400
+
+        gemini_service = GeminiServices()
+        summary, _ = gemini_service.summarize_answers(answers)
+        
+        return jsonify({'summary': summary}), 200
+
+    except Exception as e:
+        logging.error(f"AI summary generation error: {str(e)}")
+        return jsonify({'error': 'Failed to generate AI summary'}), 500

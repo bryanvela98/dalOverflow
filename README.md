@@ -1,93 +1,194 @@
-# Group02
+# Dal Overflow
 
+A Stack Overflow-like Q&A platform designed for Dalhousie University students and faculty. Built as part of CSCI 5308 Advanced Concepts in Software Development.
 
+Live Application: https://frontend-five-roan-92.vercel.app/
 
-## Getting started
+## Project Overview
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Dal Overflow enables the Dalhousie University community to ask questions, share knowledge, and collaborate on academic and technical topics through a comprehensive Q&A platform with user authentication, voting systems, and knowledge organization via tags.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Dependencies
 
-## Add your files
+### Frontend
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+- React 18.3.1 - UI framework
+- React Router DOM 7.9.4 - Client-side routing
+- Vite 7.1.7 - Build tool and development server
+- Axios 1.12.2 - HTTP client
+- React Quill 2.0.0 - Rich text editor
+- React Syntax Highlighter 16.1.0 - Code syntax highlighting
+- bcryptjs 3.0.3 - Client-side cryptography utilities
+- ESLint 9.36.0 - Code linting
+- Vitest 4.0.14 - Testing framework
+- Node.js v16 or higher
+- npm v7 or higher
+
+For complete list: [frontend/package.json](/frontend/package.json)
+
+### Backend
+
+- Flask 3.1.2 - Python web framework
+- PostgreSQL 12 or higher - Relational database
+- SQLAlchemy 2.0.44 - ORM for database operations
+- Flask-SQLAlchemy 3.1.1 - Flask integration for SQLAlchemy
+- Flask-CORS 6.0.1 - Cross-Origin Resource Sharing
+- bcrypt 4.0.1 - Password hashing
+- PyJWT 2.8.0 - JSON Web Token authentication
+- psycopg2-binary 2.9.11 - PostgreSQL adapter
+- pytest 8.4.2 - Testing framework
+- pytest-cov 7.0.0 - Code coverage for tests
+- python-dotenv 1.2.1 - Environment variable management
+- bleach 6.2.0 - HTML sanitization
+- google-genai 1.47.0 - Google Gemini AI API
+- google-auth 2.43.0 - Google authentication
+- beautifulsoup4 4.12.2 - HTML/XML parsing
+- Python 3.8 or higher
+
+For complete list: [backend/requirements.txt](/backend/requirements.txt)
+
+## Setup Instructions
+
+### macOS
+
+#### Backend Setup
+
+1. Clone the repository:
+
+```bash
+git clone https://git.cs.dal.ca/courses/2025-Fall/csci-5308/group02.git
+cd group02/backend
+```
+
+2. Create and activate virtual environment:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Create `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+5. Configure environment variables in `.env`:
 
 ```
-cd existing_repo
-git remote add origin https://git.cs.dal.ca/courses/2025-Fall/csci-5308/group02.git
-git branch -M main
-git push -uf origin main
+DB_URL=postgresql://student:Thah1eith8@csci5308-vm2.research.cs.dal.ca:5432/daloverflow
+SECRET_KEY=your-secret-key-here
+PORT=5001
 ```
 
-## Integrate with your tools
+6. Start backend server:
 
-- [ ] [Set up project integrations](https://git.cs.dal.ca/courses/2025-Fall/csci-5308/group02/-/settings/integrations)
+```bash
+python app.py
+```
 
-## Collaborate with your team
+Backend runs on `http://localhost:5001`
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+#### Frontend Setup
 
-## Test and Deploy
+1. Navigate to frontend directory:
 
-Use the built-in continuous integration in GitLab.
+```bash
+cd ../frontend
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+2. Install dependencies:
 
-***
+```bash
+npm install
+```
 
-# Editing this README
+3. Start development server:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```bash
+npm run dev
+```
 
-## Suggestions for a good README
+Frontend runs on `http://localhost:5173`
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Windows
 
-## Name
-Choose a self-explaining name for your project.
+#### Backend Setup
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+1. Clone the repository:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+```bash
+git clone https://git.cs.dal.ca/courses/2025-Fall/csci-5308/group02.git
+cd group02\backend
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+2. Create and activate virtual environment:
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+3. Install dependencies:
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```bash
+pip install -r requirements.txt
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+4. Create `.env` file in backend directory:
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```
+DB_URL=postgresql://student:Thah1eith8@csci5308-vm2.research.cs.dal.ca:5432/daloverflow
+SECRET_KEY=your-secret-key-here
+PORT=5001
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+5. Start backend server:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```bash
+python app.py
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Backend runs on `http://localhost:5001`
 
-## License
-For open source projects, say how it is licensed.
+#### Frontend Setup
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+1. Navigate to frontend directory:
+
+```bash
+cd ..\frontend
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start development server:
+
+```bash
+npm run dev
+```
+
+Frontend runs on `http://localhost:5173`
+
+## Deployment Instructions
+For Deployment details see: [DEPLOYMENT.md](DEPLOYMENT.md)
+
+## Usage Scenarios
+
+For detailed usage scenarios and feature workflows, see:
+
+- Frontend usage and component documentation: [/frontend/README.md](/frontend/README.md)
+- Backend API documentation and endpoints: [/backend/README.md](/backend/README.md)
+- Usage scenario documentation: [/docs/Usage-scenario.pdf](/docs/Usage-scenario.pdf)
+- Code smells: [/docs/smells](/docs/smells)
+- User flow diagrams: [/docs/Userflow-diagrams.pdf](/docs/Userflow-diagrams.pdf)
+- Commit hashes for TDD approach: [docs/commit_hash-TDD.pdf](docs/commit_hash-TDD.pdf)

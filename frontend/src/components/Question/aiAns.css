@@ -1,0 +1,56 @@
+.ai-ans-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  background-color: #fefefe;
+}
+
+.ai-ans-btn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.ai-ans-btn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.ai-ans-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+}
+
+.ai-ans-spinner {
+  font-size: 18px;
+}
+
+.ai-ans-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ai-ans-badge {
+  background-color: #e8f4fd;
+  color: #1a73e8;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 300;
+  border: 1px solid #c8e1fc;
+}
+
+.ai-ans-content {
+  line-height: 1.6;
+  color: #374151;
+  font-size: 14px;
+}

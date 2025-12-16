@@ -1,0 +1,224 @@
+# GitLab CI/CD Pipeline Configuration
+# This pipeline runs tests, code quality checks, and deploys the backend to VM
+
+stages:
+  - test
+  - quality
+  - build
+  - deploy
+
+variables:
+  PYTHON_VERSION: "3.11"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  NODE_VERSION: "23"
+
+# Cache dependencies to speed up pipeline
+cache:
+  paths:
+    - .cache/pip
+    - backend/venv/
+
+# =============================================
+# TEST STAGE
+# =============================================
+
+backend_tests:
+  stage: test
+  tags:
+    - deployment # Use your custom runner
+  image: python:${PYTHON_VERSION}
+  before_script:
+    - cd backend
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+  script:
+    - echo "Running backend tests..."
+    - pytest test/ -v --cov=. --cov-report=term --cov-report=xml:coverage.xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: backend/coverage.xml
+    paths:
+      - backend/coverage.xml
+    expire_in: 1 week
+  only:
+    - develop
+    - main
+    - merge_requests
+
+# =============================================
+# QUALITY STAGE
+# =============================================
+
+code_quality_designite:
+  stage: quality
+  tags:
+    - deployment # Use your custom runner
+  image: python:${PYTHON_VERSION}
+  before_script:
+    - cd backend
+    - echo "Setting up DPy for Python code quality analysis..."
+    - chmod +x DPy/DPy
+  script:
+    - echo "Running DPy code quality analysis on backend..."
+    - mkdir -p dpy-output
+    - ./DPy/DPy analyze -i . -o dpy-output -f csv
+    - echo "Code quality analysis completed"
+    - echo "Summary of analysis results:"
+    - cat dpy-output/dpy_log_*.log | grep -A 30 "Analysis summary" || true
+  artifacts:
+    paths:
+      - backend/dpy-output/
+    expire_in: 1 week
+  allow_failure: true
+  only:
+    - develop
+    - main
+    - merge_requests
+
+upload_to_dcode:
+  stage: quality
+  tags:
+    - deployment
+  image: python:${PYTHON_VERSION}
+  needs:
+    - job: code_quality_designite
+      artifacts: true
+  before_script:
+    - pip install requests # Required for the upload script
+  script:
+    - echo "Uploading code quality metrics to DCode..."
+    - echo "Checking for artifacts..."
+    - ls -la
+    - ls -la backend/ || true
+    - |
+      # Check if DPy results exist (artifacts are downloaded to project root)
+      if [ -d "backend/dpy-output" ]; then
+        echo "DPy analysis results found:"
+        ls -lh backend/dpy-output/
+        echo "Uploading to DCodeHub..."
+        cd backend
+        python DPy/push_to_dcode.py "$DCODE_PROJECT_ID" "$DCODE_API_KEY" "dpy-output" "$CI_COMMIT_SHA"
+        echo "Upload completed successfully!"
+      else
+        echo "Warning: No DPy output directory found at backend/dpy-output"
+        echo "Artifacts may not have been downloaded properly"
+        exit 0
+      fi
+  allow_failure: true
+  only:
+    - develop
+    - main
+
+# =============================================
+# BUILD STAGE
+# =============================================
+
+build_frontend:
+  stage: build
+  image: node:${NODE_VERSION}
+  before_script:
+    - cd frontend
+    - npm install
+  script:
+    - echo "Building frontend to check for errors..."
+    - npm run build
+  only:
+    - develop
+    - main
+
+# =============================================
+# DEPLOY STAGE
+# =============================================
+
+deploy_backend_to_vm:
+  stage: deploy
+  tags:
+    - deployment # Use your custom runner
+  image: docker:stable
+  before_script:
+    - apk add --no-cache openssh-client bash
+    - eval $(ssh-agent -s)
+    - chmod 400 $ID_RSA
+    - ssh-add $ID_RSA
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - echo "Deploying backend to Dal VM..."
+    - |
+      ssh $SERVER_USER@$SERVER_IP << ENDSSH
+        # Navigate to project directory
+        cd ~/group02 || { echo "Project directory not found"; exit 1; }
+        
+        # Pull latest changes
+        git pull origin main
+        
+        # Navigate to backend
+        cd backend
+        
+        # Activate virtual environment (create if doesn't exist)
+        if [ ! -d "venv" ]; then
+          python3 -m venv venv
+        fi
+        source venv/bin/activate
+        
+        # Install/update dependencies
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        
+        # Update .env file with secrets from GitLab CI/CD variables
+        echo "PORT=$FLASK_PORT" > .env
+        echo "DB_URL=$DB_URL" >> .env
+        echo "SECRET_KEY=$SECRET_KEY" >> .env
+        echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
+        echo "CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME" >> .env
+        echo "CLOUDINARY_UPLOAD_PRESET=$CLOUDINARY_UPLOAD_PRESET" >> .env
+        
+        # Restart the Flask application
+        # Check if systemd service exists, otherwise use pm2 or direct restart
+        if systemctl list-units --type=service | grep -q flask-app; then
+          sudo systemctl restart flask-app
+        else
+          # Kill existing Flask process and restart
+          pkill -f "python.*app.py" || true
+          sleep 2
+          nohup python app.py > flask.log 2>&1 &
+          sleep 3
+          
+          # Verify Flask app is running
+          if lsof -i :5001 > /dev/null 2>&1; then
+            echo "✅ Flask app is running on port 5001"
+          else
+            echo "❌ Flask app failed to start. Check logs:"
+            tail -50 flask.log
+            exit 1
+          fi
+        fi
+        
+        echo "Backend deployed successfully to Dal VM"
+      ENDSSH
+  environment:
+    name: production
+    url: http://$SERVER_IP:5000
+  only:
+    - develop
+    - main
+  when: manual #  manual trigger for safety
+
+deploy_frontend_vercel:
+  stage: deploy
+  image: node:${NODE_VERSION}
+  before_script:
+    - cd frontend
+    - npm install
+  script:
+    - npx vercel --token=$VERCEL_TOKEN --prod --yes
+  only:
+    - develop
+    - main
+  when: manual

@@ -1,0 +1,88 @@
+.ai-sum-container {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  background-color: #fefefe;
+}
+
+.ai-sum-header {
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fffbeb;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.ai-sum-header:hover {
+  background-color: #fef3c7;
+}
+
+.ai-sum-arrow {
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.ai-sum-title {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.ai-sum-content {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-sum-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+}
+
+.ai-sum-spinner {
+  font-size: 16px;
+}
+
+.ai-sum-text {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ai-sum-text.md-content strong {
+  font-weight: 600;
+}
+
+.ai-sum-text.md-content em {
+  font-style: italic;
+}
+
+.ai-sum-text.md-content code {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.ai-sum-text.md-content li {
+  margin-left: 20px;
+  list-style: disc;
+}

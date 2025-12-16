@@ -1,0 +1,129 @@
+/* Profile icon in header */
+.profile-link {
+  display: flex;
+  align-items: center;
+  margin: 0 8px;
+}
+.profile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid #ffc107;
+  background: #fff;
+  transition: box-shadow 0.2s;
+}
+.profile-icon:hover {
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.18);
+}
+
+.contain-header {
+  width: 100%;
+  background-color: white;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.header-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  gap: 2rem;
+}
+
+.header-bar > div:first-child p {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffc107;
+  margin: 0;
+  cursor: pointer;
+}
+
+.search-bar {
+  flex: 1;
+  max-width: 600px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  width: 20px;
+  height: 20px;
+  opacity: 0.5;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #ffc107;
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-buttons button {
+  padding: 0.6rem 1.5rem;
+  border: 1px solid #ffc107;
+  background-color: white;
+  color: #ffc107;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-buttons button:hover {
+  background-color: #ffc107;
+  color: white;
+}
+
+.header-buttons button:last-child {
+  background-color: #ffc107;
+  color: white;
+}
+
+.header-buttons button:last-child:hover {
+  background-color: #ffb300;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .header-bar {
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+
+  .search-bar {
+    order: 3;
+    flex: 1 0 100%;
+    max-width: 100%;
+    margin-top: 1rem;
+  }
+
+  .header-buttons button span {
+    display: none;
+  }
+
+  .header-buttons button {
+    padding: 0.6rem 1rem;
+    font-size: 0.875rem;
+  }
+}
