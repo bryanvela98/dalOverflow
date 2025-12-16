@@ -2,7 +2,7 @@
 
 A Stack Overflow-like Q&A platform designed for Dalhousie University students and faculty. Built as part of CSCI 5308 Advanced Concepts in Software Development.
 
-Live Application: https://frontend-five-roan-92.vercel.app/
+Live Application: https://daloverflow.vercel.app/
 
 ## Project Overview
 
